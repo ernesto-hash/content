@@ -87,7 +87,7 @@ export async function confirmPasswordReset(password: string) {
 export async function loginWithGoogle() {
   await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: `${window.location.origin}/dashboard` },
+    options: { redirectTo: `${window.location.origin}/escolher-conta` },
   });
 }
 

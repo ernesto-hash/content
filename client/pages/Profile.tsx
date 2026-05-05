@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   Film, Heart, Eye, Calendar, MapPin, Globe, CheckCircle2,
   Play, Lock, Link2, Loader2, Camera, X, Save, AlertTriangle,
-  ImageIcon, User, Edit3, Share2, VolumeX,
+  ImageIcon, User, Edit3, Share2, VolumeX, Video, ArrowRight,
 } from "lucide-react";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
 import { supabase } from "@/lib/supabaseClient";
@@ -434,7 +434,10 @@ export default function Profile() {
   const [favsFetched, setFavsFetched] = useState(false);
   const [stats,       setStats]       = useState({ videos: 0, views: 0, likes: 0, followers: 0 });
   const [activeTab,   setActiveTab]   = useState<"videos" | "favoritos" | "sobre">("videos");
-  const [editOpen,    setEditOpen]    = useState(false);
+  const [editOpen,          setEditOpen]          = useState(false);
+  const [activatingCreator, setActivatingCreator] = useState(false);
+  const [creatorError,      setCreatorError]      = useState<string | null>(null);
+  const [creatorJustActive, setCreatorJustActive] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -540,6 +543,26 @@ export default function Profile() {
       navigator.share({ title: displayName, url });
     } else {
       navigator.clipboard?.writeText(url);
+    }
+  };
+
+  const activateCreatorMode = async () => {
+    if (!userId || !profile) return;
+    setCreatorError(null);
+    setActivatingCreator(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ role: "creator" })
+        .eq("id", userId);
+      if (error) throw new Error(error.message);
+      setProfile(prev => prev ? { ...prev, role: "creator" } : prev);
+      setCreatorJustActive(true);
+      setTimeout(() => setCreatorJustActive(false), 5000);
+    } catch (e: any) {
+      setCreatorError(e?.message ?? "Erro ao activar. Tenta novamente.");
+    } finally {
+      setActivatingCreator(false);
     }
   };
 
@@ -799,6 +822,63 @@ export default function Profile() {
                       Membro desde {fmtDate(profile.created_at)}
                     </div>
                   )}
+                </div>
+              )}
+            </div>
+
+            {/* Creator activation card */}
+            <div className="mt-4 glass border border-white/10 rounded-2xl p-5">
+              {profile?.role === "user" ? (
+                <>
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="w-9 h-9 rounded-xl bg-neon-pink/10 border border-neon-pink/20 flex items-center justify-center flex-shrink-0">
+                      <Video size={16} className="text-neon-pink" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-foreground">Tornar-me Criador de Conteúdo</h3>
+                      <p className="text-[12px] text-foreground/50 mt-0.5 leading-relaxed">
+                        Publica vídeos e constrói a tua audiência na plataforma
+                      </p>
+                    </div>
+                  </div>
+                  {creatorError && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-500/8 border border-red-500/20 text-xs text-red-400 mb-3">
+                      <AlertTriangle size={12} className="flex-shrink-0" /> {creatorError}
+                    </div>
+                  )}
+                  {creatorJustActive && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-green-500/10 border border-green-500/20 text-xs text-green-400 mb-3">
+                      <CheckCircle2 size={12} className="flex-shrink-0" /> Conta de criador activada! Já podes aceder ao Studio.
+                    </div>
+                  )}
+                  <button
+                    onClick={activateCreatorMode}
+                    disabled={activatingCreator}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50"
+                  >
+                    {activatingCreator
+                      ? <><Loader2 size={13} className="animate-spin" />A activar...</>
+                      : "Activar criação de conteúdo"
+                    }
+                  </button>
+                </>
+              ) : (
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center flex-shrink-0">
+                      <Video size={16} className="text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-green-400">✓ Criador de conteúdo activo</p>
+                      <p className="text-[11px] text-foreground/40 mt-0.5">Podes publicar vídeos e gerir o teu conteúdo</p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/studio"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm font-semibold text-foreground/70 hover:bg-white/10 hover:text-foreground transition-all flex-shrink-0 whitespace-nowrap"
+                  >
+                    Ir para o Studio <ArrowRight size={13} />
+                  </Link>
                 </div>
               )}
             </div>

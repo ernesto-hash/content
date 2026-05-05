@@ -116,11 +116,13 @@ export async function getMinimalProfile(userId: string): Promise<MinimalProfile 
 /**
  * Cria um perfil novo.
  * O userId deve ser o auth.uid() do utilizador autenticado.
+ * role deve ser definido explicitamente no signup — nunca inferido depois.
  */
 export async function createProfile(params: {
   userId: string;
   username: string;
   full_name: string;
+  role?: "user" | "creator";
 }): Promise<OwnProfile | null> {
   const { data, error } = await supabase
     .from("profiles")
@@ -129,7 +131,7 @@ export async function createProfile(params: {
       username:  params.username,
       full_name: params.full_name,
       verified:  false,
-      role:      "user",
+      role:      params.role ?? "user",
     })
     .select("id, username, full_name, avatar_url, verified, role, created_at")
     .single();

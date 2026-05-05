@@ -165,7 +165,7 @@ serve(async (req: Request) => {
       .eq("user_id", userId)
       .maybeSingle();
 
-    let customerId: string | undefined = subData?.stripe_customer_id;
+    let customerId: string | undefined = subData?.stripe_customer_id ?? undefined;
 
     if (!customerId) {
       const customer = await stripe.customers.create({
@@ -185,14 +185,47 @@ serve(async (req: Request) => {
     }
 
     // ── 5. Criar subscrição com payment_behavior: "default_incomplete" ───────
-    const subscription = await stripe.subscriptions.create({
-      customer:          customerId,
+    // Defensive helper: creates a fresh live-mode customer and updates the DB.
+    const createFreshCustomer = async (): Promise<string> => {
+      const customer = await stripe.customers.create({
+        email:    userEmail,
+        metadata: { supabase_user_id: userId },
+      });
+      await supabaseAdmin
+        .from("galeria_subscricoes")
+        .update({ stripe_customer_id: customer.id })
+        .eq("user_id", userId);
+      return customer.id;
+    };
+
+    const buildSubParams = (cid: string) => ({
+      customer:          cid,
       items:             [{ price: priceId }],
-      payment_behavior:  "default_incomplete",
+      payment_behavior:  "default_incomplete" as const,
       expand:            ["latest_invoice.payment_intent"],
       trial_period_days: 3,
       metadata:          { supabase_user_id: userId },
     });
+
+    let subscription: Awaited<ReturnType<typeof stripe.subscriptions.create>>;
+    try {
+      subscription = await stripe.subscriptions.create(buildSubParams(customerId));
+    } catch (subErr: unknown) {
+      const msg   = subErr instanceof Error ? subErr.message : String(subErr);
+      const code  = (subErr as { code?: string }).code ?? "";
+      const isStaleCustomer =
+        code === "resource_missing" ||
+        msg.includes("similar object exists in test mode") ||
+        msg.includes("No such customer");
+
+      if (!isStaleCustomer) throw subErr;
+
+      console.warn(
+        `[payment-intent] Stale test-mode customer ID detected (${customerId}), creating new live customer`
+      );
+      customerId   = await createFreshCustomer();
+      subscription = await stripe.subscriptions.create(buildSubParams(customerId));
+    }
 
     // @ts-ignore — expand garante que latest_invoice é um objecto completo
     const invoice       = subscription.latest_invoice;

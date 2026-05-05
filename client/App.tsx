@@ -37,6 +37,7 @@ const FotosGifAuthenticated     = lazy(() => import("./pages/FotosGifAuthenticat
 const ModelosAuthenticated      = lazy(() => import("./pages/ModelosAuthenticated"));
 
 const Profile         = lazy(() => import("./pages/Profile"));
+const EscolherConta   = lazy(() => import("./pages/EscolherConta"));
 const StudioDashboard = lazy(() => import("./pages/studio/StudioDashboard"));
 const StudioUpload    = lazy(() => import("./pages/studio/StudioUpload"));
 const StudioVideos    = lazy(() => import("./pages/studio/StudioVideos"));
@@ -175,6 +176,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/escolher-conta" element={<EscolherConta />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/terms" element={<Terms />} />
