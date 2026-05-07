@@ -610,7 +610,7 @@ export default function StudioUpload() {
           // Auto-generate thumbnail when none was manually provided
           if (!slot.thumbnailFile) {
             updateSlot(slot.id, { uploadMsg: "A gerar thumbnail automaticamente..." });
-            const autoThumb = await generateThumbnail(slot.file!, msg => updateSlot(slot.id, { uploadMsg: msg }));
+            const autoThumb = await generateThumbnail(slot.file!);
             if (autoThumb) {
               slot.thumbnailFile = autoThumb;
             } else {
