@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import Layout from "@/components/Layout";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { 
   Zap,
   Flame,
@@ -70,6 +70,22 @@ export default function ShortiesPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [autoPlay, setAutoPlay] = useState(true);
   const [muted, setMuted] = useState(false);
+
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const filtro = searchParams.get("filtro");
+    if (!filtro) return;
+    const filterMap: Record<string, string> = {
+      "para-voce": "paraVoce",
+      "trending": "trending",
+      "musicas": "musicas",
+      "funny": "funny",
+    };
+    const categoryIds = ["danca", "casal", "strip", "lingerie", "asmr", "funny"];
+    if (filterMap[filtro]) setSelectedFilter(filterMap[filtro]);
+    else if (categoryIds.includes(filtro)) setSelectedCategory(filtro);
+    else if (filtro === "humor") setSelectedCategory("funny");
+  }, [searchParams]);
 
   // Dados mockados para os shorties
   const shorties = {
@@ -768,7 +784,7 @@ export default function ShortiesPage() {
                 Para Você
               </span>
             </h2>
-            <Link to="/shorties/para-voce" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-pink transition-colors">
+            <Link to="/shorties?filtro=para-voce" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-pink transition-colors">
               Ver todos
               <ChevronRight size={14} />
             </Link>
@@ -798,7 +814,7 @@ export default function ShortiesPage() {
                 Em Alta 🔥
               </span>
             </h2>
-            <Link to="/shorties/trending" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-purple transition-colors">
+            <Link to="/shorties?filtro=trending" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-purple transition-colors">
               Ver todos
               <ChevronRight size={14} />
             </Link>
@@ -821,47 +837,47 @@ export default function ShortiesPage() {
 
         {/* Categorias Rápidas */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          <Link to="/shorties/danca" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
+          <Link to="/shorties?filtro=danca" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-pink/20 to-neon-purple/20 flex items-center justify-center mx-auto mb-2">
               <Users size={20} className="text-neon-pink" />
             </div>
             <span className="text-sm font-medium text-foreground/80">Dança</span>
             <span className="text-xs text-foreground/40 block mt-1">2.5K vídeos</span>
           </Link>
-          
-          <Link to="/shorties/casal" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
+
+          <Link to="/shorties?filtro=casal" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-purple/20 to-neon-blue/20 flex items-center justify-center mx-auto mb-2">
               <Users size={20} className="text-neon-purple" />
             </div>
             <span className="text-sm font-medium text-foreground/80">Casal</span>
             <span className="text-xs text-foreground/40 block mt-1">1.8K vídeos</span>
           </Link>
-          
-          <Link to="/shorties/strip" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
+
+          <Link to="/shorties?filtro=strip" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-blue/20 to-neon-pink/20 flex items-center justify-center mx-auto mb-2">
               <Film size={20} className="text-neon-blue" />
             </div>
             <span className="text-sm font-medium text-foreground/80">Strip</span>
             <span className="text-xs text-foreground/40 block mt-1">1.2K vídeos</span>
           </Link>
-          
-          <Link to="/shorties/lingerie" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
+
+          <Link to="/shorties?filtro=lingerie" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-pink/20 to-neon-purple/20 flex items-center justify-center mx-auto mb-2">
               <Gift size={20} className="text-neon-pink" />
             </div>
             <span className="text-sm font-medium text-foreground/80">Lingerie</span>
             <span className="text-xs text-foreground/40 block mt-1">3.1K vídeos</span>
           </Link>
-          
-          <Link to="/shorties/asmr" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
+
+          <Link to="/shorties?filtro=asmr" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-purple/20 to-neon-blue/20 flex items-center justify-center mx-auto mb-2">
               <Headphones size={20} className="text-neon-purple" />
             </div>
             <span className="text-sm font-medium text-foreground/80">ASMR</span>
             <span className="text-xs text-foreground/40 block mt-1">890 vídeos</span>
           </Link>
-          
-          <Link to="/shorties/funny" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
+
+          <Link to="/shorties?filtro=funny" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-blue/20 to-neon-pink/20 flex items-center justify-center mx-auto mb-2">
               <Smile size={20} className="text-neon-blue" />
             </div>
@@ -879,7 +895,7 @@ export default function ShortiesPage() {
                 Trends Musicais
               </span>
             </h2>
-            <Link to="/shorties/musicas" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-blue transition-colors">
+            <Link to="/shorties?filtro=musicas" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-blue transition-colors">
               Ver todos
               <ChevronRight size={14} />
             </Link>
@@ -909,7 +925,7 @@ export default function ShortiesPage() {
                 Para dar risada
               </span>
             </h2>
-            <Link to="/shorties/humor" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-pink transition-colors">
+            <Link to="/shorties?filtro=humor" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-pink transition-colors">
               Ver todos
               <ChevronRight size={14} />
             </Link>
@@ -960,7 +976,7 @@ export default function ShortiesPage() {
             Mostre seu talento e ganhe seguidores com vídeos curtos sensuais
           </p>
           <Link
-            to="/upload/shortie"
+            to="/studio/upload"
             className="px-8 py-4 bg-gradient-to-r from-neon-pink to-neon-purple text-white rounded-xl font-medium hover:shadow-[0_0_30px_rgba(236,72,153,0.5)] transition-all inline-flex items-center gap-3 text-lg"
           >
             <Camera size={20} />

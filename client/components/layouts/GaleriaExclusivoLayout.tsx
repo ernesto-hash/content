@@ -174,7 +174,7 @@ function DestaqueCarrossel({ packs }: { packs: Pack[] }) {
         scrollbarWidth: "none",
       }}>
         {packs.map(p => (
-          <div key={p.id} onClick={() => navigate(`/app/pack/${p.id}`)}
+          <div key={p.id} onClick={() => navigate(`/app/galeria/${p.id}`)}
             style={{
               flexShrink: 0, width: 200, scrollSnapAlign: "start",
               borderRadius: 14, overflow: "hidden", cursor: "pointer",

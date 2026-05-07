@@ -476,10 +476,10 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
                 </button>
                 {openCategory === "paises" && (
                   <div className="grid grid-cols-2 gap-2 mt-2">
-                    <Link to="/pais/brasil" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> Brasil</Link>
-                    <Link to="/pais/eua" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> EUA</Link>
-                    <Link to="/pais/espanha" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> Espanha</Link>
-                    <Link to="/pais/colombia" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> Colombia</Link>
+                    <Link to="/categoria/brasil" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> Brasil</Link>
+                    <Link to="/categoria/eua" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> EUA</Link>
+                    <Link to="/categoria/espanha" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> Espanha</Link>
+                    <Link to="/categoria/colombia" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> Colombia</Link>
                   </div>
                 )}
               </div>
@@ -492,12 +492,12 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
                 </button>
                 {openCategory === "modelos" && (
                   <div className="grid grid-cols-2 gap-2 mt-2">
-                    <Link to="/modelos/populares" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>🔥 Populares</Link>
-                    <Link to="/modelos/novos" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>✨ Novos</Link>
-                    <Link to="/modelos/vip" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>👑 VIP</Link>
-                    <Link to="/modelos/verificados" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>✅ Verificados</Link>
-                    <Link to="/modelos/plus" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>💎 Premium</Link>
-                    <Link to="/modelos/estreantes" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>🌟 Estreantes</Link>
+                    <Link to="/modelos?filtro=populares" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>🔥 Populares</Link>
+                    <Link to="/modelos?filtro=novos" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>✨ Novos</Link>
+                    <Link to="/modelos?filtro=vip" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>👑 VIP</Link>
+                    <Link to="/modelos?filtro=verificados" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>✅ Verificados</Link>
+                    <Link to="/modelos?filtro=plus" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>💎 Premium</Link>
+                    <Link to="/modelos?filtro=estreantes" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>🌟 Estreantes</Link>
                   </div>
                 )}
               </div>
@@ -517,7 +517,7 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
                     <Link to="/categoria/grupo" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>👥 Grupo</Link>
                     <Link to="/categoria/gay" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>👬 Gay</Link>
                     <Link to="/categoria/trans" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>⚧ Trans</Link>
-                    <Link to="/categoria/lésbico" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>👭 Lésbico</Link>
+                    <Link to="/categoria/lesbica" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>👭 Lésbico</Link>
                   </div>
                 )}
               </div>

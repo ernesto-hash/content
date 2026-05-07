@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { 
   Image,
   Film,
@@ -80,6 +80,19 @@ export default function FotosGifsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<any>(null);
   const [showMediaModal, setShowMediaModal] = useState(false);
+
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const filtro = searchParams.get("filtro");
+    const tipo = searchParams.get("tipo");
+    if (tipo) setSelectedType(tipo);
+    if (filtro) {
+      const filterIds = ["recentes", "populares", "maisVistos", "maisCurtidos"];
+      const categoryIds = ["ensaios", "bastidores", "praia", "lingerie", "casal", "solo", "fetiche", "artistico", "cosplay"];
+      if (filterIds.includes(filtro)) setSelectedFilter(filtro);
+      else if (categoryIds.includes(filtro)) setSelectedCategory(filtro);
+    }
+  }, [searchParams]);
 
   // Dados mockados para fotos
   const fotos = {
@@ -1205,7 +1218,7 @@ export default function FotosGifsPage() {
                 Fotos Populares
               </span>
             </h2>
-            <Link to="/fotos/populares" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-pink transition-colors">
+            <Link to="/fotos-gifs?filtro=populares" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-pink transition-colors">
               Ver todas
               <ChevronRight size={14} />
             </Link>
@@ -1235,7 +1248,7 @@ export default function FotosGifsPage() {
                 GIFs em Alta
               </span>
             </h2>
-            <Link to="/gifs/populares" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-purple transition-colors">
+            <Link to="/fotos-gifs?tipo=gifs&filtro=populares" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-purple transition-colors">
               Ver todos
               <ChevronRight size={14} />
             </Link>
@@ -1265,7 +1278,7 @@ export default function FotosGifsPage() {
                 Álbuns em Destaque
               </span>
             </h2>
-            <Link to="/albuns/destaque" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-blue transition-colors">
+            <Link to="/fotos-gifs?tipo=albuns&filtro=destaque" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-blue transition-colors">
               Ver todos
               <ChevronRight size={14} />
             </Link>
@@ -1288,37 +1301,37 @@ export default function FotosGifsPage() {
 
         {/* Categorias Rápidas */}
         <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          <Link to="/fotos/ensaios" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
+          <Link to="/fotos-gifs?filtro=ensaios" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
             <Camera size={24} className="mx-auto mb-2 text-neon-pink" />
             <span className="text-sm font-medium text-foreground/80">Ensaios</span>
             <span className="text-xs text-foreground/40 block mt-1">2.5K fotos</span>
           </Link>
-          
-          <Link to="/fotos/praia" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
+
+          <Link to="/fotos-gifs?filtro=praia" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
             <MapPin size={24} className="mx-auto mb-2 text-neon-purple" />
             <span className="text-sm font-medium text-foreground/80">Praia</span>
             <span className="text-xs text-foreground/40 block mt-1">1.8K fotos</span>
           </Link>
-          
-          <Link to="/fotos/lingerie" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
+
+          <Link to="/fotos-gifs?filtro=lingerie" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
             <Gift size={24} className="mx-auto mb-2 text-neon-blue" />
             <span className="text-sm font-medium text-foreground/80">Lingerie</span>
             <span className="text-xs text-foreground/40 block mt-1">3.2K fotos</span>
           </Link>
-          
-          <Link to="/fotos/casal" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
+
+          <Link to="/fotos-gifs?filtro=casal" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
             <Users size={24} className="mx-auto mb-2 text-neon-pink" />
             <span className="text-sm font-medium text-foreground/80">Casal</span>
             <span className="text-xs text-foreground/40 block mt-1">2.1K fotos</span>
           </Link>
-          
-          <Link to="/gifs/animados" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
+
+          <Link to="/fotos-gifs?tipo=gifs&filtro=animados" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
             <Film size={24} className="mx-auto mb-2 text-neon-purple" />
             <span className="text-sm font-medium text-foreground/80">GIFs</span>
             <span className="text-xs text-foreground/40 block mt-1">4.5K gifs</span>
           </Link>
-          
-          <Link to="/albuns/vip" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
+
+          <Link to="/fotos-gifs?tipo=albuns&filtro=vip" className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10">
             <Crown size={24} className="mx-auto mb-2 text-yellow-500" />
             <span className="text-sm font-medium text-foreground/80">VIP</span>
             <span className="text-xs text-foreground/40 block mt-1">890 álbuns</span>

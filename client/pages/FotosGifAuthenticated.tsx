@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   Image,
   Film,
@@ -80,6 +80,19 @@ export default function FotosGifAuthenticated() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<any>(null);
   const [showMediaModal, setShowMediaModal] = useState(false);
+
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const filtro = searchParams.get("filtro");
+    const tipo = searchParams.get("tipo");
+    if (tipo) setSelectedType(tipo);
+    if (filtro) {
+      const filterIds = ["recentes", "populares", "maisVistos", "maisCurtidos"];
+      const categoryIds = ["ensaios", "bastidores", "praia", "editorial", "dupla", "solo", "criativo", "artistico", "cosplay"];
+      if (filterIds.includes(filtro)) setSelectedFilter(filtro);
+      else if (categoryIds.includes(filtro)) setSelectedCategory(filtro);
+    }
+  }, [searchParams]);
 
   // Dados mockados para fotos (VERSÃO NEUTRA)
   const fotos = {
@@ -1278,7 +1291,7 @@ export default function FotosGifAuthenticated() {
               </span>
             </h2>
             <Link
-              to="/fotos/populares"
+              to="/fotos-gifs?filtro=populares"
               className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-pink transition-colors"
             >
               Ver todas
@@ -1311,7 +1324,7 @@ export default function FotosGifAuthenticated() {
               </span>
             </h2>
             <Link
-              to="/gifs/populares"
+              to="/fotos-gifs?tipo=gifs&filtro=populares"
               className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-purple transition-colors"
             >
               Ver todos
@@ -1344,7 +1357,7 @@ export default function FotosGifAuthenticated() {
               </span>
             </h2>
             <Link
-              to="/albuns/destaque"
+              to="/fotos-gifs?tipo=albuns&filtro=destaque"
               className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-blue transition-colors"
             >
               Ver todos
@@ -1370,7 +1383,7 @@ export default function FotosGifAuthenticated() {
         {/* Categorias Rápidas */}
         <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
           <Link
-            to="/fotos/ensaios"
+            to="/fotos-gifs?filtro=ensaios"
             className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10"
           >
             <Camera size={24} className="mx-auto mb-2 text-neon-pink" />
@@ -1379,7 +1392,7 @@ export default function FotosGifAuthenticated() {
           </Link>
 
           <Link
-            to="/fotos/praia"
+            to="/fotos-gifs?filtro=praia"
             className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10"
           >
             <MapPin size={24} className="mx-auto mb-2 text-neon-purple" />
@@ -1388,7 +1401,7 @@ export default function FotosGifAuthenticated() {
           </Link>
 
           <Link
-            to="/fotos/editorial"
+            to="/fotos-gifs?filtro=editorial"
             className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10"
           >
             <Gift size={24} className="mx-auto mb-2 text-neon-blue" />
@@ -1397,7 +1410,7 @@ export default function FotosGifAuthenticated() {
           </Link>
 
           <Link
-            to="/fotos/dupla"
+            to="/fotos-gifs?filtro=dupla"
             className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10"
           >
             <Users size={24} className="mx-auto mb-2 text-neon-pink" />
@@ -1406,7 +1419,7 @@ export default function FotosGifAuthenticated() {
           </Link>
 
           <Link
-            to="/gifs/animados"
+            to="/fotos-gifs?tipo=gifs&filtro=animados"
             className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10"
           >
             <Film size={24} className="mx-auto mb-2 text-neon-purple" />
@@ -1415,7 +1428,7 @@ export default function FotosGifAuthenticated() {
           </Link>
 
           <Link
-            to="/albuns/vip"
+            to="/fotos-gifs?tipo=albuns&filtro=vip"
             className="glass rounded-xl p-4 text-center hover:border-neon-pink/30 transition-all border border-white/10"
           >
             <Crown size={24} className="mx-auto mb-2 text-yellow-500" />
