@@ -1,5 +1,5 @@
 // src/pages/studio/StudioUpload.tsx
-// Upload múltiplo — até 10 vídeos de uma vez
+// Upload múltiplo — até 30 vídeos de uma vez
 // Cada vídeo tem o seu próprio formulário: título, descrição, categoria, tags, visibilidade, miniatura
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -18,8 +18,9 @@ import StudioLayout from "@/components/studio/StudioLayout";
 import { VideoVisibility } from "@/components/studio/VideoForm";
 import { getCurrentUser } from "@/services/auth";
 import { supabase } from "@/lib/supabaseClient";
+import { generateThumbnail } from "@/utils/generateThumbnail";
 
-const MAX_VIDEOS = 10;
+const MAX_VIDEOS = 30;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tipos
@@ -38,6 +39,7 @@ type VideoSlot = {
   status:        SlotStatus;
   progress:      number;
   errorMsg:      string | null;
+  uploadMsg:     string | null;
   publishedId:   string | null;
   collapsed:     boolean;
 };
@@ -117,6 +119,7 @@ function makeSlot(file?: File): VideoSlot {
     status:        "idle",
     progress:      0,
     errorMsg:      null,
+    uploadMsg:     null,
     publishedId:   null,
     collapsed:     false,
   };
@@ -321,7 +324,7 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
     : isUploading ? "bg-neon-pink/15 border-neon-pink/25 text-neon-pink"
     : "bg-white/5 border-white/10 text-foreground/40";
 
-  const badgeLabel = isDone ? "Publicado" : isError ? "Erro" : isUploading ? "A publicar..." : "Aguarda";
+  const badgeLabel = isDone ? "Publicado" : isError ? "Erro" : isUploading ? (slot.uploadMsg || "A publicar...") : "Aguarda";
 
   return (
     <div className={`glass border rounded-2xl overflow-hidden transition-all ${
@@ -604,7 +607,19 @@ export default function StudioUpload() {
           const videoUrl = await uploadVideo(userId, tempId, slot.file!);
           updateSlot(slot.id, { progress: 60 });
 
-          // Upload da thumbnail (se existir)
+          // Auto-generate thumbnail when none was manually provided
+          if (!slot.thumbnailFile) {
+            updateSlot(slot.id, { uploadMsg: "A gerar thumbnail automaticamente..." });
+            const autoThumb = await generateThumbnail(slot.file!, msg => updateSlot(slot.id, { uploadMsg: msg }));
+            if (autoThumb) {
+              slot.thumbnailFile = autoThumb;
+            } else {
+              console.warn("[StudioUpload] Auto-thumbnail failed for:", slot.file!.name);
+            }
+            updateSlot(slot.id, { uploadMsg: null });
+          }
+
+          // Upload da thumbnail (se existir — manual ou auto-gerada)
           let thumbnailUrl: string | null = null;
           if (slot.thumbnailFile) {
             thumbnailUrl = await uploadThumb(userId, tempId, slot.thumbnailFile);
@@ -653,7 +668,7 @@ export default function StudioUpload() {
   };
 
   return (
-    <StudioLayout subtitle="Envie até 10 vídeos de uma vez">
+    <StudioLayout subtitle="Envie até 30 vídeos de uma vez">
       <div className="max-w-5xl mx-auto space-y-6">
 
         {/* Cabeçalho */}
@@ -661,7 +676,7 @@ export default function StudioUpload() {
           <div>
             <h1 className="text-2xl font-black text-foreground tracking-tight">Enviar vídeos</h1>
             <p className="text-sm text-foreground/45 mt-1">
-              Selecciona até <strong className="text-foreground/70">10 vídeos</strong> de uma vez e preenche os detalhes de cada um antes de publicar.
+              Selecciona até <strong className="text-foreground/70">30 vídeos</strong> de uma vez e preenche os detalhes de cada um antes de publicar.
             </p>
           </div>
           {total > 0 && (

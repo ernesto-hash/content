@@ -58,7 +58,13 @@
       "Bash(Get-ChildItem \"c:\\\\Users\\\\ernes\\\\OneDrive\\\\Ambiente de Trabalho\\\\content\" -Filter \".env*\" -Force)",
       "Bash(Select-Object Name)",
       "Bash(Select-Object -First 20)",
-      "Bash(Format-Table FullName)"
+      "Bash(Format-Table FullName)",
+      "Bash(Get-ChildItem -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(node -e \"const p = require\\('./node_modules/@ffmpeg/ffmpeg/package.json'\\); console.log\\(p.version\\)\")",
+      "Bash(node -e \"console.log\\(require\\('c:/Users/ernes/OneDrive/Ambiente de Trabalho/content/client/node_modules/@ffmpeg/ffmpeg/package.json'\\).version\\)\")",
+      "Bash(node -e \"console.log\\(require\\('c:/Users/ernes/OneDrive/Ambiente de Trabalho/content/node_modules/@ffmpeg/ffmpeg/package.json'\\).version\\)\")",
+      "Bash(node -e \"const p = require\\('c:/Users/ernes/OneDrive/Ambiente de Trabalho/content/package.json'\\); const deps = {...p.dependencies, ...p.devDependencies}; ['@ffmpeg/ffmpeg','@ffmpeg/util'].forEach\\(k => console.log\\(k, deps[k] || 'NOT FOUND'\\)\\)\")"
     ]
   }
 }
