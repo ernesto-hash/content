@@ -460,13 +460,22 @@ export default function GaleriaAdmin() {
               {packs.length} packs · {packs.reduce((s, p) => s + p.fotos_count, 0)} fotos no total
             </p>
           </div>
-          <button
-            onClick={() => setShowNewPack(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-white text-xs font-black transition-all hover:opacity-90"
-            style={{ background: "linear-gradient(90deg,#ec4899,#9333ea)" }}
-          >
-            <Plus size={13} /> Novo Pack
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/admin/regenerar-thumbnails"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:opacity-80"
+              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}
+            >
+              <ImageIcon size={13} /> Regenerar Thumbnails
+            </Link>
+            <button
+              onClick={() => setShowNewPack(true)}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-white text-xs font-black transition-all hover:opacity-90"
+              style={{ background: "linear-gradient(90deg,#ec4899,#9333ea)" }}
+            >
+              <Plus size={13} /> Novo Pack
+            </button>
+          </div>
         </div>
 
         <div className="flex gap-5" style={{ alignItems: "flex-start" }}>
