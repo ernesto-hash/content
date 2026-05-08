@@ -21,29 +21,48 @@ type LogEntry = {
 async function extractFrameFromUrl(videoUrl: string): Promise<Blob | null> {
   return new Promise((resolve) => {
     const video = document.createElement("video");
-    video.crossOrigin = "anonymous";
     video.preload = "metadata";
     video.muted = true;
     video.playsInline = true;
     video.src = videoUrl;
 
-    const timeout = setTimeout(() => resolve(null), 15000);
+    const timeout = setTimeout(() => resolve(null), 30000);
+    const fallbacks = [1, 2, 0.5];
+    let attemptIndex = 0;
 
-    video.addEventListener("loadeddata", () => { video.currentTime = 1; });
+    video.addEventListener("loadeddata", () => { video.currentTime = fallbacks[0]; });
+
     video.addEventListener("seeked", () => {
-      clearTimeout(timeout);
       try {
         const canvas = document.createElement("canvas");
         canvas.width = video.videoWidth || 1280;
         canvas.height = video.videoHeight || 720;
         const ctx = canvas.getContext("2d");
-        if (!ctx) { resolve(null); return; }
+        if (!ctx) { clearTimeout(timeout); resolve(null); return; }
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const imageData = ctx.getImageData(0, 0, 10, 10);
+        const isBlank = imageData.data.every((v, i) => i % 4 === 3 || v === 0);
+
+        if (isBlank) {
+          attemptIndex++;
+          if (attemptIndex < fallbacks.length) {
+            video.currentTime = fallbacks[attemptIndex];
+            return;
+          }
+          clearTimeout(timeout);
+          resolve(null);
+          return;
+        }
+
+        clearTimeout(timeout);
         canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.85);
       } catch {
+        clearTimeout(timeout);
         resolve(null);
       }
     });
+
     video.addEventListener("error", () => { clearTimeout(timeout); resolve(null); });
   });
 }
