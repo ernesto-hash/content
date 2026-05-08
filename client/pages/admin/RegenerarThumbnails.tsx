@@ -19,51 +19,67 @@ type LogEntry = {
 };
 
 async function extractFrameFromUrl(videoUrl: string): Promise<Blob | null> {
-  return new Promise((resolve) => {
-    const video = document.createElement("video");
-    video.preload = "metadata";
-    video.muted = true;
-    video.playsInline = true;
-    video.src = videoUrl;
+  return new Promise(async (resolve) => {
+    try {
+      const response = await fetch(videoUrl, { headers: { Range: 'bytes=0-2097152' } });
+      if (!response.ok) { resolve(null); return; }
+      const arrayBuffer = await response.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: 'video/mp4' });
+      const objectUrl = URL.createObjectURL(blob);
 
-    const timeout = setTimeout(() => resolve(null), 30000);
-    const fallbacks = [1, 2, 0.5];
-    let attemptIndex = 0;
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.muted = true;
+      video.playsInline = true;
+      video.src = objectUrl;
 
-    video.addEventListener("loadeddata", () => { video.currentTime = fallbacks[0]; });
+      const attempts = [1, 2, 0.5];
+      let attemptIndex = 0;
 
-    video.addEventListener("seeked", () => {
-      try {
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth || 1280;
-        canvas.height = video.videoHeight || 720;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) { clearTimeout(timeout); resolve(null); return; }
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const timeout = setTimeout(() => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(null);
+      }, 30000);
 
-        const imageData = ctx.getImageData(0, 0, 10, 10);
-        const isBlank = imageData.data.every((v, i) => i % 4 === 3 || v === 0);
+      video.addEventListener('loadeddata', () => {
+        video.currentTime = attempts[attemptIndex];
+      });
 
-        if (isBlank) {
-          attemptIndex++;
-          if (attemptIndex < fallbacks.length) {
-            video.currentTime = fallbacks[attemptIndex];
+      video.addEventListener('seeked', () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth || 1280;
+          canvas.height = video.videoHeight || 720;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) { clearTimeout(timeout); URL.revokeObjectURL(objectUrl); resolve(null); return; }
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const imageData = ctx.getImageData(0, 0, 10, 10);
+          const isBlank = imageData.data.every((v, i) => i % 4 === 3 || v === 0);
+          if (isBlank && attemptIndex < attempts.length - 1) {
+            attemptIndex++;
+            video.currentTime = attempts[attemptIndex];
             return;
           }
+          canvas.toBlob((frameBlob) => {
+            clearTimeout(timeout);
+            URL.revokeObjectURL(objectUrl);
+            resolve(frameBlob);
+          }, 'image/jpeg', 0.85);
+        } catch {
           clearTimeout(timeout);
+          URL.revokeObjectURL(objectUrl);
           resolve(null);
-          return;
         }
+      });
 
+      video.addEventListener('error', () => {
         clearTimeout(timeout);
-        canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.85);
-      } catch {
-        clearTimeout(timeout);
+        URL.revokeObjectURL(objectUrl);
         resolve(null);
-      }
-    });
-
-    video.addEventListener("error", () => { clearTimeout(timeout); resolve(null); });
+      });
+    } catch {
+      resolve(null);
+    }
   });
 }
 
