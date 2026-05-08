@@ -18,75 +18,7 @@ type LogEntry = {
   message: string;
 };
 
-async function extractFrameFromUrl(videoUrl: string): Promise<Blob | null> {
-  return new Promise(async (resolve) => {
-    try {
-      const response = await fetch(videoUrl, { headers: { Range: 'bytes=0-2097152' } });
-      if (!response.ok) { resolve(null); return; }
-      const arrayBuffer = await response.arrayBuffer();
-      const blob = new Blob([arrayBuffer], { type: 'video/mp4' });
-      const objectUrl = URL.createObjectURL(blob);
-
-      const video = document.createElement('video');
-      video.preload = 'metadata';
-      video.muted = true;
-      video.playsInline = true;
-      video.src = objectUrl;
-
-      const attempts = [1, 2, 0.5];
-      let attemptIndex = 0;
-
-      const timeout = setTimeout(() => {
-        URL.revokeObjectURL(objectUrl);
-        resolve(null);
-      }, 30000);
-
-      video.addEventListener('loadeddata', () => {
-        video.currentTime = attempts[attemptIndex];
-      });
-
-      video.addEventListener('seeked', () => {
-        try {
-          const canvas = document.createElement('canvas');
-          canvas.width = video.videoWidth || 1280;
-          canvas.height = video.videoHeight || 720;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) { clearTimeout(timeout); resolve(null); return; }
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          const imageData = ctx.getImageData(0, 0, 10, 10);
-          const isBlank = imageData.data.every((v, i) => i % 4 === 3 || v === 0);
-          if (isBlank && attemptIndex < attempts.length - 1) {
-            attemptIndex++;
-            video.currentTime = attempts[attemptIndex];
-            return;
-          }
-          if (isBlank) {
-            clearTimeout(timeout);
-            URL.revokeObjectURL(objectUrl);
-            resolve(null);
-            return;
-          }
-          canvas.toBlob((frameBlob) => {
-            clearTimeout(timeout);
-            URL.revokeObjectURL(objectUrl);
-            resolve(frameBlob);
-          }, 'image/jpeg', 0.85);
-        } catch {
-          clearTimeout(timeout);
-          resolve(null);
-        }
-      });
-
-      video.addEventListener('error', () => {
-        clearTimeout(timeout);
-        URL.revokeObjectURL(objectUrl);
-        resolve(null);
-      });
-    } catch {
-      resolve(null);
-    }
-  });
-}
+const EDGE_FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-thumbnail`;
 
 export default function RegenerarThumbnails() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
@@ -137,6 +69,9 @@ export default function RegenerarThumbnails() {
     setLog([]);
     setProgress({ current: 0, total: list.length, success: 0, failed: 0 });
 
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token ?? "";
+
     let success = 0;
     let failed = 0;
 
@@ -144,47 +79,34 @@ export default function RegenerarThumbnails() {
       const v = list[i];
       setCurrentTitle(v.title);
       setProgress(p => ({ ...p, current: i + 1 }));
-      appendLog({ id: v.id, title: v.title, status: "processing", message: "A extrair frame..." });
+      appendLog({ id: v.id, title: v.title, status: "processing", message: "A gerar thumbnail no servidor..." });
 
-      const blob = await extractFrameFromUrl(v.video_url);
+      try {
+        const response = await fetch(EDGE_FUNCTION_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({ videoId: v.id }),
+        });
 
-      if (!blob) {
+        const result = await response.json();
+
+        if (result.success) {
+          success++;
+          setProgress(p => ({ ...p, success }));
+          appendLog({ id: v.id, title: v.title, status: "success", message: result.thumbnail_url });
+        } else {
+          failed++;
+          setProgress(p => ({ ...p, failed }));
+          appendLog({ id: v.id, title: v.title, status: "failed", message: result.error ?? "Erro desconhecido" });
+        }
+      } catch (err) {
         failed++;
         setProgress(p => ({ ...p, failed }));
-        appendLog({ id: v.id, title: v.title, status: "failed", message: "Não foi possível extrair frame do vídeo." });
-        continue;
+        appendLog({ id: v.id, title: v.title, status: "failed", message: String(err) });
       }
-
-      const path = `auto/${v.id}.jpg`;
-      const { error: uploadError } = await supabase.storage
-        .from("thumbnails")
-        .upload(path, blob, { contentType: "image/jpeg", upsert: true });
-
-      if (uploadError) {
-        failed++;
-        setProgress(p => ({ ...p, failed }));
-        appendLog({ id: v.id, title: v.title, status: "failed", message: `Erro no upload: ${uploadError.message}` });
-        continue;
-      }
-
-      const { data: urlData } = supabase.storage.from("thumbnails").getPublicUrl(path);
-      const publicUrl = urlData.publicUrl;
-
-      const { error: updateError } = await supabase
-        .from("videos")
-        .update({ thumbnail_url: publicUrl })
-        .eq("id", v.id);
-
-      if (updateError) {
-        failed++;
-        setProgress(p => ({ ...p, failed }));
-        appendLog({ id: v.id, title: v.title, status: "failed", message: `Erro ao guardar URL: ${updateError.message}` });
-        continue;
-      }
-
-      success++;
-      setProgress(p => ({ ...p, success }));
-      appendLog({ id: v.id, title: v.title, status: "success", message: publicUrl });
     }
 
     setProcessing(false);
@@ -269,7 +191,7 @@ export default function RegenerarThumbnails() {
                   : `${videos.length} thumbnail${videos.length !== 1 ? "s" : ""} para regenerar`}
               </p>
               <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
-                Cada vídeo será processado individualmente usando o Canvas API do browser.
+                Cada vídeo será processado individualmente via Edge Function no servidor.
               </p>
             </div>
             {videos.length > 0 && (
@@ -352,9 +274,9 @@ export default function RegenerarThumbnails() {
                 {log.map(entry => (
                   <div key={entry.id} className="flex items-start gap-3 px-4 py-3">
                     <div className="flex-shrink-0 mt-0.5">
-                      {entry.status === "success" && <CheckCircle2 size={14} style={{ color: "#4ade80" }} />}
-                      {entry.status === "failed"  && <XCircle     size={14} style={{ color: "#f87171" }} />}
-                      {entry.status === "processing" && <Loader2 size={14} className="animate-spin" style={{ color: "#facc15" }} />}
+                      {entry.status === "success"    && <CheckCircle2 size={14} style={{ color: "#4ade80" }} />}
+                      {entry.status === "failed"     && <XCircle      size={14} style={{ color: "#f87171" }} />}
+                      {entry.status === "processing" && <Loader2      size={14} className="animate-spin" style={{ color: "#facc15" }} />}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-white/80 font-medium truncate">{entry.title}</p>
