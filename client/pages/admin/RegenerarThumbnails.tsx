@@ -51,13 +51,19 @@ async function extractFrameFromUrl(videoUrl: string): Promise<Blob | null> {
           canvas.width = video.videoWidth || 1280;
           canvas.height = video.videoHeight || 720;
           const ctx = canvas.getContext('2d');
-          if (!ctx) { clearTimeout(timeout); URL.revokeObjectURL(objectUrl); resolve(null); return; }
+          if (!ctx) { clearTimeout(timeout); resolve(null); return; }
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           const imageData = ctx.getImageData(0, 0, 10, 10);
           const isBlank = imageData.data.every((v, i) => i % 4 === 3 || v === 0);
           if (isBlank && attemptIndex < attempts.length - 1) {
             attemptIndex++;
             video.currentTime = attempts[attemptIndex];
+            return;
+          }
+          if (isBlank) {
+            clearTimeout(timeout);
+            URL.revokeObjectURL(objectUrl);
+            resolve(null);
             return;
           }
           canvas.toBlob((frameBlob) => {
@@ -67,7 +73,6 @@ async function extractFrameFromUrl(videoUrl: string): Promise<Blob | null> {
           }, 'image/jpeg', 0.85);
         } catch {
           clearTimeout(timeout);
-          URL.revokeObjectURL(objectUrl);
           resolve(null);
         }
       });
