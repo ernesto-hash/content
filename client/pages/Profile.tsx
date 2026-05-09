@@ -21,7 +21,7 @@ type ProfileData = {
   bio:        string | null;
   location:   string | null;
   website:    string | null;
-  verified:   boolean;
+
   created_at: string;
   role:       string;
 };
@@ -284,7 +284,7 @@ function EditModal({
           banner_url: newBannerUrl,
         })
         .eq("id", profile.id)
-        .select("id,username,full_name,avatar_url,banner_url,bio,location,website,verified,created_at,role")
+        .select("id,username,full_name,avatar_url,banner_url,bio,location,website,created_at,role")
         .single();
 
       if (dbErr) throw new Error(dbErr.message);
@@ -472,7 +472,7 @@ export default function Profile() {
     const [profileRes, videosRes, followersRes] = await Promise.all([
       supabase
         .from("profiles")
-        .select("id,username,full_name,avatar_url,banner_url,bio,location,website,verified,created_at,role")
+        .select("id,username,full_name,avatar_url,banner_url,bio,location,website,created_at,role")
         .eq("id", uid)
         .maybeSingle(),
       supabase
@@ -501,7 +501,7 @@ export default function Profile() {
     setProfile((profileRes.data as ProfileData) ?? {
       id: uid, username: null, full_name: null, avatar_url: null,
       banner_url: null, bio: null, location: null, website: null,
-      verified: false, created_at: new Date().toISOString(), role: "user",
+      created_at: new Date().toISOString(), role: "user",
     });
     setVideos(vids);
     setStats({
@@ -663,9 +663,6 @@ export default function Profile() {
         <div className="mb-5">
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-xl font-black text-foreground">{displayName}</h1>
-            {profile?.verified && (
-              <CheckCircle2 size={18} className="text-neon-blue flex-shrink-0" />
-            )}
           </div>
           {(profile?.username?.trim() || emailPrefix) && (
             <p className="text-sm text-foreground/40 mt-0.5">@{profile?.username?.trim() || emailPrefix}</p>
