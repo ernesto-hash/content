@@ -19,6 +19,7 @@ import { VideoVisibility } from "@/components/studio/VideoForm";
 import { getCurrentUser } from "@/services/auth";
 import { supabase } from "@/lib/supabaseClient";
 import { generateThumbnail } from "@/utils/generateThumbnail";
+import { extractVideoFrames } from "@/utils/extractVideoFrames";
 
 const MAX_VIDEOS = 30;
 
@@ -28,20 +29,23 @@ const MAX_VIDEOS = 30;
 type SlotStatus = "idle" | "uploading" | "done" | "error";
 
 type VideoSlot = {
-  id:            string;
-  file:          File | null;
-  thumbnailFile: File | null;
-  title:         string;
-  description:   string;
-  category:      string;
-  tags:          string;
-  visibility:    VideoVisibility;
-  status:        SlotStatus;
-  progress:      number;
-  errorMsg:      string | null;
-  uploadMsg:     string | null;
-  publishedId:   string | null;
-  collapsed:     boolean;
+  id:                      string;
+  file:                    File | null;
+  thumbnailFile:           File | null;
+  thumbnailOptions:        Blob[];
+  thumbnailOptionsLoading: boolean;
+  selectedThumbnailIndex:  number | null;
+  title:                   string;
+  description:             string;
+  category:                string;
+  tags:                    string;
+  visibility:              VideoVisibility;
+  status:                  SlotStatus;
+  progress:                number;
+  errorMsg:                string | null;
+  uploadMsg:               string | null;
+  publishedId:             string | null;
+  collapsed:               boolean;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -108,20 +112,23 @@ function fmtBytes(bytes: number): string {
 
 function makeSlot(file?: File): VideoSlot {
   return {
-    id:            crypto.randomUUID(),
-    file:          file ?? null,
-    thumbnailFile: null,
-    title:         file ? file.name.replace(/\.[^.]+$/, "").replace(/[_\-]+/g, " ") : "",
-    description:   "",
-    category:      "",
-    tags:          "",
-    visibility:    "public",
-    status:        "idle",
-    progress:      0,
-    errorMsg:      null,
-    uploadMsg:     null,
-    publishedId:   null,
-    collapsed:     false,
+    id:                      crypto.randomUUID(),
+    file:                    file ?? null,
+    thumbnailFile:           null,
+    thumbnailOptions:        [],
+    thumbnailOptionsLoading: false,
+    selectedThumbnailIndex:  null,
+    title:                   file ? file.name.replace(/\.[^.]+$/, "").replace(/[_\-]+/g, " ") : "",
+    description:             "",
+    category:                "",
+    tags:                    "",
+    visibility:              "public",
+    status:                  "idle",
+    progress:                0,
+    errorMsg:                null,
+    uploadMsg:               null,
+    publishedId:             null,
+    collapsed:               false,
   };
 }
 
@@ -319,6 +326,14 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
     return () => URL.revokeObjectURL(url);
   }, [slot.thumbnailFile]);
 
+  const [frameUrls, setFrameUrls] = useState<string[]>([]);
+  useEffect(() => {
+    if (!slot.thumbnailOptions.length) { setFrameUrls([]); return; }
+    const urls = slot.thumbnailOptions.map(b => URL.createObjectURL(b));
+    setFrameUrls(urls);
+    return () => urls.forEach(u => URL.revokeObjectURL(u));
+  }, [slot.thumbnailOptions]);
+
   const badgeColor = isDone ? "bg-emerald-500/15 border-emerald-500/25 text-emerald-400"
     : isError     ? "bg-red-500/15 border-red-500/25 text-red-400"
     : isUploading ? "bg-neon-pink/15 border-neon-pink/25 text-neon-pink"
@@ -403,6 +418,8 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
               <label className="text-[11px] font-semibold text-foreground/55 flex items-center gap-1.5">
                 <ImageIcon size={11} /> Miniatura
               </label>
+
+              {/* 1. Manual upload preview — highest priority */}
               {thumbPreview ? (
                 <div className="relative rounded-xl overflow-hidden aspect-video bg-black/20 border border-white/10">
                   <img src={thumbPreview} alt="" className="w-full h-full object-cover" />
@@ -411,6 +428,45 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
                     <X size={9} />
                   </button>
                 </div>
+
+              /* 2. Generating frames */
+              ) : slot.thumbnailOptionsLoading ? (
+                <div className="aspect-video rounded-xl border border-white/8 bg-white/3 flex items-center justify-center gap-2">
+                  <Loader2 size={13} className="animate-spin text-foreground/30 flex-shrink-0" />
+                  <span className="text-[10px] text-foreground/30">A gerar opções de thumbnail...</span>
+                </div>
+
+              /* 3. Frame picker */
+              ) : frameUrls.length > 0 ? (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {frameUrls.map((url, i) => (
+                      <button key={i} type="button" disabled={isDisabled}
+                        onClick={() => onUpdate(slot.id, { selectedThumbnailIndex: i })}
+                        className="relative aspect-video rounded-lg overflow-hidden border-2 transition-all focus:outline-none"
+                        style={{ borderColor: slot.selectedThumbnailIndex === i ? "#ec4899" : "rgba(255,255,255,0.10)" }}>
+                        <img src={url} alt={`Frame ${i + 1}`} className="w-full h-full object-cover" />
+                        {slot.selectedThumbnailIndex === i && (
+                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                            <div className="w-5 h-5 rounded-full bg-neon-pink flex items-center justify-center flex-shrink-0">
+                              <Check size={10} className="text-white" />
+                            </div>
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  <label className="flex items-center gap-1.5 text-[10px] text-foreground/35 hover:text-foreground/60 cursor-pointer transition-colors w-fit">
+                    <ImageIcon size={10} /> Carregar imagem personalizada
+                    <input type="file" accept="image/*" className="hidden"
+                      onChange={e => onUpdate(slot.id, {
+                        thumbnailFile: e.target.files?.[0] ?? null,
+                        selectedThumbnailIndex: null,
+                      })} />
+                  </label>
+                </div>
+
+              /* 4. Fallback: manual upload area */
               ) : (
                 <label className="flex flex-col items-center justify-center gap-1 aspect-video rounded-xl border border-dashed border-white/12 bg-white/3 hover:bg-white/5 hover:border-neon-pink/25 transition-all cursor-pointer">
                   <ImageIcon size={16} className="text-foreground/18" />
@@ -565,8 +621,21 @@ export default function StudioUpload() {
     const arr   = Array.from(files).filter(f => f.type.startsWith("video/"));
     const space = MAX_VIDEOS - slots.length;
     if (space <= 0) return;
-    setSlots(prev => [...prev, ...arr.slice(0, space).map(f => makeSlot(f))]);
-  }, [slots.length]);
+    const newSlots = arr.slice(0, space).map(f => makeSlot(f));
+    setSlots(prev => [...prev, ...newSlots.map(s => ({ ...s, thumbnailOptionsLoading: true }))]);
+
+    // Extract frames at 25/50/75% non-blocking — creator can fill in metadata while this runs
+    newSlots.forEach(slot => {
+      if (!slot.file) return;
+      extractVideoFrames(slot.file).then(frames => {
+        updateSlot(slot.id, {
+          thumbnailOptions:       frames,
+          thumbnailOptionsLoading: false,
+          ...(frames.length > 0 ? { selectedThumbnailIndex: 1 } : {}),
+        });
+      });
+    });
+  }, [slots.length, updateSlot]);
 
   const onDragOver  = (e: React.DragEvent) => { e.preventDefault(); setDragging(true); };
   const onDragLeave = () => setDragging(false);
@@ -607,22 +676,27 @@ export default function StudioUpload() {
           const videoUrl = await uploadVideo(userId, tempId, slot.file!);
           updateSlot(slot.id, { progress: 60 });
 
-          // Auto-generate thumbnail when none was manually provided
-          if (!slot.thumbnailFile) {
+          // Determine thumbnail: manual upload > selected frame > auto-generated fallback
+          let effectiveThumbnailFile = slot.thumbnailFile;
+          if (!effectiveThumbnailFile && slot.selectedThumbnailIndex !== null) {
+            const blob = slot.thumbnailOptions[slot.selectedThumbnailIndex];
+            if (blob) effectiveThumbnailFile = new File([blob], "thumbnail.jpg", { type: "image/jpeg" });
+          }
+          if (!effectiveThumbnailFile) {
             updateSlot(slot.id, { uploadMsg: "A gerar thumbnail automaticamente..." });
             const autoThumb = await generateThumbnail(slot.file!);
             if (autoThumb) {
-              slot.thumbnailFile = autoThumb;
+              effectiveThumbnailFile = autoThumb;
             } else {
               console.warn("[StudioUpload] Auto-thumbnail failed for:", slot.file!.name);
             }
             updateSlot(slot.id, { uploadMsg: null });
           }
 
-          // Upload da thumbnail (se existir — manual ou auto-gerada)
+          // Upload da thumbnail (se existir — manual, frame seleccionado ou auto-gerada)
           let thumbnailUrl: string | null = null;
-          if (slot.thumbnailFile) {
-            thumbnailUrl = await uploadThumb(userId, tempId, slot.thumbnailFile);
+          if (effectiveThumbnailFile) {
+            thumbnailUrl = await uploadThumb(userId, tempId, effectiveThumbnailFile);
           }
           updateSlot(slot.id, { progress: 80 });
 
