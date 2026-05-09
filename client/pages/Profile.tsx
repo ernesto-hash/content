@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ElementType } from "reac
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  Film, Heart, Eye, Calendar, MapPin, Globe, CheckCircle2,
+  Film, Heart, Eye, Calendar, CheckCircle2,
   Play, Lock, Link2, Loader2, Camera, X, Save, AlertTriangle,
   ImageIcon, User, Edit3, Share2, VolumeX, Video, ArrowRight,
 } from "lucide-react";
@@ -195,13 +195,13 @@ function EditModal({
   onClose:  () => void;
   onSave:   (updated: ProfileData) => void;
 }) {
-  const [fullName,  setFullName]  = useState(profile.full_name  ?? "");
-  const [username,  setUsername]  = useState(profile.username   ?? "");
-  const [bio,       setBio]       = useState(profile.bio        ?? "");
-  const [location,  setLocation]  = useState(profile.location   ?? "");
-  const [website,   setWebsite]   = useState(profile.website    ?? "");
-  const [saving,    setSaving]    = useState(false);
-  const [error,     setError]     = useState<string | null>(null);
+  const [fullName,      setFullName]      = useState(profile.full_name ?? "");
+  const [username,      setUsername]      = useState(profile.username  ?? "");
+  const [bio,           setBio]           = useState(profile.bio       ?? "");
+  const [saving,        setSaving]        = useState(false);
+  const [error,         setError]         = useState<string | null>(null);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [success,       setSuccess]       = useState(false);
 
   const [avatarFile,    setAvatarFile]    = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -225,42 +225,61 @@ function EditModal({
   }, [bannerFile]);
 
   const save = async () => {
-    setSaving(true);
     setError(null);
+    setUsernameError(null);
+
+    // Username format validation
+    const trimmedUsername = username.trim();
+    if (trimmedUsername && !/^[a-zA-Z0-9_]+$/.test(trimmedUsername)) {
+      setUsernameError("Apenas letras, números e underscore (_) são permitidos.");
+      return;
+    }
+
+    // Username uniqueness check (only if changed)
+    if (trimmedUsername && trimmedUsername !== profile.username) {
+      const { data: existing } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("username", trimmedUsername)
+        .neq("id", profile.id)
+        .maybeSingle();
+      if (existing) {
+        setUsernameError("Nome de utilizador já existe.");
+        return;
+      }
+    }
+
+    setSaving(true);
     try {
       let newAvatarUrl = profile.avatar_url;
       let newBannerUrl = profile.banner_url;
 
       if (avatarFile) {
-        const ext  = avatarFile.name.split(".").pop()?.toLowerCase() ?? "jpg";
-        const path = `${profile.id}/avatar.${ext}`;
+        const path = `${profile.id}/avatar.jpg`;
         const { error: upErr } = await supabase.storage
           .from("avatars")
           .upload(path, avatarFile, { upsert: true, cacheControl: "3600" });
         if (upErr) throw new Error(`Erro ao carregar avatar: ${upErr.message}`);
         const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
-        newAvatarUrl = urlData.publicUrl;
+        newAvatarUrl = `${urlData.publicUrl}?t=${Date.now()}`;
       }
 
       if (bannerFile) {
-        const ext  = bannerFile.name.split(".").pop()?.toLowerCase() ?? "jpg";
-        const path = `${profile.id}/banner.${ext}`;
+        const path = `${profile.id}/banner.jpg`;
         const { error: upErr } = await supabase.storage
           .from("avatars")
           .upload(path, bannerFile, { upsert: true, cacheControl: "3600" });
         if (upErr) throw new Error(`Erro ao carregar banner: ${upErr.message}`);
         const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
-        newBannerUrl = urlData.publicUrl;
+        newBannerUrl = `${urlData.publicUrl}?t=${Date.now()}`;
       }
 
       const { data, error: dbErr } = await supabase
         .from("profiles")
         .update({
-          full_name:  fullName.trim()  || null,
-          username:   username.trim()  || null,
-          bio:        bio.trim()       || null,
-          location:   location.trim()  || null,
-          website:    website.trim()   || null,
+          full_name:  fullName.trim() || null,
+          username:   trimmedUsername || null,
+          bio:        bio.trim()      || null,
           avatar_url: newAvatarUrl,
           banner_url: newBannerUrl,
         })
@@ -269,7 +288,9 @@ function EditModal({
         .single();
 
       if (dbErr) throw new Error(dbErr.message);
-      onSave(data as ProfileData);
+
+      setSuccess(true);
+      setTimeout(() => onSave(data as ProfileData), 1500);
     } catch (e: any) {
       setError(e?.message ?? "Erro desconhecido.");
     } finally {
@@ -356,8 +377,14 @@ function EditModal({
               <label className="text-[11px] font-semibold text-foreground/55 mb-1.5 block">
                 Username
               </label>
-              <input value={username} onChange={e => setUsername(e.target.value)}
-                placeholder="@username" className={inp} />
+              <input value={username} onChange={e => { setUsername(e.target.value); setUsernameError(null); }}
+                placeholder="@username"
+                className={`${inp} ${usernameError ? "border-red-500/40 bg-red-500/5 focus:border-red-500/50" : ""}`} />
+              {usernameError && (
+                <p className="text-[10px] text-red-400 mt-1 flex items-center gap-1">
+                  <AlertTriangle size={9} className="flex-shrink-0" /> {usernameError}
+                </p>
+              )}
             </div>
           </div>
 
@@ -373,30 +400,16 @@ function EditModal({
             <p className="text-[10px] text-foreground/25 mt-1 text-right">{bio.length}/300</p>
           </div>
 
-          {/* Location + Website */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-[11px] font-semibold text-foreground/55 mb-1.5 flex items-center gap-1">
-                <MapPin size={10} /> Localização
-              </label>
-              <input value={location} onChange={e => setLocation(e.target.value)}
-                placeholder="País, cidade" className={inp} />
+          {/* Error / Success */}
+          {success ? (
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-500/8 border border-emerald-500/20 text-xs text-emerald-400">
+              <CheckCircle2 size={12} className="flex-shrink-0" /> Perfil actualizado com sucesso
             </div>
-            <div>
-              <label className="text-[11px] font-semibold text-foreground/55 mb-1.5 flex items-center gap-1">
-                <Globe size={10} /> Website
-              </label>
-              <input value={website} onChange={e => setWebsite(e.target.value)}
-                placeholder="https://..." className={inp} />
-            </div>
-          </div>
-
-          {/* Error */}
-          {error && (
+          ) : error ? (
             <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-500/8 border border-red-500/20 text-xs text-red-400">
               <AlertTriangle size={12} className="flex-shrink-0" /> {error}
             </div>
-          )}
+          ) : null}
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-2 pt-1">
@@ -660,22 +673,13 @@ export default function Profile() {
           {profile?.bio && (
             <p className="text-sm text-foreground/65 mt-3 max-w-xl leading-relaxed">{profile.bio}</p>
           )}
-          <div className="flex items-center gap-4 mt-3 flex-wrap text-xs text-foreground/35">
-            {profile?.location && (
-              <span className="flex items-center gap-1"><MapPin size={11} />{profile.location}</span>
-            )}
-            {profile?.website && (
-              <a href={profile.website} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1 text-neon-pink hover:text-neon-pink/80 transition-colors">
-                <Globe size={11} />{profile.website.replace(/^https?:\/\//, "")}
-              </a>
-            )}
-            {profile?.created_at && (
+          {profile?.created_at && (
+            <div className="flex items-center gap-4 mt-3 text-xs text-foreground/35">
               <span className="flex items-center gap-1">
                 <Calendar size={11} />Membro desde {fmtDate(profile.created_at)}
               </span>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Mobile action buttons */}
           <div className="flex sm:hidden items-center gap-2 mt-4">
@@ -799,29 +803,12 @@ export default function Profile() {
                 </div>
               )}
 
-              {(profile?.location || profile?.website || profile?.created_at) && (
-                <div className="space-y-2.5 pt-2 border-t border-white/8">
-                  {profile?.location && (
-                    <div className="flex items-center gap-2.5 text-sm text-foreground/55">
-                      <MapPin size={14} className="text-foreground/30 flex-shrink-0" />
-                      {profile.location}
-                    </div>
-                  )}
-                  {profile?.website && (
-                    <div className="flex items-center gap-2.5 text-sm">
-                      <Globe size={14} className="text-foreground/30 flex-shrink-0" />
-                      <a href={profile.website} target="_blank" rel="noopener noreferrer"
-                        className="text-neon-pink hover:text-neon-pink/80 transition-colors truncate">
-                        {profile.website}
-                      </a>
-                    </div>
-                  )}
-                  {profile?.created_at && (
-                    <div className="flex items-center gap-2.5 text-sm text-foreground/55">
-                      <Calendar size={14} className="text-foreground/30 flex-shrink-0" />
-                      Membro desde {fmtDate(profile.created_at)}
-                    </div>
-                  )}
+              {profile?.created_at && (
+                <div className="pt-2 border-t border-white/8">
+                  <div className="flex items-center gap-2.5 text-sm text-foreground/55">
+                    <Calendar size={14} className="text-foreground/30 flex-shrink-0" />
+                    Membro desde {fmtDate(profile.created_at)}
+                  </div>
                 </div>
               )}
             </div>
