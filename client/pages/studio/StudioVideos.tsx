@@ -37,6 +37,7 @@ type EditState = {
   visibility: string;
   thumbnailFile: File | null;
   thumbnailPreview: string | null;
+  selectedFrameIndex: number | null;
 };
 
 // ─── Categorias — sincronizadas com Categorias.tsx ────────────────────────────
@@ -327,6 +328,57 @@ function StatusDropdown({
   );
 }
 
+// ─── Frame extraction from URL (for edit drawer) ─────────────────────────────
+
+async function extractFramesFromUrl(videoUrl: string): Promise<Blob[]> {
+  try {
+    const res = await fetch(videoUrl, { headers: { Range: "bytes=0-3145728" } });
+    if (!res.ok && res.status !== 206) return [];
+    const buf    = await res.arrayBuffer();
+    const objUrl = URL.createObjectURL(new Blob([buf], { type: "video/mp4" }));
+
+    return new Promise((resolve) => {
+      const video = document.createElement("video");
+      video.preload    = "metadata";
+      video.muted      = true;
+      video.playsInline = true;
+      video.src        = objUrl;
+
+      const cleanup = () => URL.revokeObjectURL(objUrl);
+      const timeout = setTimeout(() => { cleanup(); resolve([]); }, 30000);
+
+      video.addEventListener("loadedmetadata", () => {
+        const dur = video.duration;
+        if (!dur || !isFinite(dur)) { clearTimeout(timeout); cleanup(); resolve([]); return; }
+        const timestamps = [dur * 0.25, dur * 0.50, dur * 0.75];
+        const frames: Blob[] = [];
+        let idx = 0;
+
+        function captureNext() {
+          if (idx >= timestamps.length) { clearTimeout(timeout); cleanup(); resolve(frames); return; }
+          video.currentTime = timestamps[idx];
+        }
+
+        video.addEventListener("seeked", () => {
+          const canvas = document.createElement("canvas");
+          canvas.width  = video.videoWidth  || 1280;
+          canvas.height = video.videoHeight || 720;
+          const ctx = canvas.getContext("2d");
+          if (ctx) ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob((b) => { if (b) frames.push(b); idx++; captureNext(); }, "image/jpeg", 0.85);
+        });
+
+        video.addEventListener("error", () => { clearTimeout(timeout); cleanup(); resolve([]); });
+        captureNext();
+      });
+
+      video.addEventListener("error", () => { clearTimeout(timeout); cleanup(); resolve([]); });
+    });
+  } catch {
+    return [];
+  }
+}
+
 // ─── Edit Drawer ──────────────────────────────────────────────────────────────
 
 function EditDrawer({
@@ -338,18 +390,22 @@ function EditDrawer({
   onClose: () => void;
   onSaved: () => void;
 }) {
-  const [saving, setSaving] = useState(false);
-  const [msg, setMsg]       = useState<{ type: "ok" | "err"; text: string } | null>(null);
-  const drawerRef           = useRef<HTMLDivElement>(null);
+  const [saving, setSaving]           = useState(false);
+  const [msg, setMsg]                 = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const drawerRef                     = useRef<HTMLDivElement>(null);
+  const [frameBlobs, setFrameBlobs]   = useState<Blob[]>([]);
+  const [frameUrls, setFrameUrls]     = useState<string[]>([]);
+  const [framesLoading, setFramesLoading] = useState(false);
 
   const [edit, setEdit] = useState<EditState>({
-    title:            video.title       ?? "",
-    description:      video.description ?? "",
-    category:         video.category    ?? "",
-    tags:             (video.tags ?? []).join(", "),
-    visibility:       video.visibility  ?? "public",
-    thumbnailFile:    null,
-    thumbnailPreview: video.thumbnail_url ?? null,
+    title:              video.title       ?? "",
+    description:        video.description ?? "",
+    category:           video.category    ?? "",
+    tags:               (video.tags ?? []).join(", "),
+    visibility:         video.visibility  ?? "public",
+    thumbnailFile:      null,
+    thumbnailPreview:   video.thumbnail_url ?? null,
+    selectedFrameIndex: null,
   });
 
   // Fechar ao clicar fora — mas só se não for dentro de um portal (dropdown)
@@ -370,12 +426,27 @@ function EditDrawer({
     return () => document.removeEventListener("keydown", handler);
   }, [onClose]);
 
+  useEffect(() => {
+    if (!video.video_url) return;
+    setFramesLoading(true);
+    extractFramesFromUrl(video.video_url).then((blobs) => {
+      setFrameBlobs(blobs);
+      setFramesLoading(false);
+    });
+  }, [video.video_url]);
+
+  useEffect(() => {
+    const urls = frameBlobs.map((b) => URL.createObjectURL(b));
+    setFrameUrls(urls);
+    return () => { urls.forEach((u) => URL.revokeObjectURL(u)); };
+  }, [frameBlobs]);
+
   const handleThumbnail = (file: File | null) => {
     if (!file) {
-      setEdit((p) => ({ ...p, thumbnailFile: null, thumbnailPreview: video.thumbnail_url ?? null }));
+      setEdit((p) => ({ ...p, thumbnailFile: null, thumbnailPreview: video.thumbnail_url ?? null, selectedFrameIndex: null }));
       return;
     }
-    setEdit((p) => ({ ...p, thumbnailFile: file, thumbnailPreview: URL.createObjectURL(file) }));
+    setEdit((p) => ({ ...p, thumbnailFile: file, thumbnailPreview: URL.createObjectURL(file), selectedFrameIndex: null }));
   };
 
   const save = async () => {
@@ -391,6 +462,14 @@ function EditDrawer({
         const { error: upErr } = await supabase.storage
           .from(THUMB_BUCKET)
           .upload(path, edit.thumbnailFile, { upsert: true, contentType: edit.thumbnailFile.type });
+        if (upErr) throw upErr;
+        thumbnailUrl = supabase.storage.from(THUMB_BUCKET).getPublicUrl(path).data.publicUrl;
+      } else if (edit.selectedFrameIndex !== null && frameBlobs[edit.selectedFrameIndex]) {
+        const blob = frameBlobs[edit.selectedFrameIndex];
+        const path = `auto/${video.id}.jpg`;
+        const { error: upErr } = await supabase.storage
+          .from(THUMB_BUCKET)
+          .upload(path, blob, { upsert: true, contentType: "image/jpeg" });
         if (upErr) throw upErr;
         thumbnailUrl = supabase.storage.from(THUMB_BUCKET).getPublicUrl(path).data.publicUrl;
       }
@@ -468,31 +547,69 @@ function EditDrawer({
               </label>
               <span className="text-xs text-foreground/35">JPG, PNG, WEBP</span>
             </div>
-            <div className="relative group aspect-video rounded-xl overflow-hidden bg-black/20 border border-white/10">
-              {edit.thumbnailPreview ? (
-                <>
-                  <img src={edit.thumbnailPreview} alt="" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
-                    <label className="cursor-pointer flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/15 border border-white/20 text-xs text-white font-medium hover:bg-white/25 transition-all">
-                      <ImageIcon size={13} /> Trocar
-                      <input type="file" accept="image/*" className="hidden"
-                        onChange={(e) => handleThumbnail(e.target.files?.[0] ?? null)} />
-                    </label>
-                    <button onClick={() => handleThumbnail(null)}
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/20 border border-red-500/30 text-xs text-red-300 font-medium hover:bg-red-500/30 transition-all">
-                      <X size={13} /> Remover
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <label className="flex flex-col items-center justify-center w-full h-full gap-2 cursor-pointer hover:bg-white/5 transition-all">
-                  <ImageIcon size={24} className="text-foreground/20" />
-                  <span className="text-xs text-foreground/35">Clique para adicionar</span>
+
+            {/* Branch 1: manual file selected */}
+            {edit.thumbnailFile ? (
+              <div className="relative group aspect-video rounded-xl overflow-hidden bg-black/20 border border-white/10">
+                <img src={edit.thumbnailPreview!} alt="" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
+                  <label className="cursor-pointer flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/15 border border-white/20 text-xs text-white font-medium hover:bg-white/25 transition-all">
+                    <ImageIcon size={13} /> Trocar
+                    <input type="file" accept="image/*" className="hidden"
+                      onChange={(e) => handleThumbnail(e.target.files?.[0] ?? null)} />
+                  </label>
+                  <button onClick={() => handleThumbnail(null)}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/20 border border-red-500/30 text-xs text-red-300 font-medium hover:bg-red-500/30 transition-all">
+                    <X size={13} /> Remover
+                  </button>
+                </div>
+              </div>
+
+            ) : framesLoading ? (
+              /* Branch 2: extracting frames */
+              <div className="aspect-video rounded-xl bg-black/20 border border-white/10 flex flex-col items-center justify-center gap-2">
+                <Loader2 size={20} className="animate-spin text-neon-pink/60" />
+                <span className="text-xs text-foreground/35">A extrair frames do vídeo...</span>
+              </div>
+
+            ) : frameUrls.length > 0 ? (
+              /* Branch 3: frame picker */
+              <div className="space-y-2">
+                <div className="grid grid-cols-3 gap-2">
+                  {frameUrls.map((url, i) => {
+                    const isSelected = edit.selectedFrameIndex === i;
+                    return (
+                      <button key={i} type="button"
+                        onClick={() => setEdit((p) => ({ ...p, selectedFrameIndex: i, thumbnailFile: null, thumbnailPreview: url }))}
+                        className={`relative aspect-video rounded-xl overflow-hidden border-2 transition-all ${
+                          isSelected ? "border-neon-pink shadow-lg shadow-neon-pink/20" : "border-white/10 hover:border-white/30"
+                        }`}>
+                        <img src={url} alt={`Frame ${i + 1}`} className="w-full h-full object-cover" />
+                        {isSelected && (
+                          <div className="absolute inset-0 bg-neon-pink/15 flex items-center justify-center">
+                            <CheckCircle2 size={20} className="text-neon-pink drop-shadow-lg" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                <label className="flex items-center justify-center gap-1.5 text-xs text-foreground/40 hover:text-foreground/60 cursor-pointer transition-colors py-1">
+                  <Upload size={12} /> Carregar imagem personalizada
                   <input type="file" accept="image/*" className="hidden"
                     onChange={(e) => handleThumbnail(e.target.files?.[0] ?? null)} />
                 </label>
-              )}
-            </div>
+              </div>
+
+            ) : (
+              /* Branch 4: fallback manual upload */
+              <label className="flex flex-col items-center justify-center w-full aspect-video rounded-xl bg-black/20 border border-dashed border-white/15 gap-2 cursor-pointer hover:bg-white/5 hover:border-white/25 transition-all">
+                <ImageIcon size={24} className="text-foreground/20" />
+                <span className="text-xs text-foreground/35">Clique para adicionar miniatura</span>
+                <input type="file" accept="image/*" className="hidden"
+                  onChange={(e) => handleThumbnail(e.target.files?.[0] ?? null)} />
+              </label>
+            )}
           </div>
 
           {/* Título */}
