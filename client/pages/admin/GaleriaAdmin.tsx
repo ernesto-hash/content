@@ -462,6 +462,13 @@ export default function GaleriaAdmin() {
           </div>
           <div className="flex items-center gap-2">
             <Link
+              to="/admin/upload-videos"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:opacity-80"
+              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}
+            >
+              <Upload size={13} /> Upload de Vídeos
+            </Link>
+            <Link
               to="/admin/regenerar-thumbnails"
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:opacity-80"
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}

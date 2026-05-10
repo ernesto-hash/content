@@ -138,6 +138,7 @@ const AnunciarPagamento = lazy(() => import("./pages/AnunciarPagamento"));
 const AnunciarSucesso   = lazy(() => import("./pages/AnunciarSucesso"));
 const GaleriaAdmin          = lazy(() => import("./pages/admin/GaleriaAdmin"));
 const RegenerarThumbnails   = lazy(() => import("./pages/admin/RegenerarThumbnails"));
+const UploadModelVideos     = lazy(() => import("./pages/admin/UploadModelVideos"));
 
 // ── Query client ───────────────────────────────────────────────────────────────
 const queryClient = new QueryClient();
@@ -317,6 +318,7 @@ const App = () => (
             {/* Admin */}
             <Route path="/admin/galeria"                element={<AdminRoute><GaleriaAdmin /></AdminRoute>} />
             <Route path="/admin/regenerar-thumbnails"   element={<AdminRoute><RegenerarThumbnails /></AdminRoute>} />
+            <Route path="/admin/upload-videos"          element={<AdminRoute><UploadModelVideos /></AdminRoute>} />
 
             {/* 404 — sempre no final */}
             <Route path="*" element={<NotFound />} />
