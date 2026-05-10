@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
+import { handleAnthropicGenerate } from "./routes/anthropic";
 
 export function createServer() {
   const app = express();
@@ -17,6 +18,7 @@ export function createServer() {
     res.json({ message: ping });
   });
   app.get("/api/demo", handleDemo);
+  app.post("/api/anthropic/generate", handleAnthropicGenerate);
 
   return app;
 }
