@@ -616,6 +616,7 @@ export default function GaleriaPackAuthenticated() {
     liked:    Set<string>              = new Set(),
     counts:   Map<string, CountEntry>  = new Map(),
   ): Promise<Foto[]> => {
+    console.log("[signed urls] input length:", raws.length);
     const paths     = raws.map(f => f.storage_path).filter(Boolean);
     const signedMap = new Map<string, string>();
 
@@ -663,6 +664,8 @@ export default function GaleriaPackAuthenticated() {
         .eq("pack_id", id)
         .order("ordem", { ascending: true }),
     ]);
+
+    console.log("[galeria_fotos] data length:", fotosRes.data?.length, "error:", fotosRes.error, "packId:", id);
 
     const packData = (packRes.data as Pack) ?? null;
     setPack(packData);
