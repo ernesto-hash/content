@@ -5,9 +5,10 @@
 //   • 3 thumbnails desfocadas/censuradas na secção inferior do hero card
 //   • Hero com todos os copy elements exactos
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
+import { supabase } from "@/lib/supabaseClient";
 import {
   Crown, ImageIcon, Shield, X, Check, Gem, Lock, AlertTriangle,
 } from "lucide-react";
@@ -179,6 +180,22 @@ function SideColumn({ imgs, side }: { imgs: string[]; side: "left" | "right" }) 
 export default function Galeria() {
   const [showPopup, setShowPopup] = useState(false);
   const totalUsers = 2847;
+  const [previewThumbs, setPreviewThumbs] = useState<string[]>(PREVIEW_THUMBS);
+
+  useEffect(() => {
+    supabase
+      .from("galeria_fotos")
+      .select("storage_path")
+      .eq("is_preview", true)
+      .limit(3)
+      .then(({ data }) => {
+        if (!data || data.length === 0) return;
+        const urls = (data as { storage_path: string }[])
+          .map(f => supabase.storage.from("galeria-fotos").getPublicUrl(f.storage_path).data.publicUrl)
+          .filter(Boolean);
+        if (urls.length > 0) setPreviewThumbs(urls);
+      });
+  }, []);
 
   return (
     <Layout>
@@ -349,7 +366,7 @@ export default function Galeria() {
                 ═══════════════════════════════════════════════ */}
             <div className="relative" style={{ marginTop: "2px" }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "2px" }}>
-                {PREVIEW_THUMBS.map((src, i) => (
+                {previewThumbs.map((src, i) => (
                   <div key={i} className="relative overflow-hidden" style={{ aspectRatio: "3/4" }}>
                     {/* Imagem real desfocada */}
                     <img src={src} alt="" aria-hidden="true"

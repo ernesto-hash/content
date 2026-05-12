@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
+import { supabase } from "@/lib/supabaseClient";
 import {
   ImageIcon, Crown, Gem, Lock, Search, Clock,
   TrendingUp, Sparkles, Eye, ChevronRight, Grid3x3, ArrowRight,
@@ -112,6 +113,22 @@ export default function GaleriaNormalLayout({ packs, packsLoading, nivelUser }: 
   const location = useLocation();
   const [search, setSearch] = useState("");
   const [sort, setSort]     = useState<SortKey>("recentes");
+  const [upgradePreviews, setUpgradePreviews] = useState<string[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from("galeria_fotos")
+      .select("storage_path")
+      .eq("is_preview", true)
+      .limit(3)
+      .then(({ data }) => {
+        if (!data || data.length === 0) return;
+        const urls = (data as { storage_path: string }[])
+          .map(f => supabase.storage.from("galeria-fotos").getPublicUrl(f.storage_path).data.publicUrl)
+          .filter(Boolean);
+        if (urls.length > 0) setUpgradePreviews(urls);
+      });
+  }, []);
 
   const totalFotos = packs.reduce((a, p) => a + p.fotos_count, 0);
   const novosCount = packs.filter(p => isNovo(p.created_at)).length;
@@ -270,7 +287,16 @@ export default function GaleriaNormalLayout({ packs, packsLoading, nivelUser }: 
                       <div key={i} className="w-14 h-20 rounded-xl overflow-hidden relative flex-shrink-0"
                         style={{ border: "1px solid rgba(236,72,153,0.18)" }}>
                         <div className="absolute inset-0"
-                          style={{ background: `linear-gradient(160deg,#2d0a4e,#1a0830)` }} />
+                          style={{ background: "linear-gradient(160deg,#2d0a4e,#1a0830)" }} />
+                        {upgradePreviews[i] && (
+                          <img
+                            src={upgradePreviews[i]}
+                            alt=""
+                            aria-hidden="true"
+                            className="absolute inset-0 w-full h-full object-cover"
+                            style={{ filter: "blur(12px) brightness(0.4)", transform: "scale(1.05)" }}
+                          />
+                        )}
                         <div className="absolute inset-0 flex items-center justify-center"
                           style={{ backdropFilter: "blur(4px)" }}>
                           <Lock size={13} style={{ color: "rgba(236,72,153,0.55)" }} />

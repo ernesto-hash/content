@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock, Crown, ChevronLeft, ChevronRight, Eye, ImageIcon, Sparkles } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 import type { GaleriaLayoutProps, Pack } from "./types";
 
 // ── Partículas flutuantes ─────────────────────────────────────────
@@ -204,7 +205,7 @@ function DestaqueCarrossel({ packs }: { packs: Pack[] }) {
 }
 
 // ── Upgrade card → Raro ───────────────────────────────────────────
-function UpgradeRaroCard() {
+function UpgradeRaroCard({ previews }: { previews: string[] }) {
   const navigate = useNavigate();
   return (
     <div style={{
@@ -230,15 +231,33 @@ function UpgradeRaroCard() {
       </div>
       {/* blurred preview tiles */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, width: "100%" }}>
-        {[1,2,3].map(i => (
+        {[0,1,2].map(i => (
           <div key={i} style={{
             aspectRatio: "3/4", borderRadius: 10, overflow: "hidden",
-            background: `linear-gradient(135deg,rgba(251,191,36,0.${10+i*3}),rgba(245,158,11,0.08))`,
+            background: `linear-gradient(135deg,rgba(251,191,36,${0.10+(i+1)*0.03}),rgba(245,158,11,0.08))`,
             border: "1px solid rgba(251,191,36,0.18)",
-            backdropFilter: "blur(8px)",
-            display: "flex", alignItems: "center", justifyContent: "center",
+            position: "relative",
           }}>
-            <Lock size={18} style={{ color: "rgba(251,191,36,0.55)" }} />
+            {previews[i] && (
+              <img
+                src={previews[i]}
+                alt=""
+                aria-hidden="true"
+                style={{
+                  position: "absolute", inset: 0,
+                  width: "100%", height: "100%", objectFit: "cover",
+                  filter: "blur(12px) brightness(0.4)", transform: "scale(1.05)",
+                  pointerEvents: "none",
+                }}
+              />
+            )}
+            <div style={{
+              position: "absolute", inset: 0,
+              backdropFilter: "blur(4px)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <Lock size={18} style={{ color: "rgba(251,191,36,0.55)" }} />
+            </div>
           </div>
         ))}
       </div>
@@ -266,6 +285,22 @@ export default function GaleriaExclusivoLayout({ packs, packsLoading, planoUser,
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"recente" | "popular" | "az">("recente");
+  const [upgradePreviews, setUpgradePreviews] = useState<string[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from("galeria_fotos")
+      .select("storage_path")
+      .eq("is_preview", true)
+      .limit(3)
+      .then(({ data }) => {
+        if (!data || data.length === 0) return;
+        const urls = (data as { storage_path: string }[])
+          .map(f => supabase.storage.from("galeria-fotos").getPublicUrl(f.storage_path).data.publicUrl)
+          .filter(Boolean);
+        if (urls.length > 0) setUpgradePreviews(urls);
+      });
+  }, []);
 
   const destaquePacks = packs.filter(p => p.destaque).slice(0, 8);
 
@@ -491,7 +526,7 @@ export default function GaleriaExclusivoLayout({ packs, packsLoading, planoUser,
         </section>
 
         {/* ── UPGRADE → RARO ──────────────────────────────────────── */}
-        {nivelUser < 3 && <UpgradeRaroCard />}
+        {nivelUser < 3 && <UpgradeRaroCard previews={upgradePreviews} />}
       </div>
     </div>
   );
