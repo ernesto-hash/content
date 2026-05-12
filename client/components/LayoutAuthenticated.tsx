@@ -340,7 +340,6 @@ interface Profile {
   username: string;
   full_name: string;
   avatar_url: string;
-  verified: boolean;
 }
 
 interface LayoutAuthenticatedProps {
@@ -373,7 +372,7 @@ export default function LayoutAuthenticated({ children, hideHeader = false }: La
 
         const { data, error } = await supabase
           .from("profiles")
-          .select("id,username,full_name,avatar_url,verified,role,created_at")
+          .select("id,username,full_name,avatar_url,role,created_at")
           .eq("id", userId)
           .maybeSingle();
 
@@ -385,7 +384,6 @@ export default function LayoutAuthenticated({ children, hideHeader = false }: La
             username: fullName.split(" ")[0].toLowerCase() || user.email?.split("@")[0] || "user",
             full_name: fullName,
             avatar_url: "",
-            verified: false,
           });
           return;
         }
@@ -399,7 +397,6 @@ export default function LayoutAuthenticated({ children, hideHeader = false }: La
             username: fullName.split(" ")[0].toLowerCase() || user.email?.split("@")[0] || "user",
             full_name: fullName,
             avatar_url: "",
-            verified: false,
           });
         }
       } catch {

@@ -657,7 +657,7 @@ export default function GaleriaPackAuthenticated() {
       supabase
         .from("galeria_fotos")
         .select(`
-          id, storage_path, ordem, is_preview, legenda,
+          id, storage_path, ordem, is_preview,
           likes_agg:galeria_fotos_likes(count),
           coments_agg:galeria_fotos_comentarios(count)
         `)
