@@ -408,6 +408,8 @@ export default function GaleriaAuthenticated() {
   const featuredScrollRef = useRef<HTMLDivElement>(null);
 
   // ── Estado para a landing de planos ──────────────────
+  const [previewUrls, setPreviewUrls] = useState<string[]>(PREVIEW_THUMBS_6);
+
   const [periodo, setPeriodo]               = useState<"mensal" | "anual">("mensal");
   const [heroVisible,       setHeroVisible]       = useState(false);
   const [statsVisible,      setStatsVisible]      = useState(false);
@@ -428,6 +430,22 @@ export default function GaleriaAuthenticated() {
   useEffect(() => {
     const t = setTimeout(() => setHeroVisible(true), 120);
     return () => clearTimeout(t);
+  }, []);
+
+  // Fetch preview images from DB (public bucket, no auth)
+  useEffect(() => {
+    supabase
+      .from("galeria_fotos")
+      .select("storage_path")
+      .eq("is_preview", true)
+      .limit(6)
+      .then(({ data }) => {
+        if (!data || data.length === 0) return;
+        const urls = (data as { storage_path: string }[])
+          .map(f => supabase.storage.from("galeria-fotos").getPublicUrl(f.storage_path).data.publicUrl)
+          .filter(Boolean);
+        if (urls.length > 0) setPreviewUrls(urls);
+      });
   }, []);
 
   // Contador animado (0 → 2847 em 2s, ease-out cubic)
@@ -900,7 +918,7 @@ export default function GaleriaAuthenticated() {
               {/* Grid 6 thumbnails */}
               <div style={{ position: "relative" }}>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {PREVIEW_THUMBS_6.map((src, i) => (
+                  {previewUrls.map((src, i) => (
                     <div
                       key={i}
                       className="group"

@@ -561,6 +561,7 @@ export default function GaleriaPackAuthenticated() {
   const [likedSet,   setLikedSet]   = useState<Set<string>>(new Set());
   const [countMap,   setCountMap]   = useState<Map<string, CountEntry>>(new Map());
   const [commentsFotoId, setCommentsFotoId] = useState<string | null>(null);
+  const [previewFotos,  setPreviewFotos]  = useState<string[]>([]);
 
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -730,6 +731,24 @@ export default function GaleriaPackAuthenticated() {
       if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
     };
   }, [rawFotos, buildSignedFotos, likedSet, countMap]);
+
+  // ── 7. Fetch preview images (public bucket, no auth) ─────────────────────
+  useEffect(() => {
+    if (!id) return;
+    supabase
+      .from("galeria_fotos")
+      .select("storage_path")
+      .eq("pack_id", id)
+      .eq("is_preview", true)
+      .limit(6)
+      .then(({ data }) => {
+        if (!data || data.length === 0) return;
+        const urls = (data as { storage_path: string }[])
+          .map(f => supabase.storage.from("galeria-fotos").getPublicUrl(f.storage_path).data.publicUrl)
+          .filter(Boolean);
+        setPreviewFotos(urls);
+      });
+  }, [id]);
 
   // ── Like toggle ───────────────────────────────────────────────────────────
   const toggleLike = useCallback(async (fotoId: string) => {
@@ -939,9 +958,66 @@ export default function GaleriaPackAuthenticated() {
         ) : isPremium ? (
           <FotoGrid fotos={fotos} onOpen={openLb} />
         ) : (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <Lock size={32} style={{ color: "#ec4899" }} />
-            <p className="text-sm" style={{ color: "rgba(255,255,255,0.40)" }}>A verificar acesso…</p>
+          <div
+            className="relative rounded-2xl overflow-hidden"
+            style={{ minHeight: "360px", border: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.30)" }}
+          >
+            {/* Blurred preview images */}
+            {previewFotos.length > 0 && (
+              <div
+                className="absolute inset-0 grid grid-cols-3"
+                style={{ pointerEvents: "none", zIndex: 0 }}
+              >
+                {previewFotos.map((url, i) => (
+                  <div key={i} className="overflow-hidden">
+                    <img
+                      src={url}
+                      alt=""
+                      aria-hidden="true"
+                      className="w-full h-full object-cover"
+                      style={{ filter: "blur(12px) brightness(0.4)", transform: "scale(1.05)" }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Lock UI */}
+            <div
+              className="relative flex flex-col items-center justify-center gap-5"
+              style={{ minHeight: "360px", zIndex: 1 }}
+            >
+              <div
+                className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                style={{
+                  background:     "rgba(236,72,153,0.18)",
+                  border:         "1px solid rgba(236,72,153,0.45)",
+                  backdropFilter: "blur(8px)",
+                  boxShadow:      "0 0 32px rgba(236,72,153,0.25)",
+                }}
+              >
+                <Lock size={28} style={{ color: "#ec4899" }} />
+              </div>
+              <div className="text-center space-y-1">
+                <p className="text-base font-bold" style={{ color: "rgba(255,255,255,0.85)" }}>
+                  Conteúdo bloqueado
+                </p>
+                <p className="text-xs" style={{ color: "rgba(255,255,255,0.40)" }}>
+                  Subscreve para desbloquear este pack
+                </p>
+              </div>
+              <button
+                onClick={() => navigate("/app/galeria")}
+                className="px-6 py-2.5 rounded-xl text-sm font-black transition-all"
+                style={{
+                  background: "linear-gradient(90deg,#ec4899,#9333ea)",
+                  color:      "white",
+                  boxShadow:  "0 0 20px rgba(236,72,153,0.35)",
+                }}
+              >
+                Ver planos →
+              </button>
+            </div>
           </div>
         )}
       </div>
