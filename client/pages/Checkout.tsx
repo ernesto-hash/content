@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
+import { supabase } from "@/lib/supabaseClient";
 import {
   Crown, ImageIcon, Gem, Shield, Lock, Check,
   Zap, Star, ArrowRight, Clock,
@@ -86,10 +87,26 @@ export default function Checkout() {
   const planoParam  = searchParams.get("plano")   ?? "exclusivo";
   const periodoParam = (searchParams.get("periodo") ?? "mensal") as "mensal" | "anual";
 
-  const [periodo, setPeriodo] = useState<"mensal" | "anual">(periodoParam);
-  const [animIn,  setAnimIn]  = useState(false);
+  const [periodo,     setPeriodo]     = useState<"mensal" | "anual">(periodoParam);
+  const [animIn,      setAnimIn]      = useState(false);
+  const [previewUrls, setPreviewUrls] = useState<string[]>(PREVIEW_THUMBS);
 
   const plano = CHECKOUT_PLANOS.find(p => p.id === planoParam) ?? CHECKOUT_PLANOS[1];
+
+  useEffect(() => {
+    supabase
+      .from("galeria_fotos")
+      .select("storage_path")
+      .eq("is_preview", true)
+      .limit(6)
+      .then(({ data }) => {
+        if (!data || data.length === 0) return;
+        const urls = (data as { storage_path: string }[])
+          .map(f => supabase.storage.from("galeria-fotos").getPublicUrl(f.storage_path).data.publicUrl)
+          .filter(Boolean);
+        if (urls.length > 0) setPreviewUrls(urls);
+      });
+  }, []);
 
   useEffect(() => {
     if (!CHECKOUT_PLANOS.find(p => p.id === planoParam)) {
@@ -107,13 +124,30 @@ export default function Checkout() {
 
   return (
     <LayoutAuthenticated>
-      <div className="min-h-screen py-8 px-4" style={{ background: "#080010" }}>
+      <div className="relative min-h-screen overflow-hidden py-8 px-4" style={{ background: "#080010" }}>
+
+        {/* ── Blurred preview background ────────────────────────── */}
+        <div className="absolute inset-0 grid grid-cols-3" style={{ pointerEvents: "none", zIndex: 0 }}>
+          {previewUrls.map((url, i) => (
+            <div key={i} className="overflow-hidden">
+              <img
+                src={url}
+                alt=""
+                aria-hidden="true"
+                className="w-full h-full object-cover"
+                style={{ filter: "blur(14px) brightness(0.35)", transform: "scale(1.05)" }}
+                onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+              />
+            </div>
+          ))}
+        </div>
+        <div className="absolute inset-0" style={{ background: "rgba(8,0,16,0.72)", pointerEvents: "none", zIndex: 0 }} />
 
         {/* ── Bokeh background ──────────────────────────────────── */}
-        <div className="fixed pointer-events-none" style={{ top: "15%", left: "3%", width: "450px", height: "450px", background: "radial-gradient(circle,rgba(236,72,153,0.07) 0%,transparent 70%)", filter: "blur(70px)", zIndex: 0 }} />
-        <div className="fixed pointer-events-none" style={{ bottom: "15%", right: "3%", width: "550px", height: "550px", background: "radial-gradient(circle,rgba(147,51,234,0.06) 0%,transparent 70%)", filter: "blur(90px)", zIndex: 0 }} />
+        <div className="fixed pointer-events-none" style={{ top: "15%", left: "3%", width: "450px", height: "450px", background: "radial-gradient(circle,rgba(236,72,153,0.07) 0%,transparent 70%)", filter: "blur(70px)", zIndex: 1 }} />
+        <div className="fixed pointer-events-none" style={{ bottom: "15%", right: "3%", width: "550px", height: "550px", background: "radial-gradient(circle,rgba(147,51,234,0.06) 0%,transparent 70%)", filter: "blur(90px)", zIndex: 1 }} />
 
-        <div className="relative max-w-5xl mx-auto" style={{ zIndex: 1 }}>
+        <div className="relative max-w-5xl mx-auto" style={{ zIndex: 2 }}>
 
           {/* ── Header ────────────────────────────────────────────── */}
           <div
@@ -164,7 +198,7 @@ export default function Checkout() {
                 style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}
               >
                 <div className="grid grid-cols-3 gap-0.5">
-                  {PREVIEW_THUMBS.map((src, i) => (
+                  {previewUrls.map((src, i) => (
                     <div key={i} className="relative overflow-hidden group" style={{ aspectRatio: "3/4" }}>
                       <img
                         src={src}
