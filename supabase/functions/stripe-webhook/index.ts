@@ -205,14 +205,15 @@ async function handleEvent(
         .update({
           status,
           plano,
-          stripe_sub_id: sub.id,
-          periodo_fim:   new Date((sub.current_period_end ?? 0) * 1000).toISOString(),
-          trial_fim:     sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
+          stripe_sub_id:        sub.id,
+          cancel_at_period_end: sub.cancel_at_period_end ?? false,
+          periodo_fim:          new Date((sub.current_period_end ?? 0) * 1000).toISOString(),
+          trial_fim:            sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
         })
         .eq("stripe_sub_id", sub.id);
 
       if (error) throw new Error(`DB update failed (subscription.updated): ${error.message}`);
-      console.log(`[webhook] Subscrição actualizada ${sub.id}: ${status}, plano ${plano}`);
+      console.log(`[webhook] Subscrição actualizada ${sub.id}: ${status}, plano ${plano}, cancel_at_period_end ${sub.cancel_at_period_end ?? false}`);
       break;
     }
 
@@ -222,13 +223,14 @@ async function handleEvent(
       const { error } = await supabase
         .from("galeria_subscricoes")
         .update({
-          status:      "expired",
-          periodo_fim: new Date((sub.current_period_end ?? 0) * 1000).toISOString(),
+          status:               "expired",
+          cancel_at_period_end: false,
+          periodo_fim:          new Date((sub.current_period_end ?? 0) * 1000).toISOString(),
         })
         .eq("stripe_sub_id", sub.id);
 
       if (error) throw new Error(`DB update failed (subscription.deleted): ${error.message}`);
-      console.log(`[webhook] Subscrição cancelada ${sub.id}`);
+      console.log(`[webhook] Subscrição expirada ${sub.id}`);
       break;
     }
 

@@ -12,8 +12,9 @@ import {
   Crown, ImageIcon, Shield, X, Check, Gem,
   BadgeCheck, Lock, Search, SlidersHorizontal,
   Eye, Clock, Flame, TrendingUp, Grid3x3, Sparkles,
-  ChevronRight, AlertTriangle, ChevronDown,
+  ChevronRight, AlertTriangle, ChevronDown, AlertCircle, RefreshCw,
 } from "lucide-react";
+import ReauthModal from "@/components/ReauthModal";
 
 // ─────────────────────────────────────────────
 // Tipos
@@ -147,6 +148,231 @@ function SideColumn({ imgs, side }: { imgs: string[]; side: "left" | "right" }) 
         background: "linear-gradient(to bottom, rgba(8,0,14,0.75) 0%, transparent 15%, transparent 82%, rgba(8,0,14,0.75) 100%)",
       }} />
     </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Modal de gestão de subscrição (cancelar / reativar)
+// ─────────────────────────────────────────────
+interface GerirSubscricaoModalProps {
+  plano:              string | null;
+  periodoFim:         string | null;
+  cancelAtPeriodEnd:  boolean;
+  onClose:            () => void;
+  onCancelado:        () => void;
+  onReativado:        () => void;
+}
+
+function GerirSubscricaoModal({
+  plano, periodoFim, cancelAtPeriodEnd, onClose, onCancelado, onReativado,
+}: GerirSubscricaoModalProps) {
+  const [step, setStep]       = useState<"info" | "confirm" | "reauth">("info");
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState<string | null>(null);
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+
+  const fimFormatado = periodoFim
+    ? new Date(periodoFim).toLocaleDateString("pt-PT", { day: "numeric", month: "long", year: "numeric" })
+    : null;
+
+  const planoLabel: Record<string, string> = {
+    normal:    "Normal",
+    exclusivo: "Exclusivo",
+    raro:      "Raro",
+  };
+
+  const callEdgeFunction = async (endpoint: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) { setError("Sessão inválida. Faz login novamente."); return false; }
+
+      const res = await fetch(`${supabaseUrl}/functions/v1/${endpoint}`, {
+        method:  "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type":  "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body.error ?? "Ocorreu um erro. Tenta novamente.");
+        return false;
+      }
+      return true;
+    } catch {
+      setError("Erro de rede. Verifica a ligação e tenta novamente.");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelar = async () => {
+    const ok = await callEdgeFunction("cancel-subscription");
+    if (ok) onCancelado();
+  };
+
+  const handleReativar = async () => {
+    const ok = await callEdgeFunction("reactivate-subscription");
+    if (ok) onReativado();
+  };
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style={{ background: "rgba(0,0,0,0.88)", backdropFilter: "blur(10px)" }}
+        role="dialog"
+        aria-modal="true"
+      >
+        <div
+          className="relative w-full max-w-sm rounded-2xl border border-white/10 overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #0f0218 0%, #1a0830 100%)" }}
+        >
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center text-white/30 hover:text-white hover:bg-white/10 transition-all"
+            aria-label="Fechar"
+          >
+            <X size={14} />
+          </button>
+
+          <div className="p-7 space-y-5">
+            {/* Header */}
+            <div className="flex flex-col items-center text-center gap-2">
+              <div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                style={{ background: "linear-gradient(135deg,#ec4899,#9333ea)", boxShadow: "0 0 20px rgba(236,72,153,0.25)" }}
+              >
+                <SlidersHorizontal size={20} className="text-white" />
+              </div>
+              <div>
+                <h2 className="text-base font-black text-white">Gerir subscrição</h2>
+                <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.40)" }}>
+                  Plano <strong className="text-white/70">{planoLabel[plano ?? ""] ?? plano ?? "—"}</strong>
+                </p>
+              </div>
+            </div>
+
+            {/* Datas */}
+            <div
+              className="rounded-xl p-4 space-y-2"
+              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+            >
+              {cancelAtPeriodEnd ? (
+                <div className="flex items-start gap-2">
+                  <AlertCircle size={14} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
+                    Subscrição <strong className="text-amber-400">cancelada</strong> —
+                    manténs acesso até{" "}
+                    <strong className="text-white">{fimFormatado ?? "—"}</strong>.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex items-start gap-2">
+                  <Check size={14} className="text-emerald-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
+                    Subscrição <strong className="text-emerald-400">activa</strong> —
+                    renova em{" "}
+                    <strong className="text-white">{fimFormatado ?? "—"}</strong>.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Erro */}
+            {error && (
+              <div className="flex items-start gap-2 p-3 rounded-xl text-sm" style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}>
+                <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* Acções */}
+            {cancelAtPeriodEnd ? (
+              /* Reativar */
+              <div className="space-y-2.5">
+                <button
+                  onClick={handleReativar}
+                  disabled={loading}
+                  className="w-full py-2.5 rounded-xl text-sm font-black transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  style={{ background: "linear-gradient(90deg,#ec4899,#9333ea)", color: "#fff" }}
+                >
+                  {loading
+                    ? <><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />A reativar...</>
+                    : <><RefreshCw size={14} />Reativar subscrição</>}
+                </button>
+                <button
+                  onClick={onClose}
+                  disabled={loading}
+                  className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.50)" }}
+                >
+                  Fechar
+                </button>
+              </div>
+            ) : step === "info" ? (
+              /* Mostrar botão de cancelar */
+              <div className="space-y-2.5">
+                <button
+                  onClick={onClose}
+                  className="w-full py-2.5 rounded-xl text-sm font-black transition-all"
+                  style={{ background: "linear-gradient(90deg,#ec4899,#9333ea)", color: "#fff" }}
+                >
+                  Manter subscrição
+                </button>
+                <button
+                  onClick={() => setStep("confirm")}
+                  className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all"
+                  style={{ background: "transparent", border: "1px solid rgba(239,68,68,0.30)", color: "rgba(239,68,68,0.70)" }}
+                >
+                  Cancelar subscrição
+                </button>
+              </div>
+            ) : (
+              /* Confirmação */
+              <div className="space-y-3">
+                <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  Tens a certeza? Continuarás a ter acesso até{" "}
+                  <strong className="text-white">{fimFormatado ?? "—"}</strong>.
+                  Após essa data perderás o acesso ao conteúdo.
+                </p>
+                <button
+                  onClick={() => setStep("reauth")}
+                  disabled={loading}
+                  className="w-full py-2.5 rounded-xl text-sm font-black transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.35)", color: "#f87171" }}
+                >
+                  Cancelar mesmo assim
+                </button>
+                <button
+                  onClick={() => { setStep("info"); setError(null); }}
+                  disabled={loading}
+                  className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.50)" }}
+                >
+                  Manter subscrição
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ReauthModal abre por cima */}
+      <ReauthModal
+        open={step === "reauth"}
+        onClose={() => setStep("confirm")}
+        onSuccess={handleCancelar}
+        action="cancelar a subscrição"
+      />
+    </>
   );
 }
 
@@ -393,9 +619,12 @@ export default function GaleriaAuthenticated() {
   const upgradeParam    = searchParams.get("upgrade");
   const fromSucesso     = searchParams.get("from") === "sucesso";
 
-  const [currentUserId,   setCurrentUserId]   = useState<string | null>(null);
-  const [subStatus,       setSubStatus]       = useState<SubStatus>("loading");
-  const [planoUtilizador, setPlanoUtilizador] = useState<string | null>(null);
+  const [currentUserId,      setCurrentUserId]      = useState<string | null>(null);
+  const [subStatus,          setSubStatus]          = useState<SubStatus>("loading");
+  const [planoUtilizador,    setPlanoUtilizador]    = useState<string | null>(null);
+  const [periodoFim,         setPeriodoFim]         = useState<string | null>(null);
+  const [cancelAtPeriodEnd,  setCancelAtPeriodEnd]  = useState(false);
+  const [showGerirModal,     setShowGerirModal]     = useState(false);
   const [packs, setPacks]                     = useState<Pack[]>([]);
   const [packsLoading, setPacksLoading]   = useState(false);
   const [showPopup, setShowPopup]         = useState(false);
@@ -504,7 +733,7 @@ export default function GaleriaAuthenticated() {
   const checkSubscription = useCallback(async (userId: string, attempt = 0) => {
     const { data } = await supabase
       .from("galeria_subscricoes")
-      .select("status,plano,periodo_fim,trial_fim")
+      .select("status,plano,periodo_fim,trial_fim,cancel_at_period_end")
       .eq("user_id", userId)
       .in("status", ["active","trial"])
       .maybeSingle();
@@ -515,11 +744,15 @@ export default function GaleriaAuthenticated() {
       const trialOk = data.trial_fim   ? new Date(data.trial_fim)   > now : true;
       if (data.status === "trial"  && trialOk) {
         setPlanoUtilizador(data.plano ?? null);
+        setPeriodoFim(data.periodo_fim ?? null);
+        setCancelAtPeriodEnd(data.cancel_at_period_end ?? false);
         setSubStatus("trial");
         return;
       }
       if (data.status === "active" && fimOk) {
         setPlanoUtilizador(data.plano ?? null);
+        setPeriodoFim(data.periodo_fim ?? null);
+        setCancelAtPeriodEnd(data.cancel_at_period_end ?? false);
         setSubStatus("active");
         return;
       }
@@ -1530,7 +1763,7 @@ export default function GaleriaAuthenticated() {
         )}
 
         <div className="flex items-center justify-center pt-2">
-          <button onClick={() => setShowPopup(true)}
+          <button onClick={() => setShowGerirModal(true)}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs transition-all"
             style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.40)" }}>
             <SlidersHorizontal size={13} /> Gerir subscrição
@@ -1538,7 +1771,22 @@ export default function GaleriaAuthenticated() {
         </div>
       </div>
 
-      {showPopup && <SubscribePopup onClose={() => setShowPopup(false)} />}
+      {showGerirModal && (
+        <GerirSubscricaoModal
+          plano={planoUtilizador}
+          periodoFim={periodoFim}
+          cancelAtPeriodEnd={cancelAtPeriodEnd}
+          onClose={() => setShowGerirModal(false)}
+          onCancelado={() => {
+            setCancelAtPeriodEnd(true);
+            setShowGerirModal(false);
+          }}
+          onReativado={() => {
+            setCancelAtPeriodEnd(false);
+            setShowGerirModal(false);
+          }}
+        />
+      )}
 
       <style>{`
         @keyframes badgePulse {
