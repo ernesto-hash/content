@@ -185,24 +185,19 @@ async function handleEvent(
     }
 
     case "customer.subscription.updated": {
-      const sub    = event.data.object as Stripe.Subscription;
-      const userId = sub.metadata?.supabase_user_id;
-      if (!userId) {
-        console.warn(`[webhook] subscription.updated sem supabase_user_id: ${sub.id}`);
-        break;
-      }
-
-      const item  = sub.items.data[0];
+      const sub  = event.data.object as Stripe.Subscription;
+      const item = sub.items.data[0];
       const plano = getPlanFromPriceId(item?.price?.id ?? "");
 
       let status: string;
       switch (sub.status) {
-        case "active":   status = "active";  break;
-        case "trialing": status = "trial";   break;
+        case "active":             status = "active";   break;
+        case "trialing":           status = "trial";    break;
+        case "past_due":           status = "past_due"; break;
         case "canceled":
-        case "unpaid":
-        case "past_due": status = "expired"; break;
-        default:         status = sub.status;
+        case "incomplete_expired":
+        case "unpaid":             status = "expired";  break;
+        default:                   status = sub.status;
       }
 
       const { error } = await supabase
@@ -214,31 +209,26 @@ async function handleEvent(
           periodo_fim:   new Date((sub.current_period_end ?? 0) * 1000).toISOString(),
           trial_fim:     sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
         })
-        .eq("user_id", userId);
+        .eq("stripe_sub_id", sub.id);
 
       if (error) throw new Error(`DB update failed (subscription.updated): ${error.message}`);
-      console.log(`[webhook] Subscrição actualizada para user ${userId}: ${status}`);
+      console.log(`[webhook] Subscrição actualizada ${sub.id}: ${status}, plano ${plano}`);
       break;
     }
 
     case "customer.subscription.deleted": {
-      const sub    = event.data.object as Stripe.Subscription;
-      const userId = sub.metadata?.supabase_user_id;
-      if (!userId) {
-        console.warn(`[webhook] subscription.deleted sem supabase_user_id: ${sub.id}`);
-        break;
-      }
+      const sub = event.data.object as Stripe.Subscription;
 
       const { error } = await supabase
         .from("galeria_subscricoes")
         .update({
           status:      "expired",
-          periodo_fim: new Date().toISOString(),
+          periodo_fim: new Date((sub.current_period_end ?? 0) * 1000).toISOString(),
         })
-        .eq("user_id", userId);
+        .eq("stripe_sub_id", sub.id);
 
       if (error) throw new Error(`DB update failed (subscription.deleted): ${error.message}`);
-      console.log(`[webhook] Subscrição cancelada para user ${userId}`);
+      console.log(`[webhook] Subscrição cancelada ${sub.id}`);
       break;
     }
 
@@ -247,23 +237,21 @@ async function handleEvent(
       const subId   = invoice.subscription as string | null;
       if (!subId) break;
 
-      const sub    = await stripe.subscriptions.retrieve(subId);
-      const userId = sub.metadata?.supabase_user_id;
-      if (!userId) {
-        console.warn(`[webhook] payment_succeeded sem supabase_user_id: ${subId}`);
-        break;
-      }
+      const sub  = await stripe.subscriptions.retrieve(subId);
+      const item = sub.items.data[0];
+      const plano = getPlanFromPriceId(item?.price?.id ?? "");
 
       const { error } = await supabase
         .from("galeria_subscricoes")
         .update({
           status:      "active",
+          plano,
           periodo_fim: new Date((sub.current_period_end ?? 0) * 1000).toISOString(),
         })
-        .eq("user_id", userId);
+        .eq("stripe_sub_id", subId);
 
       if (error) throw new Error(`DB update failed (payment_succeeded): ${error.message}`);
-      console.log(`[webhook] Pagamento bem-sucedido para user ${userId}`);
+      console.log(`[webhook] Pagamento bem-sucedido sub ${subId}, plano ${plano}`);
       break;
     }
 
@@ -272,14 +260,13 @@ async function handleEvent(
       const subId   = invoice.subscription as string | null;
       if (!subId) break;
 
-      const sub    = await stripe.subscriptions.retrieve(subId);
-      const userId = sub.metadata?.supabase_user_id;
-      if (!userId) {
-        console.warn(`[webhook] payment_failed sem supabase_user_id: ${subId}`);
-        break;
-      }
+      const { error } = await supabase
+        .from("galeria_subscricoes")
+        .update({ status: "past_due" })
+        .eq("stripe_sub_id", subId);
 
-      console.warn(`[webhook] Pagamento falhado para user ${userId}, sub ${subId}`);
+      if (error) throw new Error(`DB update failed (payment_failed): ${error.message}`);
+      console.warn(`[webhook] Pagamento falhado sub ${subId} → past_due`);
       break;
     }
 
