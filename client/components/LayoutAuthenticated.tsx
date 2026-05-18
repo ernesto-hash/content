@@ -515,6 +515,9 @@ export default function LayoutAuthenticated({ children, hideHeader = false }: La
               <Link to="/app/galeria" className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all flex items-center gap-1 ${location.pathname.startsWith("/app/galeria") ? "text-foreground bg-gradient-to-r from-yellow-500/20 to-neon-pink/20 border border-yellow-500/30" : "text-foreground/80 hover:text-yellow-400 hover:bg-white/5"}`}>
                 <Crown size={13} className="text-yellow-400" /> Galeria
               </Link>
+              <Link to="/modelosauthenticated" className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${location.pathname === "/modelosauthenticated" ? "text-foreground bg-gradient-to-r from-neon-pink/20 to-neon-purple/20 border border-neon-pink/30" : "text-foreground/80 hover:text-neon-pink hover:bg-white/5"}`}>
+                Modelos
+              </Link>
             </div>
           </div>
         </nav>

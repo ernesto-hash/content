@@ -72,7 +72,7 @@ function distribuirPorModelo<T extends { user_id: string }>(videos: T[]): T[] {
     grupos.get(v.user_id)!.push(v);
   }
 
-  const filas = [...grupos.values()];
+  const filas = [...grupos.values()].sort(() => Math.random() - 0.5);
   const resultado: T[] = [];
   let posicao = 0;
 

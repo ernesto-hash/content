@@ -434,6 +434,9 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
               <Link to="/galeria" className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all flex items-center gap-1 ${location.pathname === "/galeria" ? "text-foreground bg-gradient-to-r from-neon-pink/20 to-neon-purple/20 border border-neon-pink/30" : "text-foreground/80 hover:text-neon-pink hover:bg-white/5"}`}>
                 <Crown size={13} className="text-yellow-400" /> Galeria
               </Link>
+              <Link to="/modelos" className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${location.pathname === "/modelos" ? "text-foreground bg-gradient-to-r from-neon-pink/20 to-neon-purple/20 border border-neon-pink/30" : "text-foreground/80 hover:text-neon-pink hover:bg-white/5"}`}>
+                Modelos
+              </Link>
             </div>
           </div>
         </nav>

@@ -378,7 +378,7 @@ export function ModelosPage() {
             <div className="flex gap-3">
               {[
                 { label: "Criadores",  value: loading ? "—" : fmtNum(total),                                            icon: Users, color: "text-neon-pink" },
-                { label: "Com vídeos", value: loading ? "—" : fmtNum(creators.filter(c => c.video_count > 0).length),   icon: Film,  color: "text-neon-blue" },
+                { label: "Vídeos", value: loading ? "—" : fmtNum(creators.reduce((sum, c) => sum + c.video_count, 0)), icon: Film,  color: "text-neon-blue" },
               ].map(({ label, value, icon: Icon, color }) => (
                 <div key={label} className="text-center px-5 py-4 rounded-xl bg-white/5 border border-white/8 flex-shrink-0">
                   <Icon size={16} className={`mx-auto mb-1 ${color}`} />
