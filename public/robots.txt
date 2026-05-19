@@ -8,3 +8,4 @@ Disallow: /profile
 Disallow: /escolher-conta
 
 Sitemap: https://suckorsex.com/sitemap.xml
+Sitemap: https://suckorsex.com/api/sitemap-videos.xml
