@@ -5,9 +5,14 @@
 
 
 [functions]
-  external_node_modules = ["express"]
+  external_node_modules = ["express", "@supabase/supabase-js"]
   node_bundler = "esbuild"
-  
+
+[[redirects]]
+  from = "/sitemap-videos.xml"
+  status = 200
+  to = "/.netlify/functions/sitemap-videos"
+
 [[redirects]]
   force = true
   from = "/api/*"
