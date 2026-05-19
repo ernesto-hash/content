@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { supabase } from "@/lib/supabaseClient";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import {
   Flame, Eye, Heart, MessageCircle, Clock, Play,
   Grid3x3, List, TrendingUp, SlidersHorizontal,
@@ -411,6 +412,8 @@ function SkeletonGrid() {
 const PAGE_SIZE = 24;
 
 export default function PopularesPage() {
+  useDocumentTitle({ title: "Vídeos Populares - SuckOrSex" });
+
   const [videos, setVideos]           = useState<Video[]>([]);
   const [loading, setLoading]         = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { supabase } from "@/lib/supabaseClient";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import {
   Star, Eye, Heart, Play, Search, Clock,
   ChevronRight, Loader2, Film, VolumeX, Award,
@@ -173,6 +174,7 @@ function VideoCard({ video, rank }: { video: Video; rank: number }) {
 }
 
 export default function MelhoresAvaliadosPage() {
+  useDocumentTitle({ title: "Vídeos Mais Avaliados - SuckOrSex" });
   const [videos, setVideos]   = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery]     = useState("");

@@ -11,6 +11,7 @@ import {
   ChevronRight, Loader2, SlidersHorizontal, AlertCircle,
 } from "lucide-react";
 import VideoCard from "@/components/VideoCard";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 type Video = {
   id: string;
@@ -39,6 +40,7 @@ function fmtDate(iso: string) {
 
 
 export default function VintagePage() {
+  useDocumentTitle({ title: "Vídeos Vintage - SuckOrSex" });
   const [videos, setVideos]       = useState<Video[]>([]);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);

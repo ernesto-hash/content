@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { supabase } from "@/lib/supabaseClient";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import {
   TrendingUp, Eye, Heart, Play, Search, Clock,
   ChevronRight, Loader2, Film, VolumeX, Zap,
@@ -158,6 +159,7 @@ function VideoCard({ video, rank, hot }: { video: Video; rank: number; hot?: boo
 }
 
 export default function TendenciasPage() {
+  useDocumentTitle({ title: "Vídeos em Tendência - SuckOrSex" });
   const [videos, setVideos]   = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery]     = useState("");

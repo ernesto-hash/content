@@ -11,6 +11,7 @@ import {
   ChevronRight, Loader2, Film, SlidersHorizontal, AlertCircle,
 } from "lucide-react";
 import VideoCard from "@/components/VideoCard";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 type Video = {
   id: string;

@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import AdBanner, { type Ad as BannerAd } from "@/components/AdBanner";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { supabase } from "@/lib/supabaseClient";
 import {
   Play, Heart, Bookmark, Flame, Sparkles, TrendingUp,
@@ -479,6 +480,36 @@ function CategoryRow({ category, videos, onLike, onSave, likedIds, savedIds }: {
 // Componente principal
 // ─────────────────────────────────────────────
 export default function Index() {
+  useDocumentTitle({
+    title: "SuckOrSex - Vídeos Porno Grátis & Conteúdo XXX HD",
+    url: "https://suckorsex.com/",
+  });
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.id = "website-schema";
+    script.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "SuckOrSex",
+      "url": "https://suckorsex.com",
+      "description": "Vídeos porno grátis em HD, conteúdo amador e XXX",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://suckorsex.com/videos?q={search_term_string}",
+        },
+        "query-input": "required name=search_term_string",
+      },
+    });
+    document.head.appendChild(script);
+    return () => {
+      document.getElementById("website-schema")?.remove();
+    };
+  }, []);
+
   // pool  = todos os vídeos após diversidade, guardados em ref (sem re-render)
   //         e em estado (para useMemo derivados)
   // page  = cursor de paginação local (quantos PAGE_SIZE chunks mostrar)

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import LayoutVideo from "@/components/LayoutVideo";
 import { supabase } from "@/lib/supabaseClient";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 type VideoData = {
   id: string;
@@ -259,6 +260,39 @@ export default function Video() {
 
   const isIOS = useMemo(() => isIOSDevice(), []);
   const isMobile = useMemo(() => isMobileDevice(), []);
+
+  useDocumentTitle({
+    title: video ? `${video.title} - SuckOrSex` : "SuckOrSex - Vídeos Porno Grátis & Conteúdo XXX HD",
+    description: video?.description ?? undefined,
+    image: video?.thumbnail_url ?? null,
+    type: "video.other",
+  });
+
+  useEffect(() => {
+    if (!video) return;
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.id = "video-schema";
+    script.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      "name": video.title,
+      "description": `${video.title} - Assiste grátis no SuckOrSex`,
+      "thumbnailUrl": video.thumbnail_url,
+      "uploadDate": video.created_at,
+      "contentUrl": video.video_url,
+      "embedUrl": window.location.href,
+      "publisher": {
+        "@type": "Organization",
+        "name": "SuckOrSex",
+        "url": "https://suckorsex.com",
+      },
+    });
+    document.head.appendChild(script);
+    return () => {
+      document.getElementById("video-schema")?.remove();
+    };
+  }, [video]);
 
   const clearControlsTimer = useCallback(() => {
     if (controlsTimer.current) clearTimeout(controlsTimer.current);

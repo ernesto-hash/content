@@ -10,6 +10,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Layout from "@/components/Layout";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { supabase } from "@/lib/supabaseClient";
 import {
   Play, Eye, Heart, Film, Loader2, Search, X,
@@ -245,6 +246,7 @@ function CreatorCard({
 type SortOption = "subscribers" | "videos" | "views" | "recentes";
 
 export function ModelosPage() {
+  useDocumentTitle({ title: "Modelos - SuckOrSex" });
   const [creators, setCreators]   = useState<Creator[]>([]);
   const [loading, setLoading]     = useState(true);
   const [query, setQuery]         = useState("");

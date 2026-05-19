@@ -11,6 +11,7 @@ import {
   ChevronRight, Loader2, Film, SlidersHorizontal, AlertCircle,
 } from "lucide-react";
 import VideoCard from "@/components/VideoCard";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 type Video = {
   id: string;
@@ -39,6 +40,7 @@ function fmtDate(iso: string) {
 
 
 export default function EspanhaPage() {
+  useDocumentTitle({ title: "Vídeos de Espanha - SuckOrSex" });
   const [videos, setVideos]       = useState<Video[]>([]);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);

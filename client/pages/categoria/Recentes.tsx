@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { supabase } from "@/lib/supabaseClient";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import {
   Sparkles, Eye, Heart, Play, Search, Clock,
   ChevronRight, Loader2, Film, VolumeX, CalendarDays,
@@ -159,6 +160,7 @@ function VideoCard({ video }: { video: Video }) {
 }
 
 export default function RecentesPage() {
+  useDocumentTitle({ title: "Vídeos Recentes - SuckOrSex" });
   const [videos, setVideos]   = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery]     = useState("");

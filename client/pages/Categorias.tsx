@@ -1,6 +1,7 @@
 // src/pages/Categorias.tsx
 import { useState } from "react";
 import Layout from "@/components/Layout";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { Link } from "react-router-dom";
 import {
   Grid, ChevronRight, Search, Filter, SlidersHorizontal,
@@ -10,6 +11,8 @@ import {
 } from "lucide-react";
 
 export default function CategoriasPage() {
+  useDocumentTitle({ title: "Categorias - SuckOrSex" });
+
   const [searchTerm, setSearchTerm]         = useState("");
   const [selectedFilter, setSelectedFilter] = useState("todos");
   const [showFilters, setShowFilters]       = useState(false);
