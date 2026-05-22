@@ -283,7 +283,7 @@ export function ModelosPage() {
     setLoading(true);
     const { data: profs } = await supabase
       .from("profiles_public")
-      .select("id, slug, username, full_name, avatar_url, created_at")
+      .select("id, username, full_name, avatar_url, created_at")
       .order("created_at", { ascending: false })
       .limit(120);
 
@@ -513,7 +513,7 @@ export function ModeloCanal() {
     if (!id) return;
     setLoading(true);
     Promise.all([
-      supabase.from("profiles_public").select("id, slug, username, full_name, avatar_url, created_at").eq("id", id).single(),
+      supabase.from("profiles_public").select("id, username, full_name, avatar_url, created_at").eq("id", id).single(),
       supabase.from("videos").select("*", { count: "exact", head: true }).eq("user_id", id).eq("status", "published").eq("visibility", "public"),
       supabase.from("videos").select("views").eq("user_id", id).eq("status", "published").eq("visibility", "public"),
       supabase.from("subscriptions").select("*", { count: "exact", head: true }).eq("creator_id", id),

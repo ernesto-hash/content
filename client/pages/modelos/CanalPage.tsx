@@ -341,8 +341,8 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
     setLoading(true);
 
     const profileQ = isUUID
-      ? supabase.from("profiles_public").select("id, slug, username, full_name, avatar_url, created_at").eq("id", slug).single()
-      : supabase.from("profiles_public").select("id, slug, username, full_name, avatar_url, created_at").eq("slug", slug).single();
+      ? supabase.from("profiles_public").select("id, username, full_name, avatar_url, created_at").eq("id", slug).single()
+      : supabase.from("profiles_public").select("id, username, full_name, avatar_url, created_at").eq("slug", slug).single();
 
     profileQ.then(async (profRes) => {
       if (!profRes.data) { setLoading(false); return; }
