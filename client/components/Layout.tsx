@@ -79,15 +79,15 @@ function LanguageSelector() {
     { code: "es", label: "ES" },
   ];
   return (
-    <div className="hidden sm:flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-lg p-0.5">
+    <div className="flex items-center gap-0.5 bg-white/10 border border-white/20 rounded-lg p-0.5">
       {langs.map(({ code, label }) => (
         <button
           key={code}
           onClick={() => i18n.changeLanguage(code)}
           className={`px-2 py-1 rounded text-xs font-medium transition-all ${
             i18n.language === code
-              ? "bg-white/15 text-foreground"
-              : "text-foreground/40 hover:text-foreground/70"
+              ? "bg-white/25 text-white"
+              : "text-foreground/60 hover:text-foreground/90"
           }`}
         >
           {label}
@@ -383,7 +383,7 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const location = useLocation();
 
@@ -493,6 +493,19 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
         {isMenuOpen && (
           <div className="md:hidden fixed inset-x-0 top-[120px] bottom-0 glass-dark border-t border-white/10 overflow-y-auto z-40 animate-slideDown">
             <div className="p-4 space-y-4">
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10">
+                <span className="text-xs text-foreground/40 mr-1">Idioma:</span>
+                {["pt", "en", "es"].map((code) => (
+                  <button key={code} onClick={() => i18n.changeLanguage(code)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      i18n.language === code
+                        ? "bg-neon-pink/20 border border-neon-pink/40 text-neon-pink"
+                        : "bg-white/5 border border-white/10 text-foreground/50 hover:text-foreground"
+                    }`}>
+                    {code.toUpperCase()}
+                  </button>
+                ))}
+              </div>
               <div className="space-y-1">
                 <Link to="/" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${location.pathname === "/" ? "bg-gradient-to-r from-neon-pink/20 to-neon-purple/20 text-foreground border border-neon-pink/30" : "hover:bg-white/5 text-foreground/80"}`} onClick={closeMenu}>
                   <Home size={18} className="text-neon-pink" /><span>{t("nav.links.home")}</span>

@@ -160,7 +160,7 @@ function CreatorCard({
       onClick={() => navigate(`/modelo/${creator.slug || creator.id}`)}
     >
       {/* Faixa de preview */}
-      <div className="relative h-28 flex gap-0.5 overflow-hidden">
+      <div className="relative h-20 sm:h-28 flex gap-0.5 overflow-hidden">
         {creator.preview_thumbs.length > 0 ? (
           creator.preview_thumbs.slice(0, 3).map((url, i) => (
             <div key={i} className="relative flex-1 bg-black/40 overflow-hidden"
@@ -203,21 +203,21 @@ function CreatorCard({
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); onSubscribe(creator.id); }}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+            className={`flex items-center gap-1.5 px-2 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all ${
               isSubscribed
                 ? "bg-white/8 border-white/12 text-white/50 hover:bg-white/12"
                 : `${accent} hover:scale-[1.03]`
             }`}
           >
-            {isSubscribed ? <><BellOff size={11} /> {t("models.card.subscribed")}</> : <><Bell size={11} /> {t("models.card.subscribe")}</>}
+            {isSubscribed ? <><BellOff size={11} /><span className="hidden sm:inline"> {t("models.card.subscribed")}</span></> : <><Bell size={11} /><span className="hidden sm:inline"> {t("models.card.subscribe")}</span></>}
           </button>
         </div>
 
         <div className="mb-3">
-          <h3 className="font-bold text-foreground/90 text-sm group-hover:text-white transition-colors truncate">
+          <h3 className="font-bold text-foreground/90 text-xs sm:text-sm group-hover:text-white transition-colors truncate">
             {creator.full_name || creator.username}
           </h3>
-          <p className="text-[11px] text-foreground/38">@{creator.username}</p>
+          <p className="text-[10px] text-foreground/38 truncate">@{creator.username}</p>
         </div>
 
         <div className="grid grid-cols-3 gap-1 text-center">
@@ -226,15 +226,15 @@ function CreatorCard({
             { label: t("models.stats.views"),  value: fmtNum(creator.total_views),      icon: Eye   },
             { label: t("models.stats.fans"),   value: fmtNum(creator.subscriber_count), icon: Users },
           ].map(({ label, value, icon: Icon }) => (
-            <div key={label} className="bg-white/[0.03] border border-white/6 rounded-xl py-1.5 px-1">
+            <div key={label} className="bg-white/[0.03] border border-white/6 rounded-xl py-1 px-0.5 sm:py-1.5 sm:px-1">
               <Icon size={10} className="text-foreground/30 mx-auto mb-0.5" />
               <p className="text-xs font-bold text-foreground/80">{value}</p>
-              <p className="text-[9px] text-foreground/30">{label}</p>
+              <p className="text-[8px] sm:text-[9px] text-foreground/30">{label}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-3 flex items-center justify-center gap-1 text-[11px] text-foreground/30 group-hover:text-neon-pink transition-colors">
+        <div className="hidden sm:flex mt-3 items-center justify-center gap-1 text-[11px] text-foreground/30 group-hover:text-neon-pink transition-colors">
           <span>{t("models.card.viewChannel")}</span>
           <ChevronRight size={11} />
         </div>
