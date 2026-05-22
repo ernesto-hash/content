@@ -4,6 +4,7 @@
 // Sem skeleton cards — só mostra vídeos reais ou estado vazio
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { supabase } from "@/lib/supabaseClient";
@@ -52,6 +53,7 @@ const isTouchDevice = () =>
   window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 
 function VideoCard({ video, rank, maxViews }: { video: Video; rank: number; maxViews: number }) {
+  const { t } = useTranslation();
   const isMillion = video.views >= 1_000_000;
   const videoRef        = useRef<HTMLVideoElement>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
@@ -153,7 +155,7 @@ function VideoCard({ video, rank, maxViews }: { video: Video; rank: number; maxV
       </div>
       <div className="p-4 space-y-1">
         <h3 className="text-sm font-semibold text-foreground line-clamp-2 group-hover:text-emerald-400 transition-colors leading-snug">
-          {video.title || "Sem título"}
+          {video.title || t("studio.common.noTitle")}
         </h3>
         <div className="flex items-center justify-between text-xs text-foreground/45">
           <span className="flex items-center gap-1 text-emerald-400 font-semibold"><Eye size={11} /> {fmtNum(video.views)}</span>
@@ -171,6 +173,7 @@ function VideoCard({ video, rank, maxViews }: { video: Video; rank: number; maxV
 }
 
 export default function MaisVistosPage() {
+  const { t } = useTranslation();
   useDocumentTitle({ title: "Vídeos Mais Vistos - SuckOrSex" });
   const [videos, setVideos]   = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -246,17 +249,17 @@ export default function MaisVistosPage() {
                 </h1>
               </div>
               <p className="text-foreground/60 text-sm max-w-md">
-                Os recordistas absolutos da plataforma — apenas vídeos com mais de <strong className="text-emerald-400">{fmtNum(MIN_VIEWS)} visualizações</strong>.
+                {t("pages.category.maisvistos.desc", { minViews: fmtNum(MIN_VIEWS) })}
               </p>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
                 <p className="text-2xl font-black text-emerald-400">{loading ? "—" : displayed.length}</p>
-                <p className="text-xs text-foreground/45 mt-0.5">recordistas</p>
+                <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.maisvistos.champions")}</p>
               </div>
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
                 <p className="text-2xl font-black text-green-400">{loading ? "—" : fmtNum(totalViews)}</p>
-                <p className="text-xs text-foreground/45 mt-0.5">views totais</p>
+                <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.maisvistos.totalViews")}</p>
               </div>
             </div>
           </div>
@@ -266,7 +269,7 @@ export default function MaisVistosPage() {
         <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5">
           <Search size={15} className="text-foreground/40 flex-shrink-0" />
           <input value={query} onChange={(e) => setQuery(e.target.value)}
-            placeholder="Pesquisar nos mais vistos..."
+            placeholder={t("pages.category.maisvistos.searchPlaceholder")}
             className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/30" />
         </div>
 
@@ -274,7 +277,7 @@ export default function MaisVistosPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 size={32} className="animate-spin text-emerald-400" />
-            <p className="text-foreground/40 text-sm">A carregar os mais vistos...</p>
+            <p className="text-foreground/40 text-sm">{t("pages.category.maisvistos.loading")}</p>
           </div>
         ) : displayed.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
@@ -282,13 +285,13 @@ export default function MaisVistosPage() {
               <Eye size={28} className="text-foreground/20" />
             </div>
             <div className="text-center space-y-1">
-              <p className="text-foreground/60 font-medium">Ainda sem recordistas</p>
+              <p className="text-foreground/60 font-medium">{t("pages.category.maisvistos.emptyTitle")}</p>
               <p className="text-foreground/35 text-sm max-w-xs">
-                Os vídeos aparecerão aqui automaticamente assim que ultrapassarem {fmtNum(MIN_VIEWS)} visualizações.
+                {t("pages.category.maisvistos.emptyDesc", { minViews: fmtNum(MIN_VIEWS) })}
               </p>
             </div>
             <Link to="/populares" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-sm hover:bg-emerald-500/18 transition-all mt-2">
-              Ver Populares <ChevronRight size={15} />
+              {t("pages.category.maisvistos.seePopular")} <ChevronRight size={15} />
             </Link>
           </div>
         ) : (

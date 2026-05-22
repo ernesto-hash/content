@@ -1,0 +1,1602 @@
+{
+  "common": {
+    "createAccount": "Crear cuenta gratis",
+    "alreadyHaveAccount": "Ya tengo cuenta",
+    "continueNavigation": "Seguir navegando",
+    "noTitle": "Sin título",
+    "creator": "Creador",
+    "subscribed": "Suscrito",
+    "subscribe": "Suscribirse"
+  },
+
+  "nav": {
+    "search": {
+      "placeholderDesktop": "Buscar vídeos, modelos, categorías...",
+      "placeholderMobile": "Buscar vídeos...",
+      "viewAll": "Ver todos los resultados para \"{{query}}\"",
+      "sections": {
+        "videos": "Vídeos",
+        "models": "Modelos",
+        "categories": "Categorías"
+      }
+    },
+    "links": {
+      "home": "Inicio",
+      "videos": "Vídeos",
+      "gallery": "Galería",
+      "models": "Modelos",
+      "popular": "Populares",
+      "recommended": "Recomendados"
+    },
+    "auth": {
+      "login": "Entrar",
+      "createAccount": "Crear cuenta"
+    },
+    "mobile": {
+      "countries": "PAÍSES",
+      "models": "MODELOS",
+      "categories": "CATEGORÍAS",
+      "galleryPremium": "Galería Premium",
+      "countries_list": {
+        "brazil": "Brasil",
+        "usa": "EE.UU.",
+        "spain": "España",
+        "colombia": "Colombia"
+      },
+      "models_list": {
+        "popular": "Populares",
+        "new": "Nuevos",
+        "vip": "VIP",
+        "verified": "Verificados",
+        "premium": "Premium",
+        "newcomers": "Novedades"
+      },
+      "categories_list": {
+        "amateur": "Amateur",
+        "professional": "Profesional",
+        "couple": "Pareja",
+        "solo": "Solo",
+        "group": "Grupo",
+        "gay": "Gay",
+        "trans": "Trans",
+        "lesbian": "Lésbico"
+      }
+    },
+    "footer": {
+      "navigation": "Navegación",
+      "policy": "Política",
+      "creatorStudio": "Creator Studio",
+      "links": {
+        "home": "Inicio",
+        "categories": "Categorías",
+        "models": "Modelos",
+        "gallery": "Galería",
+        "advertising": "Publicidad",
+        "galleryPremium": "Galería Premium",
+        "terms": "Términos de Servicio",
+        "cookies": "Cookies",
+        "uploadVideo": "Subir vídeo",
+        "myVideos": "Mis vídeos",
+        "analytics": "Análisis"
+      },
+      "copyright": "© 2026 suck or sex. Todos los derechos reservados.",
+      "adultContent": "Contenido Adulto"
+    },
+    "user": {
+      "verifiedMember": "Miembro verificado",
+      "creatorStudio": "Creator Studio",
+      "uploadVideo": "Subir vídeo",
+      "yourChannel": "Tu canal",
+      "logout": "Cerrar sesión"
+    },
+    "langSelector": {
+      "label": "Idioma"
+    }
+  },
+
+  "home": {
+    "ageGate": {
+      "blockedTitle": "Acceso denegado",
+      "blockedBody": "Este sitio contiene contenido explícito destinado exclusivamente a adultos mayores de 18 años.\n\nSi tienes menos de 18 años, debes abandonar esta página inmediatamente.",
+      "leaveSite": "Salir del sitio",
+      "restrictedBadge": "Contenido Restringido",
+      "title": "Este sitio contiene",
+      "titleHighlight": "contenido adulto",
+      "subtitle": "Acceso exclusivo para mayores de <strong>18 años</strong>. Al entrar confirmas que tienes edad legal en tu país.",
+      "checks": {
+        "age": "Tengo 18 años o más",
+        "explicit": "Entiendo que este sitio contiene material explícito",
+        "terms": "Acepto los Términos de Servicio y la Política de Privacidad",
+        "legal": "El acceso a contenido adulto es legal en mi país"
+      },
+      "enterBtn": "Tengo 18+ años — Entrar",
+      "exitBtn": "Tengo menos de 18 años — Salir",
+      "termsLink": "Términos",
+      "privacyLink": "Privacidad",
+      "rtaLink": "RTA Label"
+    },
+    "cookieConsent": {
+      "title": "Usamos cookies",
+      "badge": "RGPD",
+      "body": "Usamos cookies esenciales y, con tu consentimiento, cookies analíticas y de personalización.",
+      "learnMore": "Saber más",
+      "customize": "Personalizar",
+      "hide": "Ocultar",
+      "essentialOnly": "Solo esenciales",
+      "acceptAll": "Aceptar todas",
+      "types": {
+        "essential": {
+          "name": "Esenciales",
+          "desc": "Autenticación y funcionamiento básico.",
+          "required": "OBLIG."
+        },
+        "analytics": {
+          "name": "Analíticas",
+          "desc": "Estadísticas anónimas de uso."
+        },
+        "personalization": {
+          "name": "Personalización",
+          "desc": "Recomendaciones basadas en el perfil."
+        }
+      }
+    },
+    "filters": {
+      "forYou": "Para ti",
+      "trending": "Tendencia",
+      "recent": "Recientes",
+      "mostWatched": "Más vistos",
+      "videoCount": "{{count}} vídeos"
+    },
+    "sections": {
+      "featured": "Destacados",
+      "viewAll": "Ver todos"
+    },
+    "empty": "Sin vídeos encontrados",
+    "loading": "Cargando...",
+    "loadMore": "Cargar más vídeos",
+    "cta": {
+      "badge": "Cuenta gratis",
+      "title": "Dale me gusta, comenta y guarda favoritos",
+      "subtitle": "Recibe recomendaciones personalizadas y suscríbete a creadores.",
+      "createAccount": "Crear cuenta gratis",
+      "login": "Entrar"
+    },
+    "authPopup": {
+      "like": "Me gusta el vídeo",
+      "save": "Guardar vídeo",
+      "body": "Crea una cuenta gratis para interactuar con el contenido."
+    },
+    "time": {
+      "now": "ahora",
+      "hoursAgo": "hace {{count}}h",
+      "daysAgo": "hace {{count}}d",
+      "weeksAgo": "hace {{count}}sem",
+      "monthsAgo": "hace {{count}}mes"
+    }
+  },
+
+  "models": {
+    "hero": {
+      "badge": "Creadores exclusivos",
+      "title": "Descubre los",
+      "titleHighlight": "mejores modelos",
+      "subtitle": "Suscríbete a tus favoritos y recibe notificaciones de nuevos contenidos."
+    },
+    "stats": {
+      "creators": "Creadores",
+      "videos": "Vídeos",
+      "views": "Visitas",
+      "fans": "Fans",
+      "withVideos": "Con vídeos",
+      "following": "Siguiendo"
+    },
+    "search": {
+      "placeholder": "Buscar modelos...",
+      "placeholderAuth": "Buscar creadores por nombre o usuario..."
+    },
+    "sort": {
+      "mostFans": "Más Fans",
+      "mostVideos": "Más Vídeos",
+      "mostViewed": "Más Vistos",
+      "recent": "Recientes"
+    },
+    "results": {
+      "count_one": "{{count}} modelo para \"{{query}}\"",
+      "count_other": "{{count}} modelos para \"{{query}}\"",
+      "empty": "Sin resultados para \"{{query}}\""
+    },
+    "empty": {
+      "title": "Ningún modelo encontrado",
+      "trySearch": "Intenta una búsqueda diferente.",
+      "noCreators": "Todavía no hay creadores registrados.",
+      "noCreatorsActive": "Aún no hay creadores activos."
+    },
+    "card": {
+      "new": "✨ Nuevo",
+      "subscribed": "Suscrito",
+      "subscribe": "Suscribirse",
+      "viewChannel": "Ver canal",
+      "viewChannelFull": "Ver canal completo"
+    },
+    "authPopup": {
+      "subscribe": "Suscribirse al canal",
+      "message": "Enviar mensaje",
+      "like": "Me gusta el vídeo",
+      "save": "Guardar vídeo",
+      "share": "Compartir",
+      "follow": "Seguir modelo",
+      "generic": "Acción exclusiva",
+      "body": "Crea una cuenta gratis para interactuar con los creadores y acceder a funciones exclusivas.",
+      "desc": {
+        "subscribe": "Suscríbete a este canal para recibir notificaciones de nuevos vídeos.",
+        "message": "Crea una cuenta para enviar mensajes directamente al modelo.",
+        "like": "Inicia sesión para dar me gusta a vídeos y encontrarlos más tarde.",
+        "save": "Guarda tus vídeos favoritos en tu lista personal.",
+        "share": "Crea una cuenta para compartir contenido con amigos.",
+        "follow": "Sigue a este modelo para ser notificado de nuevos contenidos."
+      },
+      "hasAccountLogin": "Ya tengo cuenta — entrar",
+      "continueNoAccount": "Continuar navegando sin cuenta"
+    },
+    "channel": {
+      "memberSince": "Miembro desde {{date}}",
+      "message": "Mensaje",
+      "sent": "¡Enviado!",
+      "videosPublished": "Vídeos publicados",
+      "totalViews": "Visitas totales",
+      "subscribers": "Suscriptores",
+      "channelVideos": "Vídeos del canal",
+      "loading": "Cargando canal...",
+      "backBtn": "Creadores",
+      "copied": "¡Copiado!",
+      "share": "Compartir",
+      "featured": "Destacado",
+      "allVideos": "Todos los vídeos",
+      "tabs": {
+        "videos": "Vídeos",
+        "popular": "Populares",
+        "about": "Sobre"
+      },
+      "stats": {
+        "views": "Visualizaciones",
+        "likes": "Gustos"
+      },
+      "subscribeCtaText": "Suscríbete al canal de {{name}} y nunca te pierdas nuevos contenidos.",
+      "subscribeCta": "Suscribirse al canal",
+      "copyLink": "Copiar enlace del canal",
+      "linkCopied": "¡Enlace copiado!",
+      "noVideos": {
+        "title": "Aún sin vídeos publicados",
+        "subtitle": "Suscríbete para ser notificado cuando publique.",
+        "subtitleFull": "Suscríbete a este canal para ser notificado cuando publique el primer vídeo.",
+        "subscribeBtn": "Suscribirse al canal"
+      },
+      "notFound": "Modelo no encontrado.",
+      "backToModels": "← Volver a modelos",
+      "memberSinceLabel": "Miembro desde",
+      "videosSuffix_one": "vídeo publicado",
+      "videosSuffix_other": "vídeos publicados",
+      "totalViewsLabel": "visualizaciones totales",
+      "subscribersSuffix_one": "suscriptor",
+      "subscribersSuffix_other": "suscriptores",
+      "likesReceived": "me gustas recibidos"
+    },
+    "time": {
+      "today": "hoy",
+      "daysAgo": "hace {{count}}d",
+      "weeksAgo": "hace {{count}}sem",
+      "monthsAgo": "hace {{count}}mes",
+      "yearsAgo": "hace {{count}}a"
+    }
+  },
+
+  "video": {
+    "loading": "Cargando vídeo...",
+    "unavailable": "Vídeo no disponible",
+    "notFound": "Vídeo no encontrado.",
+    "backToHome": "← Volver al inicio",
+    "subscribers": "{{count}} suscriptores",
+    "subscribed": "Suscrito",
+    "subscribe": "Suscribirse",
+    "loginToSubscribe": "Inicia sesión para suscribirte",
+    "shared": "¡Copiado!",
+    "share": "Compartir",
+    "save": "Guardar",
+    "viewChannel": "Ver canal de {{name}}",
+    "views": "{{count}} visualizaciones",
+    "comments": {
+      "title": "Comentarios",
+      "loginPrompt": "Inicia sesión para comentar...",
+      "loginAction": "Entrar →",
+      "placeholder": "Añade un comentario...",
+      "empty": "Aún sin comentarios. ¡Sé el primero!",
+      "userDefault": "Usuario"
+    },
+    "recommended": {
+      "title": "Recomendados",
+      "empty": "Sin vídeos relacionados."
+    },
+    "authPopup": {
+      "like": "Me gusta el vídeo",
+      "dislike": "No me gusta el vídeo",
+      "save": "Guardar vídeo",
+      "subscribe": "Suscribirse al canal",
+      "comment": "Comentar",
+      "body": "Crea una cuenta o inicia sesión para interactuar con el contenido."
+    },
+    "time": {
+      "justNow": "ahora mismo",
+      "minutesAgo": "hace {{count}} min",
+      "hoursAgo": "hace {{count}}h",
+      "daysAgo": "hace {{count}}d"
+    }
+  },
+
+  "auth": {
+    "backToLogin": "Volver al inicio de sesión",
+    "divider": "o",
+    "fields": {
+      "password": "Contraseña",
+      "fullName": "Nombre Completo",
+      "namePlaceholder": "Tu nombre",
+      "passwordMinPlaceholder": "Mínimo 8 caracteres",
+      "confirmPassword": "Confirmar contraseña",
+      "hidePassword": "Ocultar contraseña",
+      "showPassword": "Mostrar contraseña"
+    },
+    "password": {
+      "strength": "Fuerza: {{level}}",
+      "strong": "Fuerte",
+      "medium": "Medio",
+      "weak": "Débil"
+    },
+    "errors": {
+      "tooManyAttempts": "Demasiados intentos. Inténtalo más tarde.",
+      "invalidCredentials": "Email o contraseña incorrectos.",
+      "passwordMismatch": "Las contraseñas no coinciden.",
+      "mustAcceptTerms": "Debes aceptar los términos y condiciones.",
+      "mustConfirmAge": "Debes confirmar que tienes 18 años o más.",
+      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres.",
+      "generic": "Ocurrió un error. Inténtalo de nuevo."
+    },
+    "login": {
+      "welcome": "Bienvenido de nuevo",
+      "rememberMe": "Recordarme",
+      "forgotPassword": "¿Olvidaste la contraseña?",
+      "loading": "Entrando...",
+      "submit": "Entrar",
+      "noAccount": "¿No tienes cuenta?",
+      "createAccount": "Crear cuenta"
+    },
+    "signup": {
+      "howToUse": "¿Cómo quieres usar la plataforma?",
+      "viewer": {
+        "title": "Quiero ver contenido",
+        "desc": "Accede a contenido exclusivo de tus creadores favoritos"
+      },
+      "creator": {
+        "title": "Quiero crear contenido",
+        "desc": "Publica vídeos y construye tu audiencia"
+      },
+      "selected": "Seleccionado",
+      "continueBtn": "Continuar →",
+      "googleNote": "Las cuentas de Google se crean como visualizador",
+      "hasAccount": "¿Ya tienes cuenta?",
+      "changeType": "Cambiar tipo de cuenta",
+      "roleCreator": "Creador",
+      "roleViewer": "Visualizador",
+      "formTitle": "Crea tu cuenta",
+      "agreeTermsPrefix": "Acepto los",
+      "termsLink": "Términos",
+      "andText": "y",
+      "privacyLink": "Privacidad",
+      "ageConfirm": "Tengo 18 años o más",
+      "loading": "Creando cuenta...",
+      "submit": "Crear Cuenta",
+      "successAlert": "¡Cuenta creada! Verifica tu correo para confirmar la cuenta."
+    },
+    "forgot": {
+      "title": "Recuperar contraseña",
+      "subtitle": "Indica tu correo y te enviaremos un enlace para restablecer la contraseña.",
+      "sentTitle": "¡Correo enviado!",
+      "sentBody": "Si este correo está registrado, recibirás un enlace de recuperación. Comprueba también tu carpeta de spam.",
+      "loading": "Enviando...",
+      "submit": "Enviar enlace de recuperación"
+    },
+    "reset": {
+      "verifying": "Verificando enlace...",
+      "invalidTitle": "Enlace inválido o expirado",
+      "invalidBody": "Este enlace de recuperación ya no es válido. Solicita un nuevo enlace de recuperación.",
+      "requestNew": "Solicitar nuevo enlace",
+      "formTitle": "Nueva contraseña",
+      "formSubtitle": "Elige una contraseña segura para tu cuenta.",
+      "confirmPlaceholder": "Repite la nueva contraseña",
+      "passwordMin": "Mínimo de 8 caracteres",
+      "loading": "Guardando...",
+      "submit": "Guardar nueva contraseña",
+      "successTitle": "¡Contraseña actualizada!",
+      "successBody": "Tu contraseña ha sido cambiada con éxito. Ya puedes entrar con tu nueva contraseña.",
+      "goToLogin": "Ir al inicio de sesión"
+    }
+  },
+
+  "pages": {
+    "notFound": {
+      "message": "¡Oops! Página no encontrada",
+      "returnHome": "Volver al inicio"
+    },
+    "fotosGifs": {
+      "title": "Fotos y GIFs",
+      "subtitle": "Explora la colección exclusiva de fotos y GIFs",
+      "titleAuth": "Fotos y GIFs",
+      "subtitleAuth": "Explora miles de fotos y GIFs de alta calidad",
+      "filters": {
+        "all": "Todo",
+        "allMasc": "Todos",
+        "photos": "Fotos",
+        "gifs": "GIFs",
+        "albums": "Álbumes",
+        "panel": "Filtros",
+        "apply": "Aplicar filtros",
+        "categories": "Categorías",
+        "models": "Modelos",
+        "sortBy": "Ordenar por",
+        "quality": "Calidad",
+        "allQuality": "Todas"
+      },
+      "sections": {
+        "featured": "Destacados",
+        "recent": "Recientes",
+        "popular": "Populares",
+        "popularPhotos": "Fotos Populares",
+        "trendingGifs": "GIFs en Tendencia",
+        "featuredAlbums": "Álbumes Destacados",
+        "trendingTags": "Tags en Tendencia",
+        "viewAll": "Ver todas",
+        "viewAllMasc": "Ver todos"
+      },
+      "badges": {
+        "gif": "GIF",
+        "photo": "FOTO",
+        "album": "ÁLBUM",
+        "exclusive": "EXCLUSIVO",
+        "new": "NUEVO"
+      },
+      "card": {
+        "photos": "fotos",
+        "views": "visualizaciones",
+        "likes": "me gusta"
+      },
+      "modal": {
+        "about": "Sobre",
+        "stats": "Estadísticas",
+        "details": "Detalles",
+        "views": "Visualizaciones",
+        "likes": "Me gusta",
+        "comments": "Comentarios",
+        "category": "Categoría",
+        "model": "Modelo",
+        "date": "Fecha",
+        "close": "Cerrar",
+        "resolution": "Resolución",
+        "dimensions": "Dimensiones",
+        "size": "Tamaño",
+        "duration": "Duración",
+        "frames": "Frames",
+        "totalPhotos": "Total de fotos",
+        "published": "Publicado",
+        "curtidas": "Me gusta",
+        "share": "Compartir",
+        "like": "Me gusta"
+      },
+      "cta": {
+        "badge": "Cuenta gratis",
+        "title": "Accede a todo el contenido exclusivo",
+        "subtitle": "Crea una cuenta gratis para desbloquear fotos y GIFs premium.",
+        "createAccount": "Crear cuenta gratis",
+        "login": "Entrar",
+        "shareTitle": "¿Quieres compartir tus fotos?",
+        "shareBody": "Sube tus fotos y GIFs y compártelos con la comunidad",
+        "upload": "Subir Fotos/GIFs"
+      }
+    },
+    "canais": {
+      "hero": {
+        "badge": "TV & Streaming",
+        "title": "Canales",
+        "titleHighlight": "Premium",
+        "subtitle": "Explora canales dedicados con contenido exclusivo. Suscríbete para recibir notificaciones.",
+        "stats": {
+          "channels": "Canales",
+          "active": "Activos",
+          "subscribed": "Suscrito"
+        }
+      },
+      "filters": {
+        "all": "Todos",
+        "myChannels": "Mis Canales",
+        "searchPlaceholder": "Buscar canales...",
+        "sort": {
+          "subscribers": "Suscriptores",
+          "videos": "Vídeos",
+          "views": "Vistas",
+          "recent": "Recientes"
+        }
+      },
+      "sections": {
+        "featured": "Destacados",
+        "all": "Todos los Canales"
+      },
+      "card": {
+        "active": "Activo",
+        "soon": "Próximamente",
+        "subscribed": "Suscrito",
+        "subscribe": "Suscribirse",
+        "videos": "Vídeos",
+        "views": "Vistas",
+        "subscribers": "Suscriptores"
+      },
+      "detail": {
+        "back": "← Canales",
+        "videos": "Vídeos",
+        "views": "Vistas",
+        "subscribers": "Suscriptores",
+        "channelVideos": "Vídeos del Canal",
+        "noVideos": {
+          "title": "Aún sin vídeos publicados",
+          "subtitle": "Suscríbete para ser notificado cuando publique.",
+          "subscribeBtn": "Suscríbete para recibir notificaciones"
+        },
+        "notFound": "Canal no encontrado.",
+        "backToChannels": "← Volver a canales"
+      },
+      "empty": {
+        "withQuery": "Ningún canal encontrado para \"{{query}}\"",
+        "noChannels": "Todavía no hay canales registados.",
+        "myChannels": "Aún no te has suscrito a ningún canal",
+        "exploreAll": "Explorar todos los canales →"
+      },
+      "platformNote": "Los canales son creados por el equipo de la plataforma. Próximamente más contenido.",
+      "auth": {
+        "subscribe": "Suscríbete a este canal",
+        "message": "Enviar mensaje",
+        "like": "Me gusta el vídeo",
+        "save": "Guardar vídeo",
+        "generic": "Acción exclusiva",
+        "body": "Crea una cuenta gratis para suscribirte a canales y recibir notificaciones de nuevo contenido.",
+        "createAccount": "Crear cuenta gratis",
+        "hasAccount": "Ya tengo cuenta",
+        "login": "Entrar"
+      },
+      "cta": {
+        "badge": "Cuenta gratis",
+        "title": "Suscríbete a tus canales favoritos",
+        "subtitle": "Recibe notificaciones de nuevos vídeos y accede a contenido exclusivo.",
+        "createAccount": "Crear cuenta gratis",
+        "login": "Entrar"
+      },
+      "time": {
+        "now": "ahora",
+        "minutesAgo": "hace {{count}} min",
+        "hoursAgo": "hace {{count}}h",
+        "daysAgo": "hace {{count}}d",
+        "weeksAgo": "hace {{count}} sem",
+        "monthsAgo": "hace {{count}} mes"
+      }
+    },
+    "categorias": {
+      "title": "Categorías",
+      "subtitle": "Explora nuestro contenido organizado por categorías",
+      "searchPlaceholder": "Buscar categorías...",
+      "filters": {
+        "title": "Filtros",
+        "clear": "Limpiar filtros",
+        "all": "Todos",
+        "mostPopular": "Más Populares",
+        "recent": "Recientes",
+        "trending": "En Tendencia"
+      },
+      "sections": {
+        "main": "Categorías Principales",
+        "content": "Por Tipo de Contenido",
+        "country": "Por País",
+        "popularTags": "Tags Populares"
+      },
+      "card": {
+        "videos": "{{count}} vídeos"
+      },
+      "explore": {
+        "title": "¿No encontraste lo que buscabas?",
+        "subtitle": "Prueba la búsqueda o explora nuestras tags para encontrar contenido más específico",
+        "allVideos": "Ver todos los vídeos",
+        "popular": "Ver populares"
+      },
+      "cta": {
+        "badge": "Cuenta gratis",
+        "title": "Accede a todo el contenido",
+        "subtitle": "Crea una cuenta gratis para acceder a categorías exclusivas y contenido premium.",
+        "createAccount": "Crear cuenta gratis",
+        "login": "Entrar"
+      }
+    },
+    "videos": {
+      "hero": {
+        "title": "Vídeos",
+        "subtitle": "Explora el catálogo completo de la plataforma"
+      },
+      "published": "vídeos publicados",
+      "searchPlaceholder": "Buscar vídeos...",
+      "sort": {
+        "recent": "Recientes",
+        "mostViewed": "Más Vistos",
+        "mostLiked": "Más Curtidos"
+      },
+      "filters": {
+        "label": "Filtros",
+        "category": "Categoría",
+        "allCategories": "Todas",
+        "duration": "Duración",
+        "clearFilters": "Limpiar filtros",
+        "duration_any": "Cualquier duración",
+        "duration_short": "Hasta 5 min",
+        "duration_medium": "5 – 20 min",
+        "duration_long": "Más de 20 min"
+      },
+      "results": {
+        "showing": "Mostrando {{shown}} de {{total}} vídeos",
+        "video": "vídeo",
+        "videos": "vídeos",
+        "noResults": "Sin resultados"
+      },
+      "loading": "Cargando vídeos...",
+      "loadMore": "Cargar más vídeos",
+      "loadingMore": "Cargando...",
+      "empty": {
+        "title": "Ningún vídeo encontrado",
+        "withSearch": "Intenta una búsqueda diferente o elimina los filtros.",
+        "withFilters": "Elimina los filtros para ver más resultados.",
+        "noVideos": "Todavía no hay vídeos publicados."
+      },
+      "card": {
+        "views": "vistas"
+      },
+      "time": {
+        "now": "ahora",
+        "minutesAgo": "hace {{count}} min",
+        "hoursAgo": "hace {{count}}h",
+        "daysAgo": "hace {{count}}d",
+        "weeksAgo": "hace {{count}} sem",
+        "monthsAgo": "hace {{count}} mes"
+      }
+    },
+    "galeria": {
+      "unlock": {
+        "title": "Elige tu Plan",
+        "immediateAccess": "Acceso inmediato tras la suscripción",
+        "mostPopular": "MÁS POPULAR",
+        "ctaBtn": "→ QUIERO ACCESO AHORA",
+        "hasAccount": "Ya tengo cuenta — Entrar",
+        "continueFree": "Continuar con vista previa gratuita",
+        "securePayment": "Pago seguro · Cancela cuando quieras",
+        "perMonth": "/mes",
+        "perYear": "/año",
+        "saveMonths": "ahorras 2 meses",
+        "startNow": "Comenzar ahora"
+      },
+      "hero": {
+        "photoCount": "+1.000 fotos privadas",
+        "notOnInternet": "que NO están en internet",
+        "members": "miembros activos",
+        "dailyUpdates": "Actualizaciones diarias",
+        "exclusiveContent": "Contenido exclusivo",
+        "ctaBtn": "➔ QUIERO ACCESO AHORA",
+        "hook": "¿Alguna vez imaginaste ver lo que nadie más ha conseguido ver?"
+      },
+      "cta": {
+        "title": "Acceso total a la galería",
+        "subtitle": "3 planes disponibles · Cancela cuando quieras",
+        "viewGallery": "Ver galería completa"
+      },
+      "planos": {
+        "normal": {
+          "label": "Acceso Normal",
+          "desc": "Acceso al contenido base de la galería.",
+          "beneficio0": "Acceso a packs normales",
+          "beneficio1": "Nuevos packs mensuales",
+          "beneficio2": "Visualización en HD",
+          "beneficio3": "Cancela cuando quieras"
+        },
+        "exclusivo": {
+          "label": "Contenido Exclusivo",
+          "desc": "Contenido exclusivo que no encontrarás en ningún otro lugar.",
+          "beneficio0": "Todo del Pack Normal",
+          "beneficio1": "Contenido exclusivo premium",
+          "beneficio2": "Packs añadidos semanalmente",
+          "beneficio3": "Descarga en alta resolución"
+        },
+        "raro": {
+          "label": "Contenido Raro",
+          "desc": "Lo mejor de la galería. Contenido raro e irrepetible.",
+          "beneficio0": "Todo de los planes anteriores",
+          "beneficio1": "Contenido raro y exclusivo",
+          "beneficio2": "Acceso anticipado a nuevos packs",
+          "beneficio3": "Soporte prioritario"
+        }
+      },
+      "manageModal": {
+        "title": "Gestionar suscripción",
+        "errorSession": "Sesión inválida. Inicia sesión de nuevo.",
+        "errorGeneric": "Ocurrió un error. Inténtalo de nuevo.",
+        "errorNetwork": "Error de red. Verifica tu conexión e inténtalo de nuevo.",
+        "reactivating": "Reactivando...",
+        "reactivate": "Reactivar suscripción",
+        "close": "Cerrar",
+        "keep": "Mantener suscripción",
+        "cancel": "Cancelar suscripción",
+        "cancelAnyway": "Cancelar de todas formas",
+        "confirmCancel": "¿Estás seguro? Continuarás teniendo acceso hasta {{date}}. Después de esa fecha perderás el acceso al contenido.",
+        "statusActive": "Suscripción activa — se renueva el {{date}}.",
+        "statusCancelled": "Suscripción cancelada — mantienes acceso hasta {{date}}."
+      },
+      "subscribePopup": {
+        "immediate": "Acceso inmediato tras la suscripción",
+        "securePayment": "Pago seguro via Stripe · Cancela cuando quieras"
+      },
+      "billing": {
+        "monthly": "Mensual",
+        "annual": "Anual",
+        "perMonth": "/mes",
+        "perYear": "/año",
+        "saveTwoMonths": "Ahorras 2 meses"
+      },
+      "badge": {
+        "mostPopular": "MÁS POPULAR",
+        "new": "NUEVO",
+        "featured": "DESTACADO",
+        "membersOnly": "SOLO MIEMBROS"
+      },
+      "pack": {
+        "view": "VER PACK",
+        "views": "{{n}} vistas"
+      },
+      "landing": {
+        "hero": {
+          "restricted": "ACCESO RESTRINGIDO — 18+",
+          "joinPre": "Únete a",
+          "membersActive": "miembros activos",
+          "photosCount": "+1.000 fotos",
+          "neverSeen": "que NUNCA has visto",
+          "internet": "en internet",
+          "subtitle": "Contenido raro · Filtrado · Actualizado diariamente",
+          "cta": "➔ VER LO QUE ESTÁ ESCONDIDO",
+          "accessNote": "El acceso puede cerrarse en cualquier momento",
+          "viewPlans": "Ver planes"
+        },
+        "stats": {
+          "views": "Visualizaciones /mes",
+          "photos": "Fotos Exclusivas",
+          "rating": "Valoración de miembros",
+          "private": "Privado y Seguro",
+          "membersActive": "2.847 miembros activos este mes"
+        },
+        "preview": {
+          "title": "Lo que está escondido aquí dentro",
+          "subtitle": "Solo los miembros tienen acceso. Aquí hay un pequeño vistazo...",
+          "blocked": "BLOQUEADO",
+          "unlockCta": "Desbloquea ahora para ver todo →"
+        },
+        "plans": {
+          "title": "Elige tu nivel de acceso",
+          "subtitle": "Cancela cuando quieras. Sin compromisos.",
+          "ctaNormal": "Empezar ahora →",
+          "ctaExclusivo": "QUIERO ACCESO →",
+          "ctaRaro": "Acceder a lo raro →"
+        },
+        "guarantees": {
+          "secure": {
+            "title": "Pago Seguro",
+            "body": "Procesado por Stripe con cifrado SSL. Tus datos financieros nunca se almacenan."
+          },
+          "cancel": {
+            "title": "Cancela Cuando Quieras",
+            "body": "Sin contratos. Sin penalizaciones. Cancela con un clic en cualquier momento."
+          },
+          "private": {
+            "title": "100% Privado",
+            "body": "Acceso discreto. Sin referencias visibles en extractos bancarios."
+          }
+        },
+        "cta": {
+          "doubts": "¿Aún tienes dudas?",
+          "socialProof": "Más de 2.847 miembros ya están dentro.\n¿Qué estás esperando?",
+          "main": "➔ ENTRAR AHORA — DESDE 4,49€/MES",
+          "note": "Acceso inmediato · Cancela cuando quieras · Pago seguro via Stripe"
+        }
+      },
+      "activating": "Activando tu acceso premium, espera un momento...",
+      "premium": {
+        "badge": "MIEMBRO PREMIUM",
+        "trial": "PRUEBA",
+        "title": "Galería",
+        "titleHighlight": "Exclusiva",
+        "subtitle": "Contenido premium actualizado regularmente",
+        "stats": {
+          "packs": "Packs",
+          "photos": "Fotos",
+          "new": "Nuevos"
+        },
+        "featured": "Destacados",
+        "search": {
+          "placeholder": "Buscar packs..."
+        },
+        "filter": {
+          "all": "Todos"
+        },
+        "sort": {
+          "recent": "Recientes",
+          "popular": "Populares",
+          "featured": "Destacados"
+        },
+        "empty": {
+          "withQuery": "Sin packs para \"{{query}}\"",
+          "noCategory": "Sin packs disponibles en esta categoría.",
+          "clear": "Limpiar búsqueda"
+        },
+        "manage": "Gestionar suscripción",
+        "unlocked": "Galería completamente desbloqueada",
+        "available": "{{n}} fotos disponibles",
+        "completeGallery": "Galería completa — {{n}} fotos",
+        "clickHint": "Clic para ampliar · ← → para navegar"
+      }
+    },
+    "galeriaPack": {
+      "comments": {
+        "title": "Comentarios",
+        "empty": "Aún sin comentarios.",
+        "beFirst": "¡Sé el primero!",
+        "defaultUser": "usuario",
+        "placeholder": "Escribe un comentario…",
+        "loginPrompt": "Inicia sesión para comentar."
+      },
+      "lightbox": {
+        "navigate": "← → navegar",
+        "close": "ESC cerrar",
+        "photoAlt": "Foto {{n}}"
+      },
+      "pack": {
+        "photos": "{{n}} fotos",
+        "views": "{{n}} vistas",
+        "notFound": "Pack no encontrado.",
+        "backToGaleria": "← Volver a la galería",
+        "premiumActive": "Premium Activo"
+      },
+      "locked": {
+        "title": "Contenido bloqueado",
+        "subtitle": "Suscríbete para desbloquear este pack",
+        "viewPlans": "Ver planes →"
+      },
+      "back": {
+        "galeria": "Galería"
+      }
+    },
+    "recomendados": {
+      "hero": {
+        "badge": "Personalizado para ti",
+        "title": "Recomendados para ti",
+        "titleHighlight": "Recomendados",
+        "titleSuffix": "para ti",
+        "subtitleProfile": "Seleccionado en base a los vídeos que viste en esta sesión.",
+        "subtitleNoProfile": "Empieza a ver vídeos para recibir recomendaciones personalizadas.",
+        "subtitleAuth": "Calculado en función de tus likes, historial y suscripciones.",
+        "subtitleNoProfileAuth": "Empieza a interactuar con vídeos para recibir recomendaciones más precisas."
+      },
+      "tabs": {
+        "forYou": "Para ti",
+        "forYouDesc": "Mix personalizado",
+        "fromHistory": "Del historial",
+        "fromHistoryDesc": "Categorías que viste",
+        "subscriptions": "Suscripciones",
+        "trending": "Tendencias",
+        "trendingDesc": "Más vistos ahora"
+      },
+      "interests": "Tus intereses",
+      "searchPlaceholder": "Buscar en recomendados...",
+      "refreshTitle": "Actualizar recomendaciones",
+      "compatibility": "% compat.",
+      "clearSearch": "Limpiar búsqueda",
+      "loadMore": "Ver más recomendaciones",
+      "banner": {
+        "title": "Las recomendaciones están mejorando",
+        "subtitle": "Ve algunos vídeos y las sugerencias se ajustan automáticamente. Con cuenta, se vuelven aún más precisas.",
+        "createAccount": "Crear cuenta"
+      },
+      "empty": {
+        "withSearch": "Sin resultados para \"{{query}}\"",
+        "noResults": "No hay recomendaciones disponibles en este momento.",
+        "noRecos": "Aún sin recomendaciones",
+        "noResultsFor": "Sin resultados para \"{{query}}\"",
+        "trySearch": "Intenta una búsqueda diferente.",
+        "watchVideo": "Ve un vídeo para que podamos personalizar tus sugerencias.",
+        "clearSearch": "Limpiar búsqueda",
+        "subscriptionHint": "Suscríbete a canales de modelos para ver sus vídeos aquí.",
+        "generalHint": "Dale like a algunos vídeos o navega un poco y empezaremos a personalizar.",
+        "seeModels": "Ver modelos →"
+      },
+      "stats": {
+        "suggestions": "Sugerencias",
+        "likes": "Me gustas dados",
+        "saved": "Guardados",
+        "categories": "Categorías"
+      },
+      "card": {
+        "saved": "Guardado",
+        "save": "Guardar"
+      },
+      "time": {
+        "now": "ahora",
+        "minutesAgo": "hace {{count}} min",
+        "hoursAgo": "hace {{count}}h",
+        "daysAgo": "hace {{count}}d",
+        "weeksAgo": "hace {{count}} sem",
+        "monthsAgo": "hace {{count}} mes"
+      }
+    },
+    "populares": {
+      "title": "Vídeos Populares",
+      "subtitle": "Los vídeos más vistos y gustados de la plataforma",
+      "badge": "En tendencia",
+      "stats": {
+        "totalViews": "Vistas totales",
+        "popularVideos": "Vídeos populares",
+        "likes": "Me gustas dados",
+        "saved": "Guardados"
+      },
+      "sort": {
+        "label": "Ordenar:",
+        "mostViewed": "Más Vistos",
+        "mostLiked": "Más Curtidos",
+        "recent": "Recientes"
+      },
+      "filters": {
+        "period": "Período",
+        "today": "Hoy",
+        "thisWeek": "Esta semana",
+        "thisMonth": "Este mes",
+        "thisYear": "Este año",
+        "allTime": "Todo el tiempo",
+        "category": "Categoría",
+        "all": "Todas",
+        "btn": "Filtros",
+        "clear": "Limpiar filtros"
+      },
+      "search": {
+        "placeholder": "Buscar..."
+      },
+      "empty": {
+        "title": "Ningún vídeo encontrado",
+        "tryDifferent": "Intenta una búsqueda diferente.",
+        "adjustFilters": "Ajusta los filtros.",
+        "clearFilters": "Limpiar filtros"
+      },
+      "loadMore": "Cargar más vídeos",
+      "loading": "Cargando...",
+      "showing": "Mostrando {{n}} de {{total}} vídeo{{s}}",
+      "card": {
+        "saved": "Guardado",
+        "save": "Guardar"
+      }
+    },
+    "profile": {
+      "editProfile": "Editar Perfil",
+      "share": "Compartir",
+      "memberSince": "Miembro desde {{date}}",
+      "stats": {
+        "videos": "Vídeos",
+        "views": "Vistas",
+        "likes": "Gustos",
+        "followers": "Seguidores"
+      },
+      "tabs": {
+        "videos": "Vídeos",
+        "favorites": "Favoritos",
+        "about": "Sobre"
+      },
+      "empty": {
+        "noVideos": "Aún sin vídeos",
+        "noVideosMsg": "Tus vídeos aparecerán aquí",
+        "uploadFirst": "Subir primer vídeo",
+        "noFavs": "Sin vídeos favoritos",
+        "noFavsMsg": "Los vídeos que te gusten aparecerán aquí",
+        "discoverVideos": "Descubrir vídeos"
+      },
+      "about": {
+        "title": "Sobre",
+        "noBio": "Sin bio",
+        "addBio": "Añadir bio →"
+      },
+      "creator": {
+        "becomeCreator": "Convertirme en Creador de Contenido",
+        "subtitle": "Publica vídeos y construye tu audiencia en la plataforma",
+        "activate": "Activar creación de contenido",
+        "activating": "Activando...",
+        "justActivated": "¡Cuenta de creador activada! Ya puedes acceder al Studio.",
+        "active": "✓ Creador de contenido activo",
+        "activeMsg": "Puedes publicar vídeos y gestionar tu contenido",
+        "goToStudio": "Ir al Studio",
+        "activateError": "Error al activar. Inténtalo de nuevo."
+      },
+      "edit": {
+        "title": "Editar Perfil",
+        "clickBanner": "Haz clic para añadir banner",
+        "photoLabel": "Foto de perfil",
+        "photoFormats": "JPG, PNG o WebP",
+        "fullName": "Nombre completo",
+        "namePlaceholder": "Tu nombre",
+        "usernameLabel": "Usuario",
+        "usernamePlaceholder": "@usuario",
+        "usernameHint": "Solo letras, números y guión bajo (_) permitidos.",
+        "usernameExists": "El nombre de usuario ya existe.",
+        "bioLabel": "Bio",
+        "bioPlaceholder": "Cuéntanos algo sobre ti...",
+        "saveSuccess": "Perfil actualizado con éxito",
+        "cancel": "Cancelar",
+        "saving": "Guardando...",
+        "save": "Guardar",
+        "avatarError": "Error al subir avatar: {{message}}",
+        "bannerError": "Error al subir banner: {{message}}",
+        "unknownError": "Error desconocido."
+      }
+    },
+    "dashboard": {
+      "greeting": {
+        "morning": "Buenos días",
+        "afternoon": "Buenas tardes",
+        "evening": "Buenas noches"
+      },
+      "subtitle": "¿Qué quieres ver hoy?",
+      "stats": {
+        "likes": "gustos",
+        "subscriptions": "suscripciones",
+        "saved": "guardados"
+      },
+      "featured": "Destacado",
+      "viewAll": "Ver todos",
+      "filters": {
+        "forYou": "Para ti",
+        "trending": "Tendencias",
+        "recent": "Recientes",
+        "mostViewed": "Más Vistos",
+        "subscriptions": "Suscripciones"
+      },
+      "totalVideos": "{{count}} vídeos",
+      "empty": {
+        "noSubscriptions": "Sin vídeos de canales suscritos",
+        "noVideos": "Sin vídeos encontrados"
+      },
+      "discoverModels": "Descubrir creadoras →",
+      "allVideos": "Ver todos los vídeos",
+      "loadMore": "Cargar más vídeos",
+      "loading": "Cargando...",
+      "time": {
+        "now": "ahora",
+        "hoursAgo": "hace {{count}}h",
+        "daysAgo": "hace {{count}}d",
+        "weeksAgo": "hace {{count}}sem",
+        "monthsAgo": "hace {{count}}mes"
+      }
+    },
+    "category": {
+      "loading": "Cargando vídeos...",
+      "errorTitle": "Error al cargar vídeos",
+      "sort": {
+        "recentes": "Recientes",
+        "views": "Más Vistos",
+        "likes": "Más Gustados"
+      },
+      "countUnit": "vídeos",
+      "emptyTitle": "Aún sin vídeos en esta categoría",
+      "emptyDescAuto": "En cuanto un creador publique un vídeo en la categoría \"{{name}}\", aparecerá aquí automáticamente.",
+      "exploreCategories": "Explorar categorías",
+      "searchIn": "Buscar en {{name}}...",
+      "list": {
+        "alemanha": { "title": "Alemania", "desc": "Producciones alemanas de alta calidad." },
+        "amador": { "title": "Amateur", "desc": "Contenido auténtico creado por personas reales, sin producción profesional." },
+        "animacao": { "title": "Animación", "desc": "Contenido animado e ilustrado." },
+        "bdsm": { "title": "BDSM", "desc": "Bondage, disciplina, dominación, sumisión y mucho más." },
+        "brasil": { "title": "Brasil", "desc": "El mejor contenido de Brasil." },
+        "casal": { "title": "Pareja", "desc": "Momentos íntimos de dos." },
+        "compilacao": { "title": "Compilación", "desc": "Las mejores escenas reunidas en una sola producción." },
+        "curto": { "title": "Corto", "desc": "Vídeos de menos de 5 minutos — directos al grano." },
+        "espanha": { "title": "España", "desc": "Contenido español con todo su encanto." },
+        "eua": { "title": "EE.UU.", "desc": "Producciones norteamericanas." },
+        "fetiche": { "title": "Fetiche", "desc": "Fetiches y fantasías sin límites." },
+        "franca": { "title": "Francia", "desc": "La sensualidad francesa en toda su elegancia." },
+        "gay": { "title": "Gay", "desc": "Contenido masculino entre hombres." },
+        "grupo": { "title": "Grupo", "desc": "Encuentros con tres o más personas." },
+        "interativo": { "title": "Interactivo", "desc": "Vídeos con elecciones y experiencias interactivas." },
+        "italia": { "title": "Italia", "desc": "Pasión y estilo italiano." },
+        "japao": { "title": "Japón", "desc": "El universo único del contenido japonés." },
+        "lesbica": { "title": "Lésbica", "desc": "Contenido entre mujeres." },
+        "longo": { "title": "Largo", "desc": "Vídeos de más de 20 minutos para los que quieren más." },
+        "medio": { "title": "Medio", "desc": "Vídeos entre 5 y 20 minutos." },
+        "portugal": { "title": "Portugal", "desc": "Producciones nacionales portuguesas." },
+        "pov": { "title": "POV", "desc": "Punto de vista en primera persona — totalmente inmersivo." },
+        "profissional": { "title": "Profesional", "desc": "Producciones de alta calidad con equipos y estudios profesionales." },
+        "solo": { "title": "Solo", "desc": "Actuaciones individuales en toda su expresión." },
+        "trans": { "title": "Trans", "desc": "Contenido protagonizado por personas trans." },
+        "vintage": { "title": "Vintage", "desc": "Clásicos intemporales de décadas pasadas." }
+      },
+      "recentes": {
+        "desc": "Novedades de los últimos {{days}} días. Contenido fresco recién publicado.",
+        "searchPlaceholder": "Buscar en recientes...",
+        "thisWeek": "esta semana",
+        "today": "hoy",
+        "filter": {
+          "todos": "Todos",
+          "hoje": "Hoy",
+          "semana": "Esta Semana"
+        },
+        "loading": "Cargando vídeos recientes...",
+        "emptyTitle": "Aún sin vídeos recientes",
+        "emptyDesc": "Los vídeos aparecerán aquí automáticamente en cuanto se publiquen en los últimos {{days}} días.",
+        "seeAll": "Ver todos los vídeos",
+        "badgeNew": "Nuevo",
+        "timeAgo": {
+          "lessThan1h": "hace menos de 1h",
+          "hours": "hace {{h}}h",
+          "days_one": "hace {{count}} día",
+          "days_other": "hace {{count}} días"
+        }
+      },
+      "tendencias": {
+        "desc": "Vídeos con mayor crecimiento — al menos {{minViews}} visualizaciones en los últimos {{days}} días, ordenados por velocidad.",
+        "searchPlaceholder": "Buscar tendencias...",
+        "inTrend": "en tendencia",
+        "window": "ventana",
+        "badgeHot": "En alza",
+        "velocityUnit": "/día",
+        "loading": "Cargando tendencias...",
+        "emptyTitle": "Aún sin tendencias",
+        "emptyDesc": "Los vídeos aparecerán aquí automáticamente al alcanzar {{minViews}} visualizaciones en los últimos {{days}} días.",
+        "seePopular": "Ver Populares"
+      },
+      "maisvistos": {
+        "desc": "Los récords absolutos de la plataforma — solo vídeos con más de {{minViews}} visualizaciones.",
+        "searchPlaceholder": "Buscar más vistos...",
+        "champions": "récords",
+        "totalViews": "vistas totales",
+        "loading": "Cargando los más vistos...",
+        "emptyTitle": "Aún sin récords",
+        "emptyDesc": "Los vídeos aparecerán aquí automáticamente al superar {{minViews}} visualizaciones.",
+        "seePopular": "Ver Populares"
+      },
+      "melhoresavaliados": {
+        "desc": "Los favoritos de la comunidad — mínimo {{minLikes}} likes con al menos {{minViews}} vistas.",
+        "searchPlaceholder": "Buscar mejor valorados...",
+        "approved": "aprobados",
+        "minLikes": "likes mín.",
+        "sort": {
+          "likes": "Más Gustados",
+          "ratio": "Mejor Ratio"
+        },
+        "loading": "Cargando mejor valorados...",
+        "emptyTitle": "Aún sin vídeos valorados",
+        "emptyDesc": "Los vídeos aparecerán aquí automáticamente al alcanzar {{minLikes}} likes y {{minViews}} vistas.",
+        "seePopular": "Ver Populares"
+      },
+      "recomendados": {
+        "desc": "Seleccionados por nuestro algoritmo basándose en popularidad, likes y recencia.",
+        "searchPlaceholder": "Buscar recomendados...",
+        "selected": "seleccionados",
+        "algorithm": "Vistas 50% · Likes 30% · Recencia 20%",
+        "badgeForYou": "Para ti",
+        "matchLabel": "% match",
+        "loading": "Cargando recomendados...",
+        "emptyTitle": "Aún sin recomendaciones",
+        "emptyDesc": "Los vídeos aparecerán aquí automáticamente al alcanzar {{minViews}} vistas y {{minLikes}} likes.",
+        "seeRecent": "Ver Recientes"
+      },
+      "populares": {
+        "desc": "Solo vídeos con más de {{minViews}} visualizaciones y {{minLikes}} likes. Lo mejor de lo mejor.",
+        "searchPlaceholder": "Buscar populares...",
+        "countUnit": "vídeos",
+        "minViews": "vistas mín.",
+        "sort": {
+          "views": "Vistas",
+          "likes": "Likes"
+        },
+        "loading": "Cargando vídeos populares...",
+        "emptyTitle": "Aún sin vídeos populares",
+        "emptyDesc": "Los vídeos aparecerán aquí automáticamente al alcanzar 100K visualizaciones y 10K likes.",
+        "seeAll": "Ver todos los vídeos"
+      }
+    }
+  },
+  "studio": {
+    "status": {
+      "published": "Publicado",
+      "draft": "Borrador",
+      "private": "Privado",
+      "unlisted": "Sin listar",
+      "publish": "Publicar"
+    },
+    "visibility": {
+      "public": "Público",
+      "unlisted": "Sin listar",
+      "private": "Privado",
+      "descPublic": "Visible para todos y recomendado en la plataforma.",
+      "descUnlisted": "Solo accesible mediante enlace directo — no aparece en búsquedas.",
+      "descPrivate": "Solo tú tienes acceso a este vídeo."
+    },
+    "common": {
+      "uploadBtn": "Subir vídeo",
+      "noTitle": "Sin título",
+      "categorySelect": "Seleccionar categoría...",
+      "clearSelection": "Limpiar selección"
+    },
+    "dashboard": {
+      "subtitle": "Visión general de tu canal y rendimiento",
+      "title": "Panel del Creador",
+      "desc": "Sigue uploads, borradores y resultados en tiempo real.",
+      "manageBtn": "Gestionar",
+      "kpi": {
+        "totalVideos": "Total de vídeos",
+        "published": "Publicados",
+        "drafts": "Borradores",
+        "totalViews": "Visitas totales",
+        "totalLikes": "Me gusta totales",
+        "realtime": "Se actualiza en tiempo real"
+      },
+      "recent": {
+        "title": "Últimos vídeos",
+        "desc": "Los 5 más recientes",
+        "viewAll": "Ver todos →",
+        "emptyTitle": "Ningún vídeo aún",
+        "emptyDesc": "Crea tu primer upload y empieza a construir tu catálogo.",
+        "manage": "Gestionar"
+      }
+    },
+    "videos": {
+      "subtitle": "Gestiona tus uploads, borradores y publicaciones",
+      "title": "Mis vídeos",
+      "desc": "Edita, filtra, publica y organiza tus vídeos.",
+      "searchPlaceholder": "Buscar por título...",
+      "newUpload": "Nuevo upload",
+      "allVideos": "Todos los vídeos",
+      "emptyTitle": "Ningún resultado",
+      "emptyDesc": "Prueba otro filtro o sube tu primer vídeo.",
+      "editBtn": "Editar",
+      "statusBtn": "Estado",
+      "edit": {
+        "title": "Editar vídeo",
+        "thumbnailLabel": "Miniatura",
+        "thumbnailFormats": "JPG, PNG, WEBP",
+        "thumbnailChange": "Cambiar",
+        "thumbnailRemove": "Eliminar",
+        "thumbnailExtracting": "Extrayendo fotogramas del vídeo...",
+        "thumbnailAdd": "Clic para añadir miniatura",
+        "thumbnailCustom": "Subir imagen personalizada",
+        "titleLabel": "Título",
+        "titlePlaceholder": "Título del vídeo",
+        "descLabel": "Descripción",
+        "descPlaceholder": "Describe el contenido del vídeo...",
+        "categoryLabel": "Categoría",
+        "categoryPublishedIn": "Publicado en {{category}}",
+        "tagsLabel": "Etiquetas",
+        "visibilityLabel": "Visibilidad",
+        "cancel": "Cancelar",
+        "saving": "Guardando...",
+        "save": "Guardar cambios",
+        "saved": "Cambios guardados con éxito.",
+        "saveError": "Error al guardar."
+      }
+    },
+    "upload": {
+      "subtitle": "Sube hasta 30 vídeos a la vez",
+      "title": "Subir vídeos",
+      "dropActive": "¡Suelta los archivos aquí!",
+      "dropIdle": "Arrastra o haz clic para seleccionar",
+      "dropFormats": "MP4, MOV, AVI · Máx. 1 GB por archivo",
+      "selectedList": "Vídeos seleccionados",
+      "collapseAll": "Minimizar todos",
+      "expandAll": "Expandir todos",
+      "categoryPlaceholder": "Selecciona una categoría...",
+      "slot": {
+        "noFile": "Sin archivo",
+        "thumbnailLabel": "Miniatura",
+        "thumbnailGenerating": "Generando opciones de miniatura...",
+        "thumbnailCustom": "Subir imagen personalizada",
+        "thumbnailAdd": "Añadir",
+        "fileLarge": "Archivo grande (>2 GB)",
+        "titleLabel": "Título",
+        "titlePlaceholder": "Dale un nombre al vídeo",
+        "descLabel": "Descripción",
+        "descPlaceholder": "Describe el contenido...",
+        "categoryLabel": "Categoría",
+        "tagsLabel": "Etiquetas",
+        "tagsHint": "(coma · ilimitadas)",
+        "tagsPlaceholder": "ej: amateur, hd, pareja, angola, filtrado",
+        "visibilityLabel": "Visibilidad",
+        "statusPublished": "Publicado",
+        "statusError": "Error",
+        "statusUploading": "Publicando...",
+        "statusWaiting": "Esperando",
+        "retryBtn": "Intentar de nuevo",
+        "noCategory": "Sin categoría"
+      },
+      "readyCount": "{{ready}} de {{total}} vídeo(s) listos para publicar",
+      "missingCount": "{{count}} aún sin título o categoría",
+      "publishing": "Publicando...",
+      "publishBtn": "Publicar",
+      "emptySlots": "Aún no has seleccionado ningún vídeo. Arrastra o haz clic en la zona de arriba.",
+      "allDoneSubtitle": "Ya están disponibles en la plataforma.",
+      "uploadMore": "Subir más",
+      "viewVideos": "Ver mis vídeos",
+      "errors": {
+        "notAuth": "No autenticado.",
+        "noReady": "Ningún vídeo listo. Verifica título y categoría."
+      }
+    },
+    "analytics": {
+      "subtitle": "Métricas esenciales para mejores decisiones",
+      "title": "Estadísticas",
+      "desc": "Visión general de rendimiento (basada en tus datos).",
+      "totalViews": "Visitas totales",
+      "totalViewsDesc": "Suma de visitas de tus vídeos",
+      "videosAnalyzed": "Vídeos analizados",
+      "videosAnalyzedDesc": "Últimos 20 en Studio",
+      "suggestion": "Sugerencia",
+      "suggestionTitle": "Publica con consistencia",
+      "suggestionDesc": "Rutina fuerte + buena miniatura + título claro = crecimiento.",
+      "chartTitle": "Top reciente (visitas)",
+      "emptyTitle": "Sin datos aún",
+      "emptyDesc": "Sube vídeos para empezar a generar estadísticas."
+    },
+    "settings": {
+      "subtitle": "Personaliza tu canal y preferencias",
+      "title": "Configuración",
+      "desc": "Ajusta la identidad y presentación del canal.",
+      "channelProfile": "Perfil del canal",
+      "usernameLabel": "Nombre de usuario",
+      "fullNameLabel": "Nombre completo",
+      "bioLabel": "Bio",
+      "bioPlaceholder": "Escribe una descripción de tu canal...",
+      "tip": "Consejo: mantén tu bio corta y clara.",
+      "saving": "Guardando...",
+      "save": "Guardar",
+      "saved": "Configuración guardada con éxito.",
+      "saveError": "Error al guardar."
+    }
+  },
+  "anunciar": {
+    "badge": "Publicidad",
+    "heroTitle1": "Anuncia a miles de",
+    "heroTitle2": "usuarios activos",
+    "heroDesc": "Tu anuncio aparece automáticamente para todos los visitantes. Empieza en minutos.",
+    "stats": {
+      "visitors": "Visitantes/mes",
+      "impressions": "Impresiones/mes",
+      "ctr": "CTR medio",
+      "age": "Edad principal"
+    },
+    "steps": {
+      "plan": "Plan",
+      "details": "Detalles",
+      "payment": "Pago"
+    },
+    "plan": {
+      "title": "Elige tu plan",
+      "mostPopular": "Más popular",
+      "daysDisplay_one": "{{count}} día de exhibición",
+      "daysDisplay_other": "{{count}} días de exhibición",
+      "priceTotal": "/total",
+      "continueWith": "Continuar con {{name}} — €{{price}}"
+    },
+    "trust": {
+      "payment": "Pago seguro",
+      "paymentDesc": "Procesado por Stripe. Datos protegidos.",
+      "activation": "Activación inmediata",
+      "activationDesc": "Anuncio activo tras el pago.",
+      "audience": "Audiencia cualificada",
+      "audienceDesc": "Adultos 18+ con interés real."
+    },
+    "details": {
+      "title": "Detalles del anuncio",
+      "previewLabel": "Vista previa del anuncio",
+      "companyName": "Nombre de la empresa *",
+      "email": "Email de contacto *",
+      "websiteUrl": "URL del sitio (destino al hacer clic) *",
+      "adTitle": "Título del anuncio *",
+      "description": "Descripción *",
+      "ctaText": "Texto del botón CTA",
+      "logoUrl": "URL del logotipo (opcional)",
+      "bgColor": "Color de fondo",
+      "accentColor": "Color de acento",
+      "back": "Volver",
+      "continueToPayment": "Continuar al pago"
+    },
+    "confirm": {
+      "title": "Confirmar pedido",
+      "summary": "Resumen del pedido",
+      "rowPlan": "Plan",
+      "rowCompany": "Empresa",
+      "rowEmail": "Email",
+      "rowUrl": "URL",
+      "rowTitle": "Título",
+      "rowActive": "Activo durante",
+      "total": "Total",
+      "sslMsg": "Introducirás los datos de la tarjeta en la siguiente página. Pago seguro vía Stripe con SSL 256-bit.",
+      "back": "Volver",
+      "submit": "CONFIRMAR E IR AL PAGO"
+    },
+    "pagamento": {
+      "back": "Volver",
+      "titlePrefix": "Pago del",
+      "titleHighlight": "anuncio",
+      "previewLabel": "VISTA PREVIA DEL ANUNCIO",
+      "previewHeadline": "Tu anuncio aquí",
+      "previewDesc": "Descripción del anuncio",
+      "previewCta": "Saber más",
+      "summaryTitle": "Resumen del pedido",
+      "days": "días",
+      "daysOfAd": "días de publicidad",
+      "total": "Total",
+      "singlePayment": "pago único",
+      "cardName": "Nombre en la tarjeta",
+      "cardNamePlaceholder": "Como aparece en la tarjeta",
+      "cardData": "Datos de la tarjeta",
+      "processing": "Procesando...",
+      "submitBtn": "PAGAR Y ACTIVAR ANUNCIO →",
+      "secureMsg": "Pago 100% seguro vía Stripe · Anuncio activado inmediatamente",
+      "paymentDataTitle": "Datos de pago",
+      "backToStart": "← Volver al inicio",
+      "preparingCheckout": "Preparando pago seguro...",
+      "benefit0": "Anuncio visible para todos los visitantes",
+      "benefit1": "Mostrado en páginas de alto tráfico",
+      "benefit2": "Estadísticas de impresiones y clics",
+      "benefit3": "Activación inmediata tras el pago"
+    },
+    "sucesso": {
+      "title": "¡Anuncio Activado!",
+      "subtitle": "Tu anuncio ya es visible en el sitio.",
+      "detailsHeader": "DETALLES DEL ANUNCIO",
+      "labelCompany": "Empresa",
+      "labelEmail": "Email",
+      "labelPlan": "Plan",
+      "days": "días",
+      "labelPeriod": "Período",
+      "paymentConfirmed": "Pago confirmado con éxito.",
+      "ctaView": "Ver mi anuncio en el sitio"
+    }
+  },
+  "checkout": {
+    "backToPlans": "← Volver a los planes",
+    "heading": "Estás a un paso del",
+    "headingHighlight": "acceso total",
+    "unlockTitle": "Lo que vas a desbloquear",
+    "photosCount": "+1.000 fotos exclusivas",
+    "photosWaiting": "Te esperan ahora",
+    "membersActive": "miembros activos",
+    "membersHaveAccess": " ya tienen acceso",
+    "limitedAccess": "El acceso puede limitarse en cualquier momento",
+    "securePayment": "Pago 100% seguro vía Stripe · Cancela cuando quieras",
+    "orderSummary": "Resumen del pedido",
+    "subscriptionLabel": "Suscripción {{period}}",
+    "period": {
+      "mensal": "mensual",
+      "anual": "anual",
+      "month": "mes",
+      "year": "año"
+    },
+    "periodToggle": {
+      "mensal": "Mensual",
+      "anual": "Anual"
+    },
+    "trialPeriod": "Período de prueba",
+    "trialFree": "3 días gratis",
+    "immediateAccess": "Acceso inmediato",
+    "totalToday": "Total hoy",
+    "afterTrial": "Después de 3 días gratis",
+    "trialDisclaimer": "3 días gratis, luego {{price}}/mes · Cancela cuando quieras",
+    "confirmAndPay": "CONFIRMAR Y PAGAR",
+    "stripeSecurity": "Stripe Secure",
+    "cancel": "Cancelar — volver a los planes",
+    "pagamento": {
+      "back": "Volver",
+      "titlePrefix": "Introduce los datos de",
+      "titleHighlight": "tu tarjeta",
+      "planTitle": "Tu plan",
+      "trialLine": "3 días gratis, luego {{price}}/mes",
+      "perYear": "/año",
+      "today": "hoy",
+      "cardName": "Nombre en la tarjeta",
+      "cardNamePlaceholder": "Como aparece en la tarjeta",
+      "cardData": "Datos de la tarjeta",
+      "processing": "Procesando...",
+      "activateTrial": "ACTIVAR 3 DÍAS GRATIS →",
+      "payAndActivate": "PAGAR Y ACTIVAR →",
+      "paymentDataTitle": "Datos de pago",
+      "backToSummary": "← Volver al resumen",
+      "preparingCheckout": "Preparando pago seguro..."
+    },
+    "sucesso": {
+      "title1": "Bienvenido a la",
+      "title2": "Galería Exclusiva",
+      "subtitlePre": "Te has unido a ",
+      "subtitlePost": " que tienen acceso a lo que nadie más ve",
+      "unlocked": "Desbloqueaste +{{count}} fotos exclusivas",
+      "benefit1": "+1.000 fotos exclusivas desbloqueadas",
+      "benefit2": "Acceso instantáneo a todos los packs",
+      "benefit3": "Nuevo contenido añadido semanalmente",
+      "benefit4": "Contenido que no encontrarás en ningún otro lugar",
+      "cta": "ENTRAR EN LA GALERÍA AHORA →",
+      "redirecting_one": "Redirigiendo en {{count}} segundo...",
+      "redirecting_other": "Redirigiendo en {{count}} segundos..."
+    }
+  },
+  "shorts": {
+    "title": "Shorties",
+    "subtitle": "Vídeos cortos sensuales para ti",
+    "filters": {
+      "header": "¿Qué quieres ver?",
+      "categories": "Categorías",
+      "duration": "Duración",
+      "upTo15": "Hasta 15s",
+      "from15to30": "15-30s",
+      "from30to60": "30-60s",
+      "over60": "60s+",
+      "apply": "Aplicar Filtros"
+    },
+    "filterLabels": {
+      "paraVoce": "Para Ti",
+      "trending": "En Alza",
+      "seguindo": "Siguiendo",
+      "musicas": "Música",
+      "dancas": "Bailes",
+      "funny": "Graciosos",
+      "vip": "VIP",
+      "novos": "Nuevos"
+    },
+    "categoryLabels": {
+      "todos": "Todos",
+      "danca": "Baile",
+      "solo": "Solo",
+      "casal": "Pareja",
+      "strip": "Strip",
+      "lingerie": "Lencería",
+      "massagem": "Masaje",
+      "cosplay": "Cosplay",
+      "asmr": "ASMR",
+      "funny": "Humor"
+    },
+    "sections": {
+      "forYou": "Para Ti",
+      "trending": "En Alza 🔥",
+      "musical": "Tendencias Musicales",
+      "funny": "Para reír"
+    },
+    "viewAll": "Ver todos",
+    "tagsTitle": "Tags en Alza en Shorties",
+    "cta": {
+      "title": "¿Quieres crear tus propios shorties?",
+      "subtitle": "Muestra tu talento y gana seguidores con vídeos cortos sensuales",
+      "createBtn": "Crear Shortie Ahora"
+    },
+    "loadMore": "Cargar más shorties"
+  },
+  "escolherConta": {
+    "welcome": "¡Bienvenido!",
+    "welcomeWithName": "¡Bienvenido, {{name}}!",
+    "question": "¿Cómo quieres usar la plataforma?",
+    "viewerTitle": "Quiero ver contenido",
+    "viewerDesc": "Accede a contenido exclusivo de tus creadores favoritos",
+    "creatorTitle": "Quiero crear contenido",
+    "creatorDesc": "Publica vídeos y construye tu audiencia",
+    "selected": "Seleccionado",
+    "saving": "Guardando...",
+    "continue": "Continuar →",
+    "errorSave": "Error al guardar tu perfil. Inténtalo de nuevo.",
+    "errorSaveFallback": "Error al guardar. Inténtalo de nuevo.",
+    "footerNote": "Puedes cambiar tu tipo de cuenta más tarde en los ajustes."
+  }
+}

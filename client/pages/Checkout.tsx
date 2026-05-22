@@ -3,6 +3,7 @@
 // Recebe: /app/checkout?plano=exclusivo&periodo=mensal
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
 import { supabase } from "@/lib/supabaseClient";
@@ -81,6 +82,7 @@ const AVATAR_GRADIENTS = [
 // Componente principal
 // ─────────────────────────────────────────────
 export default function Checkout() {
+  const { t }          = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate       = useNavigate();
 
@@ -112,8 +114,8 @@ export default function Checkout() {
     if (!CHECKOUT_PLANOS.find(p => p.id === planoParam)) {
       navigate("/app/galeria", { replace: true });
     }
-    const t = setTimeout(() => setAnimIn(true), 80);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setAnimIn(true), 80);
+    return () => clearTimeout(timer);
   }, [planoParam, navigate]);
 
   const handlePay = () => {
@@ -165,12 +167,12 @@ export default function Checkout() {
               onMouseEnter={e => ((e.target as HTMLElement).style.color = "#ec4899")}
               onMouseLeave={e => ((e.target as HTMLElement).style.color = "rgba(255,255,255,0.30)")}
             >
-              ← Voltar aos planos
+              {t("checkout.backToPlans")}
             </button>
             <h1 className="text-3xl md:text-4xl font-black text-white">
-              Estás a um passo do{" "}
+              {t("checkout.heading")}{" "}
               <span style={{ background: "linear-gradient(90deg,#ec4899,#9333ea)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                acesso total
+                {t("checkout.headingHighlight")}
               </span>
             </h1>
           </div>
@@ -190,7 +192,7 @@ export default function Checkout() {
               }}
             >
               {/* Título coluna */}
-              <h2 className="text-lg font-black text-white">O que vais desbloquear</h2>
+              <h2 className="text-lg font-black text-white">{t("checkout.unlockTitle")}</h2>
 
               {/* Grid de thumbnails desfocadas */}
               <div
@@ -240,10 +242,10 @@ export default function Checkout() {
                       WebkitTextFillColor:  "transparent",
                     }}
                   >
-                    +1.000 fotos exclusivas
+                    {t("checkout.photosCount")}
                   </p>
                   <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>
-                    Aguardam o teu acesso agora
+                    {t("checkout.photosWaiting")}
                   </p>
                 </div>
               </div>
@@ -293,7 +295,7 @@ export default function Checkout() {
                   ))}
                 </div>
                 <p className="text-sm" style={{ color: "rgba(255,255,255,0.60)" }}>
-                  <strong className="text-white">2.847 membros activos</strong> já têm acesso
+                  <strong className="text-white">2.847 {t("checkout.membersActive")}</strong>{t("checkout.membersHaveAccess")}
                 </p>
               </div>
 
@@ -304,7 +306,7 @@ export default function Checkout() {
               >
                 <Clock size={13} style={{ color: "#fbbf24", flexShrink: 0 }} />
                 <p className="text-xs" style={{ color: "rgba(251,191,36,0.80)" }}>
-                  Acesso pode ser limitado a qualquer momento
+                  {t("checkout.limitedAccess")}
                 </p>
               </div>
 
@@ -315,7 +317,7 @@ export default function Checkout() {
               >
                 <Shield size={13} style={{ color: "#34d399", flexShrink: 0 }} />
                 <p className="text-xs" style={{ color: "rgba(52,211,153,0.75)" }}>
-                  Pagamento 100% seguro via Stripe · Cancela quando quiseres
+                  {t("checkout.securePayment")}
                 </p>
               </div>
             </div>
@@ -330,7 +332,7 @@ export default function Checkout() {
                 transition: "opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s",
               }}
             >
-              <h2 className="text-lg font-black text-white mb-4">Resumo do pedido</h2>
+              <h2 className="text-lg font-black text-white mb-4">{t("checkout.orderSummary")}</h2>
 
               {/* Card com borda animada */}
               <div
@@ -355,7 +357,7 @@ export default function Checkout() {
                     <div>
                       <p className={`font-black text-base ${plano.corText}`}>{plano.label}</p>
                       <p className="text-xs" style={{ color: "rgba(255,255,255,0.40)" }}>
-                        Subscrição {periodo}
+                        {t("checkout.subscriptionLabel", { period: t(`checkout.period.${periodo}`) })}
                       </p>
                     </div>
                   </div>
@@ -376,7 +378,7 @@ export default function Checkout() {
                             : { color: "rgba(255,255,255,0.40)" }
                         }
                       >
-                        {p === "mensal" ? "Mensal" : "Anual"}
+                        {t(`checkout.periodToggle.${p}`)}
                         {p === "anual" && (
                           <span
                             className="text-[9px] font-black px-1.5 py-0.5 rounded-full"
@@ -405,10 +407,10 @@ export default function Checkout() {
                     {periodo === "mensal" && (
                       <div className="flex items-center justify-between">
                         <span className="text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>
-                          Período de teste
+                          {t("checkout.trialPeriod")}
                         </span>
                         <span className="text-xs font-black" style={{ color: "#34d399" }}>
-                          3 dias grátis
+                          {t("checkout.trialFree")}
                         </span>
                       </div>
                     )}
@@ -416,7 +418,7 @@ export default function Checkout() {
                       <div className="flex items-center gap-1.5">
                         <Zap size={11} style={{ color: "#9333ea" }} />
                         <span className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
-                          Acesso imediato
+                          {t("checkout.immediateAccess")}
                         </span>
                       </div>
                       <Star size={11} style={{ color: "#fbbf24" }} />
@@ -426,13 +428,13 @@ export default function Checkout() {
                   {/* Total */}
                   <div className="flex items-end justify-between">
                     <span className="text-sm font-bold" style={{ color: "rgba(255,255,255,0.50)" }}>
-                      Total hoje
+                      {t("checkout.totalToday")}
                     </span>
                     <div className="text-right">
                       {periodo === "mensal" ? (
                         <>
                           <div className="text-xs mb-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
-                            Depois de 3 dias grátis
+                            {t("checkout.afterTrial")}
                           </div>
                           <div className="text-3xl font-black text-white">{plano.mensal}</div>
                         </>
@@ -440,7 +442,7 @@ export default function Checkout() {
                         <div className="text-3xl font-black text-white">{plano.anual}</div>
                       )}
                       <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.30)" }}>
-                        /{periodo === "mensal" ? "mês" : "ano"}
+                        /{t(`checkout.period.${periodo === "mensal" ? "month" : "year"}`)}
                       </div>
                     </div>
                   </div>
@@ -450,7 +452,7 @@ export default function Checkout() {
                       className="text-center text-xs"
                       style={{ color: "rgba(255,255,255,0.35)" }}
                     >
-                      3 dias grátis, depois {plano.mensal}/mês · Cancela quando quiseres
+                      {t("checkout.trialDisclaimer", { price: plano.mensal })}
                     </p>
                   )}
 
@@ -467,7 +469,7 @@ export default function Checkout() {
                     onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)"; }}
                   >
                     <span className="flex items-center justify-center gap-2">
-                      CONFIRMAR E PAGAR
+                      {t("checkout.confirmAndPay")}
                       <ArrowRight size={18} />
                     </span>
                   </button>
@@ -478,7 +480,7 @@ export default function Checkout() {
                     style={{ color: "rgba(255,255,255,0.22)" }}
                   >
                     <Lock size={10} />
-                    <span>Stripe Secure</span>
+                    <span>{t("checkout.stripeSecurity")}</span>
                     <span>·</span>
                     <span className="font-bold tracking-widest">VISA</span>
                     <span>·</span>
@@ -494,7 +496,7 @@ export default function Checkout() {
                       onMouseEnter={e => ((e.target as HTMLElement).style.color = "rgba(255,255,255,0.55)")}
                       onMouseLeave={e => ((e.target as HTMLElement).style.color = "rgba(255,255,255,0.22)")}
                     >
-                      Cancelar — voltar aos planos
+                      {t("checkout.cancel")}
                     </button>
                   </div>
                 </div>

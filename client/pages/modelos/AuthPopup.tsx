@@ -1,6 +1,7 @@
 // src/pages/modelos/AuthPopup.tsx
 // Pop-up de autenticação reutilizável em toda a pasta /modelos
 
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { X, Bell, MessageCircle, Heart, Bookmark, Users, Share2 } from "lucide-react";
 
@@ -9,18 +10,18 @@ type Props = {
   onClose: () => void;
 };
 
-const CONFIG: Record<string, { title: string; desc: string; icon: React.ElementType }> = {
-  subscribe: { title: "Subscrever canal",    desc: "Subscreve este canal para receberes notificações de novos vídeos.",           icon: Bell          },
-  message:   { title: "Enviar mensagem",     desc: "Cria uma conta para poderes enviar mensagens diretamente ao modelo.",         icon: MessageCircle },
-  like:      { title: "Gostar do vídeo",     desc: "Faz login para gostar de vídeos e os encontrar mais tarde.",                  icon: Heart         },
-  save:      { title: "Guardar vídeo",       desc: "Guarda os teus vídeos favoritos na tua lista pessoal.",                      icon: Bookmark      },
-  share:     { title: "Partilhar",           desc: "Cria uma conta para partilhares conteúdo com amigos.",                       icon: Share2        },
-  follow:    { title: "Seguir modelo",       desc: "Segue este modelo para seres notificado de novos conteúdos.",                 icon: Users         },
+const ICONS: Record<string, React.ElementType> = {
+  subscribe: Bell,
+  message:   MessageCircle,
+  like:      Heart,
+  save:      Bookmark,
+  share:     Share2,
+  follow:    Users,
 };
 
 export default function AuthPopup({ action, onClose }: Props) {
-  const cfg = CONFIG[action] ?? CONFIG.subscribe;
-  const Icon = cfg.icon;
+  const { t } = useTranslation();
+  const Icon = ICONS[action] ?? ICONS.subscribe;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -45,8 +46,8 @@ export default function AuthPopup({ action, onClose }: Props) {
             <Icon size={26} className="text-white" />
           </div>
 
-          <h3 className="text-xl font-black text-white mb-2">{cfg.title}</h3>
-          <p className="text-white/45 text-sm leading-relaxed mb-7">{cfg.desc}</p>
+          <h3 className="text-xl font-black text-white mb-2">{t(`models.authPopup.${action}`, t("models.authPopup.generic"))}</h3>
+          <p className="text-white/45 text-sm leading-relaxed mb-7">{t(`models.authPopup.desc.${action}`, t("models.authPopup.body"))}</p>
 
           <div className="space-y-2.5">
             <Link
@@ -54,20 +55,20 @@ export default function AuthPopup({ action, onClose }: Props) {
               onClick={onClose}
               className="block w-full py-3 bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold rounded-xl hover:shadow-[0_0_25px_rgba(236,72,153,0.4)] transition-all"
             >
-              Criar conta grátis
+              {t("common.createAccount")}
             </Link>
             <Link
               to="/login"
               onClick={onClose}
               className="block w-full py-3 bg-white/6 border border-white/10 text-white text-sm font-semibold rounded-xl hover:bg-white/10 transition-all"
             >
-              Já tenho conta — entrar
+              {t("models.authPopup.hasAccountLogin")}
             </Link>
             <button
               onClick={onClose}
               className="block w-full text-xs text-white/22 hover:text-white/50 transition-colors py-1"
             >
-              Continuar a navegar sem conta
+              {t("models.authPopup.continueNoAccount")}
             </button>
           </div>
         </div>

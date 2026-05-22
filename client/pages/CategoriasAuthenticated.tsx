@@ -1,6 +1,7 @@
 // src/pages/CategoriasAuthenticated.tsx
 // Igual a Categorias.tsx mas usa LayoutAuthenticated e links /app/categoria/:slug
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
 import { Link } from "react-router-dom";
 import {
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 
 export default function CategoriasAuthenticated() {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm]         = useState("");
   const [selectedFilter, setSelectedFilter] = useState("todos");
   const [showFilters, setShowFilters]       = useState(false);
@@ -62,10 +64,10 @@ export default function CategoriasAuthenticated() {
   ];
 
   const filters = [
-    { id: "todos",      label: "Todos",          icon: Grid       },
-    { id: "populares",  label: "Mais Populares", icon: Flame      },
-    { id: "recentes",   label: "Recentes",       icon: Sparkles   },
-    { id: "tendencias", label: "Em Tendência",   icon: TrendingUp },
+    { id: "todos",      label: t("pages.categorias.filters.all"),         icon: Grid       },
+    { id: "populares",  label: t("pages.categorias.filters.mostPopular"), icon: Flame      },
+    { id: "recentes",   label: t("pages.categorias.filters.recent"),      icon: Sparkles   },
+    { id: "tendencias", label: t("pages.categorias.filters.trending"),    icon: TrendingUp },
   ];
 
   // ── Rotas das Principais Categorias (authenticated) ────────────────────────
@@ -124,7 +126,7 @@ export default function CategoriasAuthenticated() {
           <h3 className="text-lg font-semibold text-foreground group-hover:text-neon-pink transition-colors mb-1">{category.name}</h3>
           <p className="text-sm text-foreground/60 mb-3 line-clamp-2">{category.description}</p>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-foreground/40">{category.count} vídeos</span>
+            <span className="text-xs text-foreground/40">{t("pages.categorias.card.videos", { count: category.count })}</span>
             <span className="text-neon-pink group-hover:translate-x-1 transition-transform"><ChevronRight size={16} /></span>
           </div>
         </div>
@@ -181,14 +183,14 @@ export default function CategoriasAuthenticated() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">
-              <span className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-blue bg-clip-text text-transparent">Categorias</span>
+              <span className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-blue bg-clip-text text-transparent">{t("pages.categorias.title")}</span>
             </h1>
-            <p className="text-foreground/60">Explore nosso conteúdo organizado por categorias</p>
+            <p className="text-foreground/60">{t("pages.categorias.subtitle")}</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="relative flex-1 md:w-64">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
-              <input type="text" placeholder="Buscar categorias..." value={searchTerm}
+              <input type="text" placeholder={t("pages.categorias.searchPlaceholder")} value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-foreground text-sm placeholder:text-foreground/30 focus:outline-none focus:border-neon-pink/50 transition-colors" />
             </div>
@@ -206,8 +208,8 @@ export default function CategoriasAuthenticated() {
         {showFilters && (
           <div className="glass p-6 rounded-xl border border-white/10 animate-slideDown">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-medium text-foreground">Filtros</h3>
-              <button onClick={() => setSelectedFilter("todos")} className="text-sm text-neon-pink hover:text-neon-pink/80 transition-colors">Limpar filtros</button>
+              <h3 className="font-medium text-foreground">{t("pages.categorias.filters.title")}</h3>
+              <button onClick={() => setSelectedFilter("todos")} className="text-sm text-neon-pink hover:text-neon-pink/80 transition-colors">{t("pages.categorias.filters.clear")}</button>
             </div>
             <div className="flex flex-wrap gap-2">
               {filters.map((f) => (
@@ -224,7 +226,7 @@ export default function CategoriasAuthenticated() {
         <section>
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <span className="w-1 h-6 bg-gradient-to-b from-neon-pink to-neon-purple rounded-full" />
-            Principais Categorias
+            {t("pages.categorias.sections.main")}
           </h2>
           {viewMode === "grid" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -241,7 +243,7 @@ export default function CategoriasAuthenticated() {
         <section>
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <span className="w-1 h-6 bg-gradient-to-b from-neon-purple to-neon-blue rounded-full" />
-            Por Tipo de Conteúdo
+            {t("pages.categorias.sections.content")}
           </h2>
           {viewMode === "grid" ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -272,7 +274,7 @@ export default function CategoriasAuthenticated() {
         <section>
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <span className="w-1 h-6 bg-gradient-to-b from-neon-pink to-neon-purple rounded-full" />
-            Por País
+            {t("pages.categorias.sections.country")}
           </h2>
           {viewMode === "grid" ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -284,7 +286,7 @@ export default function CategoriasAuthenticated() {
                       <span className="text-2xl">{cat.flag}</span>
                       <div>
                         <h3 className="font-medium text-foreground group-hover:text-neon-pink transition-colors">{cat.name}</h3>
-                        <p className="text-xs text-foreground/40">{cat.count} vídeos</p>
+                        <p className="text-xs text-foreground/40">{t("pages.categorias.card.videos", { count: cat.count })}</p>
                       </div>
                     </div>
                   </Link>
@@ -305,7 +307,7 @@ export default function CategoriasAuthenticated() {
         <section className="glass rounded-xl p-6 border border-white/10">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <span className="w-1 h-5 bg-neon-pink rounded-full" />
-            Tags Populares
+            {t("pages.categorias.sections.popularTags")}
           </h3>
           <div className="flex flex-wrap gap-2">
             {popularTags.map((tag, i) => (
@@ -320,18 +322,18 @@ export default function CategoriasAuthenticated() {
         <section className="text-center py-8">
           <h3 className="text-2xl font-bold mb-4">
             <span className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-blue bg-clip-text text-transparent">
-              Não encontrou o que procurava?
+              {t("pages.categorias.explore.title")}
             </span>
           </h3>
           <p className="text-foreground/60 mb-6 max-w-2xl mx-auto">
-            Experimente usar a busca ou explore nossas tags para encontrar conteúdo mais específico
+            {t("pages.categorias.explore.subtitle")}
           </p>
           <div className="flex items-center justify-center gap-4">
             <Link to="/videoauthenticated" className="px-6 py-3 bg-white/5 text-foreground/80 rounded-lg font-medium hover:text-neon-pink hover:bg-white/10 transition-all border border-white/10 flex items-center gap-2">
-              <Video size={18} />Ver todos os vídeos
+              <Video size={18} />{t("pages.categorias.explore.allVideos")}
             </Link>
             <Link to="/popularesauthenticated" className="px-6 py-3 bg-gradient-to-r from-neon-pink to-neon-purple text-white rounded-lg font-medium hover:shadow-[0_0_20px_rgba(236,72,153,0.3)] transition-all flex items-center gap-2">
-              <Flame size={18} />Ver populares
+              <Flame size={18} />{t("pages.categorias.explore.popular")}
             </Link>
           </div>
         </section>

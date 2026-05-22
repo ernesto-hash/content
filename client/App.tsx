@@ -1,4 +1,5 @@
 import "./global.css";
+import "./i18n";
 
 import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";

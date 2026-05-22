@@ -25,6 +25,7 @@ import {
   AlertTriangle, CheckCircle2, Settings2, ChevronRight,
   VolumeX,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 
 type Video = {
@@ -53,15 +54,15 @@ function fmtDuration(s: number | null) {
   if (!s) return "";
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
-function fmtRelative(iso: string) {
+function fmtRelative(iso: string, t: (key: string, opts?: Record<string, number>) => string) {
   const diff = Date.now() - new Date(iso).getTime();
   const hrs  = Math.floor(diff / 3600000);
-  if (hrs < 1)  return "agora";
-  if (hrs < 24) return `há ${hrs}h`;
+  if (hrs < 1)  return t("home.time.now");
+  if (hrs < 24) return t("home.time.hoursAgo", { count: hrs });
   const days = Math.floor(hrs / 24);
-  if (days < 7)  return `há ${days}d`;
-  if (days < 30) return `há ${Math.floor(days / 7)}sem`;
-  return `há ${Math.floor(days / 30)}mes`;
+  if (days < 7)  return t("home.time.daysAgo", { count: days });
+  if (days < 30) return t("home.time.weeksAgo", { count: Math.floor(days / 7) });
+  return t("home.time.monthsAgo", { count: Math.floor(days / 30) });
 }
 
 function distribuirPorModelo<T extends { user_id: string }>(videos: T[]): T[] {
@@ -94,6 +95,7 @@ function distribuirPorModelo<T extends { user_id: string }>(videos: T[]): T[] {
 // Age Gate
 // ─────────────────────────────────────────────
 function AgeGate({ onConfirm }: { onConfirm: () => void }) {
+  const { t } = useTranslation();
   const [step, setStep] = useState<AgeStep>("gate");
   if (step === "blocked") {
     return (
@@ -103,13 +105,12 @@ function AgeGate({ onConfirm }: { onConfirm: () => void }) {
           <div className="w-16 h-16 mx-auto rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
             <AlertTriangle size={28} className="text-red-400" />
           </div>
-          <h2 className="text-2xl font-black text-white">Acesso negado</h2>
-          <p className="text-white/45 text-sm leading-relaxed">
-            Este site contém conteúdo explícito destinado exclusivamente a adultos com 18 ou mais anos.<br /><br />
-            Se tens menos de 18 anos, deves abandonar esta página imediatamente.
+          <h2 className="text-2xl font-black text-white">{t("home.ageGate.blockedTitle")}</h2>
+          <p className="text-white/45 text-sm leading-relaxed" style={{ whiteSpace: "pre-line" }}>
+            {t("home.ageGate.blockedBody")}
           </p>
           <a href="https://www.google.com" className="inline-block px-8 py-3 rounded-xl bg-red-500/15 border border-red-500/25 text-red-400 font-bold text-sm hover:bg-red-500/22 transition-all">
-            Sair do site
+            {t("home.ageGate.leaveSite")}
           </a>
         </div>
       </div>
@@ -142,18 +143,22 @@ function AgeGate({ onConfirm }: { onConfirm: () => void }) {
             <div className="space-y-1.5">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-widest uppercase"
                 style={{ background:"rgba(236,72,153,0.08)", border:"1px solid rgba(236,72,153,0.16)", color:"rgba(236,72,153,0.75)" }}>
-                <Lock size={7} /> Conteúdo Restrito
+                <Lock size={7} /> {t("home.ageGate.restrictedBadge")}
               </div>
               <h1 className="text-xl font-black text-white leading-tight">
-                Este site contém{" "}
-                <span style={{ background:"linear-gradient(90deg,#ec4899,#8b5cf6)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>conteúdo adulto</span>
+                {t("home.ageGate.title")}{" "}
+                <span style={{ background:"linear-gradient(90deg,#ec4899,#8b5cf6)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>{t("home.ageGate.titleHighlight")}</span>
               </h1>
-              <p className="text-white/40 text-xs leading-relaxed">
-                Acesso exclusivo a maiores de <strong className="text-white/60">18 anos</strong>. Ao entrar confirmas que tens idade legal no teu país.
-              </p>
+              <p className="text-white/40 text-xs leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: t("home.ageGate.subtitle") }} />
             </div>
             <div className="text-left rounded-xl p-3 space-y-1.5" style={{ background:"rgba(255,255,255,0.025)", border:"1px solid rgba(255,255,255,0.06)" }}>
-              {["Tenho 18 ou mais anos de idade","Compreendo que este site contém material explícito","Aceito os Termos de Serviço e Política de Privacidade","O acesso a conteúdo adulto é legal no meu país"].map((item, i) => (
+              {[
+                t("home.ageGate.checks.age"),
+                t("home.ageGate.checks.explicit"),
+                t("home.ageGate.checks.terms"),
+                t("home.ageGate.checks.legal"),
+              ].map((item, i) => (
                 <div key={i} className="flex items-start gap-2">
                   <CheckCircle2 size={11} className="text-neon-pink/60 mt-0.5 flex-shrink-0" />
                   <span className="text-[10px] text-white/38">{item}</span>
@@ -164,18 +169,18 @@ function AgeGate({ onConfirm }: { onConfirm: () => void }) {
               <button onClick={onConfirm}
                 className="w-full py-3 rounded-xl text-sm font-black text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
                 style={{ background:"linear-gradient(135deg,#ec4899 0%,#8b5cf6 100%)", boxShadow:"0 0 28px rgba(236,72,153,0.32)" }}>
-                Tenho 18+ anos — Entrar
+                {t("home.ageGate.enterBtn")}
               </button>
               <button onClick={() => setStep("blocked")}
                 className="w-full py-2.5 rounded-xl text-xs font-semibold text-white/30 transition-all hover:text-white/52"
                 style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.07)" }}>
-                Tenho menos de 18 anos — Sair
+                {t("home.ageGate.exitBtn")}
               </button>
             </div>
             <p className="text-[9px] text-white/20">
-              <Link to="/termos" className="hover:text-white/45 underline underline-offset-2">Termos</Link>{" · "}
-              <Link to="/privacidade" className="hover:text-white/45 underline underline-offset-2">Privacidade</Link>{" · "}
-              <Link to="/rta" className="hover:text-white/45 underline underline-offset-2">RTA Label</Link>
+              <Link to="/termos" className="hover:text-white/45 underline underline-offset-2">{t("home.ageGate.termsLink")}</Link>{" · "}
+              <Link to="/privacidade" className="hover:text-white/45 underline underline-offset-2">{t("home.ageGate.privacyLink")}</Link>{" · "}
+              <Link to="/rta" className="hover:text-white/45 underline underline-offset-2">{t("home.ageGate.rtaLink")}</Link>
             </p>
           </div>
         </div>
@@ -188,6 +193,7 @@ function AgeGate({ onConfirm }: { onConfirm: () => void }) {
 // Cookie Consent
 // ─────────────────────────────────────────────
 function CookieConsent({ onAccept }: { onAccept: (c: CookieChoice) => void }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded]     = useState(false);
   const [interacted, setInteracted] = useState(false);
   return (
@@ -214,28 +220,28 @@ function CookieConsent({ onAccept }: { onAccept: (c: CookieChoice) => void }) {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-sm font-black text-white">Utilizamos cookies</h3>
+                  <h3 className="text-sm font-black text-white">{t("home.cookieConsent.title")}</h3>
                   <span className="px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider"
-                    style={{ background:"rgba(236,72,153,0.08)", border:"1px solid rgba(236,72,153,0.14)", color:"rgba(236,72,153,0.7)" }}>RGPD</span>
+                    style={{ background:"rgba(236,72,153,0.08)", border:"1px solid rgba(236,72,153,0.14)", color:"rgba(236,72,153,0.7)" }}>{t("home.cookieConsent.badge")}</span>
                 </div>
                 <p className="text-[11px] text-white/38 leading-relaxed">
-                  Usamos cookies essenciais e, com o teu consentimento, cookies analíticos e de personalização.{" "}
-                  <Link to="/privacidade" className="text-neon-pink/55 hover:text-neon-pink/80 underline underline-offset-2">Saber mais</Link>
+                  {t("home.cookieConsent.body")}{" "}
+                  <Link to="/privacidade" className="text-neon-pink/55 hover:text-neon-pink/80 underline underline-offset-2">{t("home.cookieConsent.learnMore")}</Link>
                 </p>
                 {expanded && (
                   <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
-                      { title:"Essenciais",     desc:"Autenticação e funcionamento básico.", required:true,  color:"rgba(34,197,94,0.12)",  border:"rgba(34,197,94,0.2)",  dot:"#22c55e" },
-                      { title:"Analíticos",     desc:"Estatísticas anónimas de uso.",        required:false, color:"rgba(59,130,246,0.1)",  border:"rgba(59,130,246,0.18)",dot:"#3b82f6" },
-                      { title:"Personalização", desc:"Recomendações baseadas no perfil.",    required:false, color:"rgba(139,92,246,0.1)", border:"rgba(139,92,246,0.18)",dot:"#8b5cf6" },
+                      { key:"essential",      required:true,  color:"rgba(34,197,94,0.12)",  border:"rgba(34,197,94,0.2)",  dot:"#22c55e" },
+                      { key:"analytics",      required:false, color:"rgba(59,130,246,0.1)",  border:"rgba(59,130,246,0.18)",dot:"#3b82f6" },
+                      { key:"personalization",required:false, color:"rgba(139,92,246,0.1)", border:"rgba(139,92,246,0.18)",dot:"#8b5cf6" },
                     ].map(c => (
-                      <div key={c.title} className="rounded-xl p-3" style={{ background:c.color, border:`1px solid ${c.border}` }}>
+                      <div key={c.key} className="rounded-xl p-3" style={{ background:c.color, border:`1px solid ${c.border}` }}>
                         <div className="flex items-center gap-1.5 mb-1">
                           <div className="w-1.5 h-1.5 rounded-full" style={{ background:c.dot }} />
-                          <span className="text-[11px] font-bold text-white/75">{c.title}</span>
-                          {c.required && <span className="ml-auto text-[8px] font-bold text-white/25 tracking-wider">OBRIG.</span>}
+                          <span className="text-[11px] font-bold text-white/75">{t(`home.cookieConsent.types.${c.key}.name`)}</span>
+                          {c.required && <span className="ml-auto text-[8px] font-bold text-white/25 tracking-wider">{t("home.cookieConsent.types.essential.required")}</span>}
                         </div>
-                        <p className="text-[10px] text-white/32">{c.desc}</p>
+                        <p className="text-[10px] text-white/32">{t(`home.cookieConsent.types.${c.key}.desc`)}</p>
                       </div>
                     ))}
                   </div>
@@ -245,18 +251,18 @@ function CookieConsent({ onAccept }: { onAccept: (c: CookieChoice) => void }) {
             <div className="flex items-center gap-2 mt-3.5 flex-wrap justify-end">
               <button onClick={() => { setInteracted(true); setExpanded(!expanded); }}
                 className="flex items-center gap-1 text-[11px] text-white/30 hover:text-white/55 transition-colors mr-auto">
-                <Settings2 size={11} />{expanded ? "Ocultar" : "Personalizar"}
+                <Settings2 size={11} />{expanded ? t("home.cookieConsent.hide") : t("home.cookieConsent.customize")}
                 <ChevronRight size={10} className={`transition-transform ${expanded ? "rotate-90" : ""}`} />
               </button>
               <button onClick={() => { setInteracted(true); onAccept("essential"); }}
                 className="px-4 py-2 rounded-xl text-[11px] font-semibold text-white/45 hover:text-white/65 transition-all"
                 style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)" }}>
-                Apenas essenciais
+                {t("home.cookieConsent.essentialOnly")}
               </button>
               <button onClick={() => { setInteracted(true); onAccept("all"); }}
                 className="px-5 py-2 rounded-xl text-[11px] font-black text-white transition-all hover:scale-[1.02]"
                 style={{ background:"linear-gradient(135deg,#ec4899 0%,#8b5cf6 100%)", boxShadow:"0 0 20px rgba(236,72,153,0.25)" }}>
-                Aceitar todos
+                {t("home.cookieConsent.acceptAll")}
               </button>
             </div>
           </div>
@@ -280,6 +286,7 @@ function VideoCard({ video, onLike, onSave, isLiked, isSaved, className = "" }: 
   isLiked: boolean; isSaved: boolean;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const videoRef        = useRef<HTMLVideoElement>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -391,16 +398,16 @@ function VideoCard({ video, onLike, onSave, isLiked, isSaved, className = "" }: 
             }
           </div>
           <span className="text-[10px] text-foreground/35 truncate group-hover/creator:text-foreground/65 transition-colors">
-            {video.creator_name ?? "Criador"}
+            {video.creator_name ?? t("common.creator")}
           </span>
         </Link>
         <Link to={`/video/${video.id}`} onClick={handleLinkClick}>
-          <h3 className="text-sm font-semibold text-foreground/80 line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug">{video.title || "Sem título"}</h3>
+          <h3 className="text-sm font-semibold text-foreground/80 line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug">{video.title || t("common.noTitle")}</h3>
         </Link>
         <div className="flex items-center gap-2 text-[10px] text-foreground/32 pt-0.5">
           <span className="flex items-center gap-0.5"><Eye size={9} />{fmtNum(video.views)}</span>
           <span className="flex items-center gap-0.5"><Heart size={9} className="text-neon-pink/45" />{fmtNum(video.likes_count)}</span>
-          <span className="ml-auto">{fmtRelative(video.created_at)}</span>
+          <span className="ml-auto">{fmtRelative(video.created_at, t)}</span>
         </div>
       </div>
     </div>
@@ -428,12 +435,13 @@ function FeaturedSection({ videos, onLike, onSave, likedIds, savedIds }: {
   onSave: (id: string, e: React.MouseEvent) => void;
   likedIds: Set<string>; savedIds: Set<string>;
 }) {
+  const { t } = useTranslation();
   if (videos.length === 0) return null;
   return (
     <div>
       <div className="flex items-center gap-2 mb-3">
         <Flame size={15} className="text-amber-400" />
-        <h2 className="text-sm font-black text-white/80 uppercase tracking-wider">Em Destaque</h2>
+        <h2 className="text-sm font-black text-white/80 uppercase tracking-wider">{t("home.sections.featured")}</h2>
       </div>
       <div className="flex gap-4 overflow-x-auto scrollbar-none pb-2 -mx-1 px-1">
         {videos.map(v => (
@@ -455,6 +463,7 @@ function CategoryRow({ category, videos, onLike, onSave, likedIds, savedIds }: {
   onSave: (id: string, e: React.MouseEvent) => void;
   likedIds: Set<string>; savedIds: Set<string>;
 }) {
+  const { t } = useTranslation();
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
@@ -462,7 +471,7 @@ function CategoryRow({ category, videos, onLike, onSave, likedIds, savedIds }: {
         <Link to={`/videos?category=${encodeURIComponent(category)}`}
           className="flex items-center gap-0.5 text-[11px] transition-colors"
           style={{ color: "rgba(236,72,153,0.60)" }}>
-          Ver todos <ChevronRight size={11} />
+          {t("home.sections.viewAll")} <ChevronRight size={11} />
         </Link>
       </div>
       <div className="flex gap-3 overflow-x-auto scrollbar-none pb-2 -mx-1 px-1">
@@ -480,6 +489,7 @@ function CategoryRow({ category, videos, onLike, onSave, likedIds, savedIds }: {
 // Componente principal
 // ─────────────────────────────────────────────
 export default function Index() {
+  const { t } = useTranslation();
   useDocumentTitle({
     title: "SuckOrSex - Vídeos Porno Grátis & Conteúdo XXX HD",
     url: "https://suckorsex.com/",
@@ -757,10 +767,10 @@ export default function Index() {
           {/* Filtros */}
           <div className="flex items-center gap-2 flex-wrap">
             {([
-              ["todos",    "Para si",     Sparkles],
-              ["alta",     "Em Alta",     Flame],
-              ["recentes", "Recentes",    Zap],
-              ["vistos",   "Mais Vistos", TrendingUp],
+              ["todos",    t("home.filters.forYou"),      Sparkles],
+              ["alta",     t("home.filters.trending"),    Flame],
+              ["recentes", t("home.filters.recent"),      Zap],
+              ["vistos",   t("home.filters.mostWatched"), TrendingUp],
             ] as [FilterTab, string, React.ElementType][]).map(([val, label, Icon]) => (
               <button key={val} onClick={() => setActiveFilter(val)}
                 className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
@@ -771,7 +781,7 @@ export default function Index() {
                 <Icon size={11} /> {label}
               </button>
             ))}
-            {!loading && <span className="ml-auto text-[10px] text-foreground/25">{fmtNum(totalCount)} vídeos</span>}
+            {!loading && <span className="ml-auto text-[10px] text-foreground/25">{t("home.filters.videoCount", { count: fmtNum(totalCount) as unknown as number })}</span>}
           </div>
 
           {/* Linhas de categoria */}
@@ -791,7 +801,7 @@ export default function Index() {
               <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center">
                 <Film size={26} className="text-foreground/18" />
               </div>
-              <p className="text-foreground/48 font-semibold">Sem vídeos encontrados</p>
+              <p className="text-foreground/48 font-semibold">{t("home.empty")}</p>
             </div>
           ) : (
             <>
@@ -834,8 +844,8 @@ export default function Index() {
               <button onClick={loadMore} disabled={loadingMore}
                 className="flex items-center gap-2 px-8 py-3 rounded-xl bg-white/5 border border-white/10 text-foreground/58 text-sm font-semibold hover:bg-white/8 hover:border-white/16 hover:text-foreground transition-all disabled:opacity-50">
                 {loadingMore
-                  ? <><Loader2 size={14} className="animate-spin" />A carregar...</>
-                  : <><ChevronDown size={14} />Carregar mais vídeos</>}
+                  ? <><Loader2 size={14} className="animate-spin" />{t("home.loading")}</>
+                  : <><ChevronDown size={14} />{t("home.loadMore")}</>}
               </button>
             </div>
           )}
@@ -846,13 +856,13 @@ export default function Index() {
               <div className="absolute -top-12 -right-12 w-48 h-48 bg-neon-pink/7 rounded-full blur-3xl pointer-events-none" />
               <div className="relative max-w-sm mx-auto space-y-3">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/6 border border-white/10 text-white/50 text-xs font-medium">
-                  <Crown size={10} className="text-yellow-400" /> Conta grátis
+                  <Crown size={10} className="text-yellow-400" /> {t("home.cta.badge")}
                 </div>
-                <h2 className="text-xl font-black text-white">Gosta, comenta e guarda favoritos</h2>
-                <p className="text-foreground/42 text-sm">Recebe recomendações personalizadas e subscreve criadores.</p>
+                <h2 className="text-xl font-black text-white">{t("home.cta.title")}</h2>
+                <p className="text-foreground/42 text-sm">{t("home.cta.subtitle")}</p>
                 <div className="flex items-center justify-center gap-3">
-                  <Link to="/signup" className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white font-bold text-sm hover:shadow-[0_0_22px_rgba(236,72,153,0.35)] transition-all">Criar conta grátis</Link>
-                  <Link to="/login"  className="px-5 py-2.5 rounded-xl bg-white/6 border border-white/10 text-white font-semibold text-sm hover:bg-white/10 transition-all">Entrar</Link>
+                  <Link to="/signup" className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white font-bold text-sm hover:shadow-[0_0_22px_rgba(236,72,153,0.35)] transition-all">{t("home.cta.createAccount")}</Link>
+                  <Link to="/login"  className="px-5 py-2.5 rounded-xl bg-white/6 border border-white/10 text-white font-semibold text-sm hover:bg-white/10 transition-all">{t("home.cta.login")}</Link>
                 </div>
               </div>
             </div>
@@ -869,12 +879,12 @@ export default function Index() {
                 <div className="w-12 h-12 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-neon-pink to-neon-purple flex items-center justify-center">
                   {authAction === "like" ? <Heart size={20} className="text-white" /> : <Bookmark size={20} className="text-white" />}
                 </div>
-                <h3 className="text-lg font-black text-white mb-2">{authAction === "like" ? "Gostar do vídeo" : "Guardar vídeo"}</h3>
-                <p className="text-white/40 text-sm mb-6">Cria uma conta grátis para interagir com o conteúdo.</p>
+                <h3 className="text-lg font-black text-white mb-2">{authAction === "like" ? t("home.authPopup.like") : t("home.authPopup.save")}</h3>
+                <p className="text-white/40 text-sm mb-6">{t("home.authPopup.body")}</p>
                 <div className="space-y-2.5">
-                  <Link to="/signup" onClick={() => setShowAuth(false)} className="block w-full py-2.5 bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold rounded-xl transition-all">Criar conta grátis</Link>
-                  <Link to="/login"  onClick={() => setShowAuth(false)} className="block w-full py-2.5 bg-white/6 border border-white/10 text-white text-sm font-semibold rounded-xl hover:bg-white/10 transition-all">Já tenho conta</Link>
-                  <button onClick={() => setShowAuth(false)} className="text-xs text-white/20 hover:text-white/45 transition-colors">Continuar a navegar</button>
+                  <Link to="/signup" onClick={() => setShowAuth(false)} className="block w-full py-2.5 bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold rounded-xl transition-all">{t("common.createAccount")}</Link>
+                  <Link to="/login"  onClick={() => setShowAuth(false)} className="block w-full py-2.5 bg-white/6 border border-white/10 text-white text-sm font-semibold rounded-xl hover:bg-white/10 transition-all">{t("common.alreadyHaveAccount")}</Link>
+                  <button onClick={() => setShowAuth(false)} className="text-xs text-white/20 hover:text-white/45 transition-colors">{t("common.continueNavigation")}</button>
                 </div>
               </div>
             </div>

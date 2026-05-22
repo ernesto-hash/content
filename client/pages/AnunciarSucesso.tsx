@@ -2,6 +2,7 @@
 // Rota pública: /anunciar/sucesso
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Megaphone, CheckCircle2, ArrowRight, Calendar, Building2, Mail } from "lucide-react";
@@ -15,6 +16,7 @@ interface AdData {
 }
 
 export default function AnunciarSucesso() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [adData, setAdData] = useState<AdData | null>(null);
   const [animIn, setAnimIn] = useState(false);
@@ -25,8 +27,8 @@ export default function AnunciarSucesso() {
       if (raw) setAdData(JSON.parse(raw) as AdData);
     } catch { /* ignore */ }
 
-    const t = setTimeout(() => setAnimIn(true), 80);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setAnimIn(true), 80);
+    return () => clearTimeout(timer);
   }, []);
 
   const startsAt = new Date();
@@ -74,9 +76,9 @@ export default function AnunciarSucesso() {
           </div>
 
           {/* Título */}
-          <h1 className="text-4xl font-black text-white mb-2">Anúncio Activado!</h1>
+          <h1 className="text-4xl font-black text-white mb-2">{t("anunciar.sucesso.title")}</h1>
           <p className="text-base mb-8" style={{ color: "rgba(255,255,255,0.45)" }}>
-            O teu anúncio está agora visível no site.
+            {t("anunciar.sucesso.subtitle")}
           </p>
 
           {/* Card com detalhes */}
@@ -88,29 +90,29 @@ export default function AnunciarSucesso() {
             }}
           >
             <p className="text-xs font-bold tracking-widest" style={{ color: "rgba(255,255,255,0.25)" }}>
-              DETALHES DO ANÚNCIO
+              {t("anunciar.sucesso.detailsHeader")}
             </p>
 
             {adData ? (
               <div className="space-y-3">
-                <Row icon={<Building2 size={14} />} label="Empresa" value={adData.companyName} />
-                <Row icon={<Mail size={14} />}      label="Email"   value={adData.companyEmail} />
+                <Row icon={<Building2 size={14} />} label={t("anunciar.sucesso.labelCompany")} value={adData.companyName} />
+                <Row icon={<Mail size={14} />}      label={t("anunciar.sucesso.labelEmail")}   value={adData.companyEmail} />
                 <Row
                   icon={<Megaphone size={14} />}
-                  label="Plano"
-                  value={`${adData.planName} · ${adData.planDays} dias · ${adData.planPrice.toFixed(2).replace(".", ",")}€`}
+                  label={t("anunciar.sucesso.labelPlan")}
+                  value={`${adData.planName} · ${adData.planDays} ${t("anunciar.sucesso.days")} · ${adData.planPrice.toFixed(2).replace(".", ",")}€`}
                 />
                 {endsAt && (
                   <Row
                     icon={<Calendar size={14} />}
-                    label="Período"
+                    label={t("anunciar.sucesso.labelPeriod")}
                     value={`${fmt(startsAt)} → ${fmt(endsAt)}`}
                   />
                 )}
               </div>
             ) : (
               <p className="text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>
-                Pagamento confirmado com sucesso.
+                {t("anunciar.sucesso.paymentConfirmed")}
               </p>
             )}
           </div>
@@ -126,7 +128,7 @@ export default function AnunciarSucesso() {
             onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.02)"; }}
             onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)"; }}
           >
-            Ver o meu anúncio no site <ArrowRight size={18} />
+            {t("anunciar.sucesso.ctaView")} <ArrowRight size={18} />
           </button>
         </div>
       </div>

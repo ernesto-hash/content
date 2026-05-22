@@ -18,6 +18,7 @@ import {
   User, Calendar, ArrowLeft, MessageCircle, Bell, BellOff,
   Grid3x3, List, Bookmark,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // ─────────────────────────────────────────────
 // Tipos
@@ -56,14 +57,13 @@ function fmtDuration(s: number | null) {
   if (!s) return "";
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
-function fmtRelative(iso: string) {
+function fmtRelative(iso: string, t: (key: string, opts?: Record<string, number>) => string) {
   const diff = Date.now() - new Date(iso).getTime();
   const days = Math.floor(diff / 86400000);
-  if (days < 1)   return "hoje";
-  if (days < 7)   return `há ${days}d`;
-  if (days < 30)  return `há ${Math.floor(days / 7)}sem`;
-  if (days < 365) return `há ${Math.floor(days / 30)}mes`;
-  return `há ${Math.floor(days / 365)}a`;
+  if (days < 1)   return t("home.time.now");
+  if (days < 7)   return t("home.time.daysAgo", { count: days });
+  if (days < 30)  return t("home.time.weeksAgo", { count: Math.floor(days / 7) });
+  return t("home.time.monthsAgo", { count: Math.floor(days / 30) });
 }
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("pt-PT", { month: "short", year: "numeric" });
@@ -90,11 +90,12 @@ const ACCENT_COLORS = [
 // Auth Popup
 // ─────────────────────────────────────────────
 function AuthPopup({ action, onClose }: { action: string; onClose: () => void }) {
+  const { t } = useTranslation();
   const titles: Record<string, string> = {
-    subscribe: "Subscrever canal",
-    message:   "Enviar mensagem",
-    like:      "Gostar do vídeo",
-    save:      "Guardar vídeo",
+    subscribe: t("models.authPopup.subscribe"),
+    message:   t("models.authPopup.message"),
+    like:      t("models.authPopup.like"),
+    save:      t("models.authPopup.save"),
   };
   const icons: Record<string, React.ElementType> = {
     subscribe: Bell,
@@ -113,21 +114,21 @@ function AuthPopup({ action, onClose }: { action: string; onClose: () => void })
           <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-r from-neon-pink to-neon-purple flex items-center justify-center">
             <Icon size={22} className="text-white" />
           </div>
-          <h3 className="text-lg font-bold text-white mb-2">{titles[action] ?? "Ação exclusiva"}</h3>
+          <h3 className="text-lg font-bold text-white mb-2">{titles[action] ?? t("models.authPopup.generic")}</h3>
           <p className="text-white/45 text-sm mb-6">
-            Cria uma conta grátis para interagir com os criadores e aceder a funcionalidades exclusivas.
+            {t("models.authPopup.body")}
           </p>
           <div className="space-y-2.5">
             <Link to="/signup" onClick={onClose}
               className="block w-full py-2.5 bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold rounded-xl hover:shadow-[0_0_20px_rgba(236,72,153,0.35)] transition-all">
-              Criar conta grátis
+              {t("common.createAccount")}
             </Link>
             <Link to="/login" onClick={onClose}
               className="block w-full py-2.5 bg-white/7 border border-white/10 text-white text-sm font-semibold rounded-xl hover:bg-white/10 transition-all">
-              Já tenho conta
+              {t("common.alreadyHaveAccount")}
             </Link>
             <button onClick={onClose} className="text-xs text-white/22 hover:text-white/50 transition-colors">
-              Continuar a navegar
+              {t("common.continueNavigation")}
             </button>
           </div>
         </div>
@@ -147,6 +148,7 @@ function CreatorCard({
   isSubscribed: boolean;
   onSubscribe: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const grad   = GRADIENTS[index % GRADIENTS.length];
   const accent = ACCENT_COLORS[index % ACCENT_COLORS.length];
@@ -184,7 +186,7 @@ function CreatorCard({
         {/* Badge "Novo" — sem vídeos ainda */}
         {creator.video_count === 0 && (
           <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-neon-purple/20 border border-neon-purple/30 text-neon-purple text-[9px] font-bold tracking-wide">
-            ✨ Novo
+            {t("models.card.new")}
           </div>
         )}
       </div>
@@ -206,7 +208,7 @@ function CreatorCard({
                 : `${accent} hover:scale-[1.03]`
             }`}
           >
-            {isSubscribed ? <><BellOff size={11} /> Subscrito</> : <><Bell size={11} /> Subscrever</>}
+            {isSubscribed ? <><BellOff size={11} /> {t("models.card.subscribed")}</> : <><Bell size={11} /> {t("models.card.subscribe")}</>}
           </button>
         </div>
 
@@ -219,9 +221,9 @@ function CreatorCard({
 
         <div className="grid grid-cols-3 gap-1 text-center">
           {[
-            { label: "Vídeos", value: fmtNum(creator.video_count),      icon: Film  },
-            { label: "Views",  value: fmtNum(creator.total_views),      icon: Eye   },
-            { label: "Fãs",    value: fmtNum(creator.subscriber_count), icon: Users },
+            { label: t("models.stats.videos"), value: fmtNum(creator.video_count),      icon: Film  },
+            { label: t("models.stats.views"),  value: fmtNum(creator.total_views),      icon: Eye   },
+            { label: t("models.stats.fans"),   value: fmtNum(creator.subscriber_count), icon: Users },
           ].map(({ label, value, icon: Icon }) => (
             <div key={label} className="bg-white/[0.03] border border-white/6 rounded-xl py-1.5 px-1">
               <Icon size={10} className="text-foreground/30 mx-auto mb-0.5" />
@@ -232,7 +234,7 @@ function CreatorCard({
         </div>
 
         <div className="mt-3 flex items-center justify-center gap-1 text-[11px] text-foreground/30 group-hover:text-neon-pink transition-colors">
-          <span>Ver canal</span>
+          <span>{t("models.card.viewChannel")}</span>
           <ChevronRight size={11} />
         </div>
       </div>
@@ -246,6 +248,7 @@ function CreatorCard({
 type SortOption = "subscribers" | "videos" | "views" | "recentes";
 
 export function ModelosPage() {
+  const { t } = useTranslation();
   useDocumentTitle({ title: "Modelos - SuckOrSex" });
   const [creators, setCreators]   = useState<Creator[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -365,22 +368,22 @@ export function ModelosPage() {
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-5">
             <div className="max-w-lg">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neon-pink/12 border border-neon-pink/22 text-neon-pink text-[11px] font-bold tracking-wider uppercase mb-3">
-                <Crown size={11} /> Criadores exclusivos
+                <Crown size={11} /> {t("models.hero.badge")}
               </div>
               <h1 className="text-3xl font-black text-white mb-2 leading-tight">
-                Descobre os{" "}
+                {t("models.hero.title")}{" "}
                 <span className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-blue bg-clip-text text-transparent">
-                  melhores modelos
+                  {t("models.hero.titleHighlight")}
                 </span>
               </h1>
               <p className="text-foreground/50 text-sm leading-relaxed">
-                Subscreve os teus favoritos e recebe notificações de novos conteúdos.
+                {t("models.hero.subtitle")}
               </p>
             </div>
             <div className="flex gap-3">
               {[
-                { label: "Criadores",  value: loading ? "—" : fmtNum(total),                                            icon: Users, color: "text-neon-pink" },
-                { label: "Vídeos", value: loading ? "—" : fmtNum(creators.reduce((sum, c) => sum + c.video_count, 0)), icon: Film,  color: "text-neon-blue" },
+                { label: t("models.stats.creators"), value: loading ? "—" : fmtNum(total),                                            icon: Users, color: "text-neon-pink" },
+                { label: t("models.stats.videos"),   value: loading ? "—" : fmtNum(creators.reduce((sum, c) => sum + c.video_count, 0)), icon: Film,  color: "text-neon-blue" },
               ].map(({ label, value, icon: Icon, color }) => (
                 <div key={label} className="text-center px-5 py-4 rounded-xl bg-white/5 border border-white/8 flex-shrink-0">
                   <Icon size={16} className={`mx-auto mb-1 ${color}`} />
@@ -397,16 +400,16 @@ export function ModelosPage() {
           <div className="flex items-center gap-2 flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 focus-within:border-neon-purple/35 transition-all">
             <Search size={15} className="text-foreground/35 flex-shrink-0" />
             <input value={query} onChange={(e) => setQuery(e.target.value)}
-              placeholder="Pesquisar modelos..."
+              placeholder={t("models.search.placeholder")}
               className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/28" />
             {query && <button onClick={() => setQuery("")} className="text-foreground/30 hover:text-foreground/60"><X size={13} /></button>}
           </div>
           <div className="flex items-center gap-1.5 flex-wrap">
             {([
-              ["subscribers", "Mais Fãs",    Users],
-              ["videos",      "Mais Vídeos", Film],
-              ["views",       "Mais Vistos", Eye],
-              ["recentes",    "Recentes",    Sparkles],
+              ["subscribers", t("models.sort.mostFans"),    Users],
+              ["videos",      t("models.sort.mostVideos"),  Film],
+              ["views",       t("models.sort.mostViewed"),  Eye],
+              ["recentes",    t("models.sort.recent"),      Sparkles],
             ] as [SortOption, string, React.ElementType][]).map(([val, label, Icon]) => (
               <button key={val} onClick={() => setSort(val)}
                 className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold border transition-all ${
@@ -425,8 +428,8 @@ export function ModelosPage() {
           <p className="text-sm text-foreground/40 flex items-center gap-1.5">
             <Search size={13} />
             {displayed.length > 0
-              ? <>{displayed.length} modelo{displayed.length !== 1 ? "s" : ""} para "{dQuery}"</>
-              : <>Sem resultados para "{dQuery}"</>
+              ? <>{t("models.results.count", { count: displayed.length, query: dQuery })}</>
+              : <>{t("models.results.empty", { query: dQuery })}</>
             }
           </p>
         )}
@@ -457,9 +460,9 @@ export function ModelosPage() {
               <Users size={28} className="text-foreground/20" />
             </div>
             <div className="text-center">
-              <p className="text-foreground/60 font-medium">Nenhum modelo encontrado</p>
+              <p className="text-foreground/60 font-medium">{t("models.empty.title")}</p>
               <p className="text-foreground/30 text-sm mt-1">
-                {dQuery ? "Tenta uma pesquisa diferente." : "Ainda não há criadores registados."}
+                {dQuery ? t("models.empty.trySearch") : t("models.empty.noCreators")}
               </p>
             </div>
           </div>
@@ -483,6 +486,7 @@ export function ModelosPage() {
 // PÁGINA DO CANAL
 // ─────────────────────────────────────────────
 export function ModeloCanal() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -588,8 +592,8 @@ export function ModeloCanal() {
     <Layout>
       <div className="max-container safe-area py-20 text-center space-y-4">
         <Users size={40} className="mx-auto text-white/15" />
-        <p className="text-foreground/50">Modelo não encontrado.</p>
-        <button onClick={() => navigate("/modelos")} className="text-sm text-neon-pink hover:text-neon-pink/80">← Voltar aos modelos</button>
+        <p className="text-foreground/50">{t("models.channel.notFound")}</p>
+        <button onClick={() => navigate("/modelos")} className="text-sm text-neon-pink hover:text-neon-pink/80">{t("models.channel.backToModels")}</button>
       </div>
     </Layout>
   );
@@ -612,7 +616,7 @@ export function ModeloCanal() {
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <button onClick={() => navigate("/modelos")}
             className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/50 border border-white/12 text-white/70 text-xs hover:bg-black/70 transition-colors backdrop-blur-sm">
-            <ArrowLeft size={13} /> Modelos
+            <ArrowLeft size={13} /> {t("nav.links.models")}
           </button>
         </div>
 
@@ -635,7 +639,7 @@ export function ModeloCanal() {
                 </div>
                 <p className="text-foreground/40 text-sm">@{creator.username}</p>
                 <p className="text-foreground/30 text-xs mt-0.5 flex items-center gap-1">
-                  <Calendar size={10} /> Membro desde {fmtDate(creator.created_at)}
+                  <Calendar size={10} /> {t("models.channel.memberSince", { date: fmtDate(creator.created_at) })}
                 </p>
               </div>
             </div>
@@ -645,7 +649,7 @@ export function ModeloCanal() {
                   msgSent ? "bg-emerald-500/12 border-emerald-500/25 text-emerald-400"
                   : "bg-white/5 border-white/12 text-foreground/60 hover:bg-white/10 hover:text-white"
                 }`}>
-                <MessageCircle size={15} /> {msgSent ? "Enviado!" : "Mensagem"}
+                <MessageCircle size={15} /> {msgSent ? t("models.channel.sent") : t("models.channel.message")}
               </button>
               <button onClick={handleSubscribe}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
@@ -653,7 +657,7 @@ export function ModeloCanal() {
                     ? "bg-white/8 border border-white/12 text-white/50 hover:bg-white/12"
                     : "bg-gradient-to-r from-neon-pink to-neon-purple text-white hover:shadow-lg hover:shadow-neon-pink/25"
                 }`}>
-                {isSubscribed ? <><BellOff size={15} /> Subscrito</> : <><Bell size={15} /> Subscrever</>}
+                {isSubscribed ? <><BellOff size={15} /> {t("common.subscribed")}</> : <><Bell size={15} /> {t("common.subscribe")}</>}
               </button>
             </div>
           </div>
@@ -661,9 +665,9 @@ export function ModeloCanal() {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3 mb-8">
             {[
-              { label: "Vídeos publicados", value: fmtNum(creator.video_count), icon: Film,  color: "text-neon-pink"   },
-              { label: "Views totais",      value: fmtNum(creator.total_views),  icon: Eye,   color: "text-neon-blue"   },
-              { label: "Subscritores",      value: fmtNum(subCount),             icon: Users, color: "text-neon-purple" },
+              { label: t("models.channel.videosPublished"), value: fmtNum(creator.video_count), icon: Film,  color: "text-neon-pink"   },
+              { label: t("models.channel.totalViews"),      value: fmtNum(creator.total_views),  icon: Eye,   color: "text-neon-blue"   },
+              { label: t("models.channel.subscribers"),     value: fmtNum(subCount),             icon: Users, color: "text-neon-purple" },
             ].map(({ label, value, icon: Icon, color }) => (
               <div key={label} className="bg-white/[0.03] border border-white/8 rounded-2xl p-4 text-center">
                 <Icon size={18} className={`mx-auto mb-1.5 ${color}`} />
@@ -677,7 +681,7 @@ export function ModeloCanal() {
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-base font-bold text-foreground/80 flex items-center gap-2">
               <Film size={16} className="text-neon-pink" />
-              Vídeos do canal
+              {t("models.channel.channelVideos")}
               {!loadingVideos && <span className="text-foreground/30 text-sm font-normal">({videos.length})</span>}
             </h2>
             <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-1">
@@ -708,13 +712,13 @@ export function ModeloCanal() {
                 <Film size={28} className="text-foreground/20" />
               </div>
               <div className="text-center">
-                <p className="text-foreground/55 font-medium">Ainda sem vídeos publicados</p>
-                <p className="text-foreground/30 text-sm mt-1">Subscreve para seres notificado quando publicar.</p>
+                <p className="text-foreground/55 font-medium">{t("models.channel.noVideos.title")}</p>
+                <p className="text-foreground/30 text-sm mt-1">{t("models.channel.noVideos.subtitle")}</p>
               </div>
               {!isSubscribed && (
                 <button onClick={handleSubscribe}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold hover:shadow-lg hover:shadow-neon-pink/25 transition-all">
-                  <Bell size={14} /> Subscrever canal
+                  <Bell size={14} /> {t("models.channel.noVideos.subscribeBtn")}
                 </button>
               )}
             </div>
@@ -738,11 +742,11 @@ export function ModeloCanal() {
                       </div>
                     )}
                   </div>
-                  <p className="text-xs font-semibold text-foreground/80 line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug">{v.title || "Sem título"}</p>
+                  <p className="text-xs font-semibold text-foreground/80 line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug">{v.title || t("common.noTitle")}</p>
                   <div className="flex items-center gap-2.5 mt-1 text-[10px] text-foreground/35">
                     <span className="flex items-center gap-0.5"><Eye size={9} />{fmtNum(v.views)}</span>
                     <span className="flex items-center gap-0.5"><Heart size={9} className="text-neon-pink/50" />{fmtNum(v.likes_count)}</span>
-                    <span>{fmtRelative(v.created_at)}</span>
+                    <span>{fmtRelative(v.created_at, t)}</span>
                   </div>
                 </Link>
               ))}
@@ -764,11 +768,11 @@ export function ModeloCanal() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0 py-0.5">
-                    <p className="text-xs font-semibold text-foreground/80 line-clamp-2 group-hover:text-neon-pink transition-colors">{v.title || "Sem título"}</p>
+                    <p className="text-xs font-semibold text-foreground/80 line-clamp-2 group-hover:text-neon-pink transition-colors">{v.title || t("common.noTitle")}</p>
                     <div className="flex items-center gap-3 mt-2 text-[10px] text-foreground/35">
                       <span className="flex items-center gap-0.5"><Eye size={9} />{fmtNum(v.views)}</span>
                       <span className="flex items-center gap-0.5"><Heart size={9} className="text-neon-pink/50" />{fmtNum(v.likes_count)}</span>
-                      <span>{fmtRelative(v.created_at)}</span>
+                      <span>{fmtRelative(v.created_at, t)}</span>
                     </div>
                   </div>
                 </Link>

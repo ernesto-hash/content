@@ -12,6 +12,7 @@ import {
 import LayoutVideo from "@/components/LayoutVideo";
 import { supabase } from "@/lib/supabaseClient";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { useTranslation } from "react-i18next";
 
 type VideoData = {
   id: string;
@@ -93,15 +94,15 @@ function fmtDate(iso: string) {
   });
 }
 
-function fmtRelative(iso: string) {
+function fmtRelative(iso: string, t: (key: string, opts?: Record<string, number>) => string) {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "agora mesmo";
-  if (mins < 60) return `há ${mins} min`;
+  if (mins < 1) return t("video.time.justNow");
+  if (mins < 60) return t("video.time.minutesAgo", { count: mins });
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `há ${hrs}h`;
+  if (hrs < 24) return t("video.time.hoursAgo", { count: hrs });
   const days = Math.floor(hrs / 24);
-  if (days < 30) return `há ${days}d`;
+  if (days < 30) return t("video.time.daysAgo", { count: days });
   return fmtDate(iso);
 }
 
@@ -215,6 +216,7 @@ function CreatorLink({
 }
 
 export default function Video() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -633,7 +635,7 @@ export default function Video() {
             <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center animate-pulse">
               <Play size={32} className="text-white" />
             </div>
-            <p className="text-white/50 text-sm">A carregar vídeo...</p>
+            <p className="text-white/50 text-sm">{t("video.loading")}</p>
           </div>
         </div>
       </LayoutVideo>
@@ -645,14 +647,14 @@ export default function Video() {
       <LayoutVideo>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <Film size={48} className="text-white/20" />
-          <p className="text-white/50">Vídeo não encontrado.</p>
-          <Link to="/" className="text-pink-400 text-sm hover:text-pink-300">← Voltar ao início</Link>
+          <p className="text-white/50">{t("video.notFound")}</p>
+          <Link to="/" className="text-pink-400 text-sm hover:text-pink-300">{t("video.backToHome")}</Link>
         </div>
       </LayoutVideo>
     );
   }
 
-  const creatorName = creator?.full_name || creator?.username || "Criador";
+  const creatorName = creator?.full_name || creator?.username || t("common.creator");
   const creatorChannelUrl = creator ? `/modelo/${creator.id}` : "#";
   const displayTime = fmtDuration(Math.floor(currentTime));
   const displayDuration = fmtDuration(Math.floor(duration));
@@ -737,7 +739,7 @@ export default function Video() {
                       : <Film size={64} className="text-white/20" />
                     }
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <p className="text-white/40 text-sm">Vídeo não disponível</p>
+                      <p className="text-white/40 text-sm">{t("video.unavailable")}</p>
                     </div>
                   </div>
                 )}
@@ -828,19 +830,19 @@ export default function Video() {
                         </CreatorLink>
                         <Sparkles size={13} className="text-pink-400 pointer-events-none" />
                       </div>
-                      <p className="text-xs text-white/45">{fmtViews(subscriberCount)} subscritores</p>
+                      <p className="text-xs text-white/45">{t("video.subscribers", { count: fmtViews(subscriberCount) as unknown as number })}</p>
                     </div>
 
                     <button
                       onClick={handleSubscribe}
-                      title={!currentUserId ? "Inicia sessão para subscrever" : undefined}
+                      title={!currentUserId ? t("video.loginToSubscribe") : undefined}
                       className={`ml-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5 ${
                         isSubscribed
                           ? "bg-white/10 text-white/70 hover:bg-white/15 border border-white/10"
                           : "bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:shadow-[0_0_20px_rgba(236,72,153,0.35)]"
                       }`}
                     >
-                      {isSubscribed ? <><CheckCircle size={14} />Subscrito</> : <><Users size={14} />Subscrever</>}
+                      {isSubscribed ? <><CheckCircle size={14} />{t("video.subscribed")}</> : <><Users size={14} />{t("video.subscribe")}</>}
                     </button>
                   </div>
 
@@ -858,18 +860,18 @@ export default function Video() {
                     </div>
                     <button onClick={handleShare} className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium border transition-all ${shareCopied ? "text-green-400 bg-green-500/10 border-green-500/20" : "text-white/50 hover:text-blue-400 bg-white/5 border-white/10"}`}>
                       <Share2 size={16} />
-                      <span>{shareCopied ? "Copiado!" : "Partilhar"}</span>
+                      <span>{shareCopied ? t("video.shared") : t("video.share")}</span>
                     </button>
                     <button onClick={() => currentUserId ? setIsSaved(!isSaved) : requireAuth("save")} className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium border transition-all ${isSaved ? "text-purple-400 bg-purple-500/10 border-purple-500/20" : "text-white/50 hover:text-purple-400 bg-white/5 border-white/10"}`}>
                       <Bookmark size={16} className={isSaved ? "fill-purple-400" : ""} />
-                      <span>Guardar</span>
+                      <span>{t("video.save")}</span>
                     </button>
                   </div>
                 </div>
 
                 <div className="bg-white/[0.04] border border-white/8 rounded-xl p-4 space-y-3">
                   <div className="flex flex-wrap items-center gap-4 text-xs text-white/40">
-                    <span className="flex items-center gap-1.5"><Eye size={13} />{fmtViews(video.views)} visualizações</span>
+                    <span className="flex items-center gap-1.5"><Eye size={13} />{t("video.views", { count: fmtViews(video.views) as unknown as number })}</span>
                     <span className="flex items-center gap-1.5"><Calendar size={13} />{fmtDate(video.created_at)}</span>
                     {video.category && <span className="flex items-center gap-1.5"><Award size={13} />{video.category}</span>}
                     {video.duration && <span className="flex items-center gap-1.5"><Clock size={13} />{fmtDuration(video.duration)}</span>}
@@ -884,7 +886,7 @@ export default function Video() {
               <div className="space-y-5 pt-2">
                 <h3 className="text-base font-semibold text-white flex items-center gap-2">
                   <MessageCircle size={17} className="text-pink-400" />
-                  Comentários <span className="text-white/30 text-sm font-normal">({commentsCount})</span>
+                  {t("video.comments.title")} <span className="text-white/30 text-sm font-normal">({commentsCount})</span>
                 </h3>
 
                 {!currentUserId ? (
@@ -892,8 +894,8 @@ export default function Video() {
                     <div className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center flex-shrink-0 group-hover:bg-pink-500/20 transition-colors">
                       <User size={15} className="text-white/40 group-hover:text-pink-400 transition-colors" />
                     </div>
-                    <span className="text-sm text-white/30 group-hover:text-white/60 transition-colors">Faz login para comentar...</span>
-                    <span className="ml-auto text-xs text-pink-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">Entrar →</span>
+                    <span className="text-sm text-white/30 group-hover:text-white/60 transition-colors">{t("video.comments.loginPrompt")}</span>
+                    <span className="ml-auto text-xs text-pink-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">{t("video.comments.loginAction")}</span>
                   </button>
                 ) : (
                   <form onSubmit={handleCommentSubmit} className="flex gap-3">
@@ -902,7 +904,7 @@ export default function Video() {
                     </div>
                     <div className="flex-1 relative">
                       <input type="text" value={newComment} onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="Adicione um comentário..." disabled={submittingComment}
+                        placeholder={t("video.comments.placeholder")} disabled={submittingComment}
                         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 pr-12 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-pink-500/40 disabled:opacity-50" />
                       <button type="submit" disabled={submittingComment || !newComment.trim()} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-pink-400 disabled:opacity-30 transition-colors">
                         {submittingComment ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
@@ -914,7 +916,7 @@ export default function Video() {
                 {comments.length === 0 ? (
                   <div className="text-center py-10 text-white/25 text-sm">
                     <MessageCircle size={32} className="mx-auto mb-3 opacity-30" />
-                    Ainda sem comentários. Sê o primeiro!
+                    {t("video.comments.empty")}
                   </div>
                 ) : (
                   <div className="space-y-5">
@@ -929,7 +931,7 @@ export default function Video() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <span className="text-sm font-semibold text-white/80 truncate">{cName}</span>
-                              <span className="text-[10px] text-white/25 flex-shrink-0">{fmtRelative(comment.created_at)}</span>
+                              <span className="text-[10px] text-white/25 flex-shrink-0">{fmtRelative(comment.created_at, t)}</span>
                             </div>
                             <p className="text-sm text-white/70 leading-relaxed break-words">{comment.conteudo}</p>
                           </div>
@@ -945,10 +947,10 @@ export default function Video() {
             <div className="space-y-3">
               <h3 className="text-base font-semibold text-white flex items-center gap-2">
                 <TrendingUp size={17} className="text-pink-400" />
-                Recomendados
+                {t("video.recommended.title")}
               </h3>
               {recommended.length === 0 ? (
-                <p className="text-white/25 text-sm py-4">Sem vídeos relacionados.</p>
+                <p className="text-white/25 text-sm py-4">{t("video.recommended.empty")}</p>
               ) : (
                 <div className="space-y-1">
                   {recommended.map((rec) => (
@@ -966,11 +968,11 @@ export default function Video() {
                         </div>
                       </div>
                       <div className="flex-1 min-w-0 py-0.5">
-                        <p className="text-xs font-semibold text-white/80 line-clamp-2 group-hover:text-pink-300 transition-colors leading-snug">{rec.title || "Sem título"}</p>
+                        <p className="text-xs font-semibold text-white/80 line-clamp-2 group-hover:text-pink-300 transition-colors leading-snug">{rec.title || t("common.noTitle")}</p>
                         <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-white/30">
                           <Eye size={9} />{fmtViews(rec.views)}
                           <span className="mx-0.5">·</span>
-                          {fmtRelative(rec.created_at)}
+                          {fmtRelative(rec.created_at, t)}
                         </div>
                       </div>
                     </div>
@@ -998,22 +1000,22 @@ export default function Video() {
                 {pendingAction === "comment" && <MessageCircle size={26} className="text-white" />}
               </div>
               <h3 className="text-xl font-bold text-white mb-2">
-                {pendingAction === "like" && "Gostar do vídeo"}
-                {pendingAction === "dislike" && "Não gostar do vídeo"}
-                {pendingAction === "save" && "Guardar vídeo"}
-                {pendingAction === "subscribe" && "Subscrever canal"}
-                {pendingAction === "comment" && "Comentar"}
+                {pendingAction === "like" && t("video.authPopup.like")}
+                {pendingAction === "dislike" && t("video.authPopup.dislike")}
+                {pendingAction === "save" && t("video.authPopup.save")}
+                {pendingAction === "subscribe" && t("video.authPopup.subscribe")}
+                {pendingAction === "comment" && t("video.authPopup.comment")}
               </h3>
-              <p className="text-white/55 text-sm mb-7">Cria uma conta ou faz login para interagir com o conteúdo.</p>
+              <p className="text-white/55 text-sm mb-7">{t("video.authPopup.body")}</p>
               <div className="space-y-3">
                 <Link to="/signup" onClick={() => setShowAuthPopup(false)} className="block w-full py-3 px-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-sm font-semibold rounded-xl hover:shadow-[0_0_25px_rgba(236,72,153,0.4)] transition-all">
-                  Criar conta grátis
+                  {t("common.createAccount")}
                 </Link>
                 <Link to="/login" onClick={() => setShowAuthPopup(false)} className="block w-full py-3 px-4 bg-white/8 text-white text-sm font-semibold rounded-xl hover:bg-white/12 transition-all border border-white/10">
-                  Já tenho conta
+                  {t("common.alreadyHaveAccount")}
                 </Link>
                 <button onClick={() => setShowAuthPopup(false)} className="text-xs text-white/30 hover:text-white/60 transition-colors">
-                  Continuar a navegar
+                  {t("common.continueNavigation")}
                 </button>
               </div>
             </div>

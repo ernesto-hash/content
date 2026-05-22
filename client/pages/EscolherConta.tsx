@@ -21,6 +21,7 @@
 // so INSERT with any valid role is fully permitted here.
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { MonitorPlay, Video } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
@@ -30,6 +31,7 @@ type AccountType = "user" | "creator";
 type PageStatus  = "checking" | "ready" | "saving";
 
 export default function EscolherConta() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [status,       setStatus]       = useState<PageStatus>("checking");
@@ -120,14 +122,14 @@ export default function EscolherConta() {
           return;
         }
 
-        setError("Erro ao guardar o teu perfil. Tenta novamente.");
+        setError(t("escolherConta.errorSave"));
         setStatus("ready");
         return;
       }
 
       navigate("/dashboard", { replace: true });
     } catch {
-      setError("Erro ao guardar. Tenta novamente.");
+      setError(t("escolherConta.errorSaveFallback"));
       setStatus("ready");
     }
   };
@@ -163,12 +165,12 @@ export default function EscolherConta() {
               </h1>
             </Link>
             <p className="text-foreground/60 text-sm mt-1">
-              {firstName ? `Bem-vindo, ${firstName}!` : "Bem-vindo!"}
+              {firstName ? t("escolherConta.welcomeWithName", { name: firstName }) : t("escolherConta.welcome")}
             </p>
           </div>
 
           <p className="text-center text-foreground/60 text-sm mb-5">
-            Como queres usar a plataforma?
+            {t("escolherConta.question")}
           </p>
 
           {/* Role cards */}
@@ -193,14 +195,14 @@ export default function EscolherConta() {
                 }`}
               />
               <p className="font-bold text-sm text-foreground leading-tight">
-                Quero assistir conteúdo
+                {t("escolherConta.viewerTitle")}
               </p>
               <p className="text-[10px] text-foreground/45 mt-1.5 leading-snug">
-                Acede a conteúdo exclusivo dos teus criadores favoritos
+                {t("escolherConta.viewerDesc")}
               </p>
               {selectedRole === "user" && (
                 <span className="inline-block mt-2 text-[9px] font-bold uppercase tracking-wider text-neon-purple bg-neon-purple/15 px-2 py-0.5 rounded-full">
-                  Selecionado
+                  {t("escolherConta.selected")}
                 </span>
               )}
             </button>
@@ -224,14 +226,14 @@ export default function EscolherConta() {
                 }`}
               />
               <p className="font-bold text-sm text-foreground leading-tight">
-                Quero criar conteúdo
+                {t("escolherConta.creatorTitle")}
               </p>
               <p className="text-[10px] text-foreground/45 mt-1.5 leading-snug">
-                Publica vídeos e constrói a tua audiência
+                {t("escolherConta.creatorDesc")}
               </p>
               {selectedRole === "creator" && (
                 <span className="inline-block mt-2 text-[9px] font-bold uppercase tracking-wider text-neon-pink bg-neon-pink/15 px-2 py-0.5 rounded-full">
-                  Selecionado
+                  {t("escolherConta.selected")}
                 </span>
               )}
             </button>
@@ -253,13 +255,13 @@ export default function EscolherConta() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                A guardar...
+                {t("escolherConta.saving")}
               </span>
-            ) : "Continuar →"}
+            ) : t("escolherConta.continue")}
           </button>
 
           <p className="text-center text-foreground/40 text-[10px] mt-4">
-            Podes alterar o teu tipo de conta mais tarde nas definições.
+            {t("escolherConta.footerNote")}
           </p>
         </div>
       </div>

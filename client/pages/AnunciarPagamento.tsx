@@ -3,6 +3,7 @@
 // Stripe Elements para pagamento único de publicidade.
 
 import { useEffect, useState, FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
 import {
@@ -68,6 +69,7 @@ interface AdData {
 
 // ─── Formulário de pagamento (dentro de <Elements>) ───────────────────────────
 function PaymentForm({ adData }: { adData: AdData }) {
+  const { t }    = useTranslation();
   const stripe   = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
@@ -172,17 +174,17 @@ function PaymentForm({ adData }: { adData: AdData }) {
           className="font-black text-sm truncate"
           style={{ color: adData.accentColor || "#ec4899" }}
         >
-          {adData.headline || "O teu anúncio aqui"}
+          {adData.headline || t("anunciar.pagamento.previewHeadline")}
         </p>
         <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.55)" }}>
-          {adData.description || "Descrição do anúncio"}
+          {adData.description || t("anunciar.pagamento.previewDesc")}
         </p>
       </div>
       <span
         className="text-xs font-bold px-2 py-1 rounded-lg flex-shrink-0"
         style={{ background: `${adData.accentColor}22`, color: adData.accentColor || "#ec4899" }}
       >
-        {adData.ctaText || "Saber mais"}
+        {adData.ctaText || t("anunciar.pagamento.previewCta")}
       </span>
     </div>
   );
@@ -193,7 +195,7 @@ function PaymentForm({ adData }: { adData: AdData }) {
       {/* Preview do anúncio */}
       <div>
         <p className="text-xs font-semibold mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>
-          PRÉ-VISUALIZAÇÃO DO ANÚNCIO
+          {t("anunciar.pagamento.previewLabel")}
         </p>
         <MiniPreview />
       </div>
@@ -213,24 +215,24 @@ function PaymentForm({ adData }: { adData: AdData }) {
           <div>
             <p className="font-black text-sm text-white">{adData.planName}</p>
             <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
-              {adData.planDays} dias de publicidade
+              {adData.planDays} {t("anunciar.pagamento.daysOfAd")}
             </p>
           </div>
         </div>
         <div className="text-right">
           <p className="font-black text-white text-base">{adData.planPrice.toFixed(2).replace(".", ",")}€</p>
-          <p className="text-[9px]" style={{ color: "rgba(255,255,255,0.25)" }}>pagamento único</p>
+          <p className="text-[9px]" style={{ color: "rgba(255,255,255,0.25)" }}>{t("anunciar.pagamento.singlePayment")}</p>
         </div>
       </div>
 
       {/* Nome no cartão */}
       <div className="space-y-1.5">
         <label className="block text-xs font-semibold" style={{ color: "rgba(255,255,255,0.55)" }}>
-          Nome no cartão
+          {t("anunciar.pagamento.cardName")}
         </label>
         <input
           type="text"
-          placeholder="Como aparece no cartão"
+          placeholder={t("anunciar.pagamento.cardNamePlaceholder")}
           value={cardName}
           onChange={e => setCardName(e.target.value)}
           className="w-full px-3.5 py-3 rounded-[10px] text-sm text-white outline-none transition-all"
@@ -253,7 +255,7 @@ function PaymentForm({ adData }: { adData: AdData }) {
       {/* Stripe PaymentElement */}
       <div className="space-y-1.5">
         <label className="block text-xs font-semibold" style={{ color: "rgba(255,255,255,0.55)" }}>
-          Dados do cartão
+          {t("anunciar.pagamento.cardData")}
         </label>
         <PaymentElement options={{ layout: "tabs" }} />
       </div>
@@ -283,10 +285,10 @@ function PaymentForm({ adData }: { adData: AdData }) {
       >
         {loading ? (
           <span className="flex items-center justify-center gap-2">
-            <Loader2 size={20} className="animate-spin" /> A processar...
+            <Loader2 size={20} className="animate-spin" /> {t("anunciar.pagamento.processing")}
           </span>
         ) : (
-          <span>PAGAR E ACTIVAR ANÚNCIO →</span>
+          <span>{t("anunciar.pagamento.submitBtn")}</span>
         )}
       </button>
 
@@ -305,6 +307,7 @@ function PaymentForm({ adData }: { adData: AdData }) {
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 export default function AnunciarPagamento() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [adData,       setAdData]       = useState<AdData | null>(null);
@@ -321,8 +324,8 @@ export default function AnunciarPagamento() {
     } catch {
       navigate("/anunciar", { replace: true });
     }
-    const t = setTimeout(() => setAnimIn(true), 80);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setAnimIn(true), 80);
+    return () => clearTimeout(timer);
   }, [navigate]);
 
   // Cria PaymentIntent assim que temos adData
@@ -375,10 +378,10 @@ export default function AnunciarPagamento() {
   }, [adData]);
 
   const BENEFITS = [
-    "Anúncio visível para todos os visitantes",
-    "Exibido em páginas de alto tráfego",
-    "Estatísticas de impressões e cliques",
-    "Activação imediata após pagamento",
+    t("anunciar.pagamento.benefit0"),
+    t("anunciar.pagamento.benefit1"),
+    t("anunciar.pagamento.benefit2"),
+    t("anunciar.pagamento.benefit3"),
   ];
 
   return (
@@ -407,12 +410,12 @@ export default function AnunciarPagamento() {
               onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = "#ec4899")}
               onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.30)")}
             >
-              <ArrowLeft size={13} /> Voltar
+              <ArrowLeft size={13} /> {t("anunciar.pagamento.back")}
             </button>
             <h1 className="text-3xl md:text-4xl font-black text-white">
-              Pagamento do{" "}
+              {t("anunciar.pagamento.titlePrefix")}{" "}
               <span style={{ background: "linear-gradient(90deg,#ec4899,#9333ea)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                anúncio
+                {t("anunciar.pagamento.titleHighlight")}
               </span>
             </h1>
           </div>
@@ -428,7 +431,7 @@ export default function AnunciarPagamento() {
 
             {/* ── Coluna esquerda — Resumo ──────────────────────────────────── */}
             <div className="space-y-5">
-              <h2 className="text-lg font-black text-white">Resumo do pedido</h2>
+              <h2 className="text-lg font-black text-white">{t("anunciar.pagamento.summaryTitle")}</h2>
 
               <div
                 className="rounded-2xl p-[1px]"
@@ -455,7 +458,7 @@ export default function AnunciarPagamento() {
                         <div>
                           <p className="font-black text-base text-white">{adData.companyName}</p>
                           <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
-                            {adData.planName} · {adData.planDays} dias
+                            {adData.planName} · {adData.planDays} {t("anunciar.pagamento.days")}
                           </p>
                         </div>
                       </div>
@@ -466,12 +469,12 @@ export default function AnunciarPagamento() {
                         style={{ borderTop: "1px solid rgba(255,255,255,0.07)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}
                       >
                         <div className="flex items-end justify-between">
-                          <span className="text-sm" style={{ color: "rgba(255,255,255,0.40)" }}>Total</span>
+                          <span className="text-sm" style={{ color: "rgba(255,255,255,0.40)" }}>{t("anunciar.pagamento.total")}</span>
                           <div className="text-right">
                             <p className="text-3xl font-black text-white">
                               {adData.planPrice.toFixed(2).replace(".", ",")}€
                             </p>
-                            <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.30)" }}>pagamento único</p>
+                            <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.30)" }}>{t("anunciar.pagamento.singlePayment")}</p>
                           </div>
                         </div>
                       </div>
@@ -502,14 +505,14 @@ export default function AnunciarPagamento() {
               >
                 <Shield size={13} style={{ color: "#34d399", flexShrink: 0 }} />
                 <p className="text-xs" style={{ color: "rgba(52,211,153,0.75)" }}>
-                  Pagamento 100% seguro via Stripe · Anúncio activado imediatamente
+                  {t("anunciar.pagamento.secureMsg")}
                 </p>
               </div>
             </div>
 
             {/* ── Coluna direita — Stripe Elements ──────────────────────────── */}
             <div>
-              <h2 className="text-lg font-black text-white mb-4">Dados de pagamento</h2>
+              <h2 className="text-lg font-black text-white mb-4">{t("anunciar.pagamento.paymentDataTitle")}</h2>
 
               <div
                 className="rounded-2xl p-6"
@@ -527,14 +530,14 @@ export default function AnunciarPagamento() {
                       className="text-xs px-4 py-2 rounded-lg transition-colors"
                       style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.50)" }}
                     >
-                      ← Voltar ao início
+                      {t("anunciar.pagamento.backToStart")}
                     </button>
                   </div>
                 ) : !clientSecret || !adData ? (
                   <div className="flex flex-col items-center justify-center gap-3 py-12">
                     <Loader2 size={28} className="animate-spin" style={{ color: "#ec4899" }} />
                     <p className="text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>
-                      A preparar checkout seguro...
+                      {t("anunciar.pagamento.preparingCheckout")}
                     </p>
                   </div>
                 ) : (

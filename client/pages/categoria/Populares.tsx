@@ -4,6 +4,7 @@
 // Sem skeleton cards — só mostra vídeos reais ou estado vazio
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { supabase } from "@/lib/supabaseClient";
@@ -48,6 +49,7 @@ const isTouchDevice = () =>
   window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 
 function VideoCard({ video, rank }: { video: Video; rank: number }) {
+  const { t } = useTranslation();
   const videoRef        = useRef<HTMLVideoElement>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -140,7 +142,7 @@ function VideoCard({ video, rank }: { video: Video; rank: number }) {
       </div>
       <div className="p-4 space-y-2">
         <h3 className="text-sm font-semibold text-foreground line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug">
-          {video.title || "Sem título"}
+          {video.title || t("studio.common.noTitle")}
         </h3>
         <div className="flex items-center justify-between text-xs text-foreground/45">
           <span className="flex items-center gap-1"><Eye size={11} /> {fmtNum(video.views)}</span>
@@ -158,6 +160,7 @@ function VideoCard({ video, rank }: { video: Video; rank: number }) {
 }
 
 export default function PopularesPage() {
+  const { t } = useTranslation();
   useDocumentTitle({ title: "Vídeos Populares - SuckOrSex" });
 
   const [videos, setVideos]   = useState<Video[]>([]);
@@ -233,17 +236,17 @@ export default function PopularesPage() {
                 </h1>
               </div>
               <p className="text-foreground/60 text-sm max-w-md">
-                Apenas vídeos com mais de <strong className="text-neon-pink">100K visualizações</strong> e <strong className="text-neon-pink">10K likes</strong>. O melhor do melhor.
+                {t("pages.category.populares.desc", { minViews: fmtNum(MIN_VIEWS), minLikes: fmtNum(MIN_LIKES) })}
               </p>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
                 <p className="text-2xl font-black text-neon-pink">{loading ? "—" : fmtNum(displayed.length)}</p>
-                <p className="text-xs text-foreground/45 mt-0.5">vídeos</p>
+                <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.populares.countUnit")}</p>
               </div>
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
                 <p className="text-2xl font-black text-neon-purple">{fmtNum(MIN_VIEWS)}</p>
-                <p className="text-xs text-foreground/45 mt-0.5">views mín.</p>
+                <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.populares.minViews")}</p>
               </div>
             </div>
           </div>
@@ -254,7 +257,7 @@ export default function PopularesPage() {
           <div className="flex items-center gap-2 flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5">
             <Search size={15} className="text-foreground/40 flex-shrink-0" />
             <input value={query} onChange={(e) => setQuery(e.target.value)}
-              placeholder="Pesquisar nos populares..."
+              placeholder={t("pages.category.populares.searchPlaceholder")}
               className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/30" />
           </div>
           <div className="flex items-center gap-2">
@@ -266,7 +269,7 @@ export default function PopularesPage() {
                     ? "bg-neon-pink/15 border-neon-pink/40 text-neon-pink"
                     : "bg-white/5 border-white/10 text-foreground/55 hover:border-white/20"
                 }`}>
-                {s === "views" ? <><Eye size={11} className="inline mr-1" />Views</> : <><Heart size={11} className="inline mr-1" />Likes</>}
+                {s === "views" ? <><Eye size={11} className="inline mr-1" />{t("pages.category.populares.sort.views")}</> : <><Heart size={11} className="inline mr-1" />{t("pages.category.populares.sort.likes")}</>}
               </button>
             ))}
           </div>
@@ -276,7 +279,7 @@ export default function PopularesPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 size={32} className="animate-spin text-neon-pink" />
-            <p className="text-foreground/40 text-sm">A carregar vídeos populares...</p>
+            <p className="text-foreground/40 text-sm">{t("pages.category.populares.loading")}</p>
           </div>
         ) : displayed.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
@@ -284,13 +287,13 @@ export default function PopularesPage() {
               <Flame size={28} className="text-foreground/20" />
             </div>
             <div className="text-center space-y-1">
-              <p className="text-foreground/60 font-medium">Ainda sem vídeos populares</p>
+              <p className="text-foreground/60 font-medium">{t("pages.category.populares.emptyTitle")}</p>
               <p className="text-foreground/35 text-sm max-w-xs">
-                Os vídeos aparecerão aqui automaticamente assim que atingirem 100K visualizações e 10K likes.
+                {t("pages.category.populares.emptyDesc")}
               </p>
             </div>
             <Link to="/videos" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neon-pink/10 border border-neon-pink/25 text-neon-pink text-sm hover:bg-neon-pink/18 transition-all mt-2">
-              Ver todos os vídeos <ChevronRight size={15} />
+              {t("pages.category.populares.seeAll")} <ChevronRight size={15} />
             </Link>
           </div>
         ) : (

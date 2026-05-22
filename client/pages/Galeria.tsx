@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
 import { supabase } from "@/lib/supabaseClient";
 import {
@@ -55,6 +56,7 @@ const PLANOS = [
 // Popup de planos
 // ─────────────────────────────────────────────
 function UnlockPopup({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
       <div className="relative max-w-lg w-full rounded-2xl overflow-hidden border border-pink-500/25 max-h-[90vh] overflow-y-auto"
@@ -72,8 +74,8 @@ function UnlockPopup({ onClose }: { onClose: () => void }) {
               style={{ background: "linear-gradient(135deg,#ec4899,#9333ea)", boxShadow: "0 0 25px rgba(236,72,153,0.3)" }}>
               <Crown size={26} className="text-white" />
             </div>
-            <h2 className="text-2xl font-black text-white">Escolhe o teu Plano</h2>
-            <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>Acesso imediato após subscrição</p>
+            <h2 className="text-2xl font-black text-white">{t("pages.galeria.unlock.title")}</h2>
+            <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>{t("pages.galeria.unlock.immediateAccess")}</p>
           </div>
           <div className="space-y-3">
             {PLANOS.map(plano => (
@@ -82,7 +84,7 @@ function UnlockPopup({ onClose }: { onClose: () => void }) {
                 {"destaque" in plano && plano.destaque && (
                   <div className="absolute -top-3 right-4 px-3 py-0.5 rounded-full text-white text-[10px] font-black"
                     style={{ background: "linear-gradient(90deg,#ec4899,#9333ea)" }}>
-                    MAIS POPULAR
+                    {t("pages.galeria.unlock.mostPopular")}
                   </div>
                 )}
                 <div className="flex items-center justify-between">
@@ -97,9 +99,9 @@ function UnlockPopup({ onClose }: { onClose: () => void }) {
                   </div>
                   <div className="text-right flex-shrink-0 ml-3">
                     <p className="text-white font-black text-xl">
-                      {plano.mensal}<span className="text-xs font-normal" style={{ color: "rgba(255,255,255,0.35)" }}>/mês</span>
+                      {plano.mensal}<span className="text-xs font-normal" style={{ color: "rgba(255,255,255,0.35)" }}>{t("pages.galeria.unlock.perMonth")}</span>
                     </p>
-                    <p className={`text-[10px] ${plano.corText}`}>{plano.anual}/ano</p>
+                    <p className={`text-[10px] ${plano.corText}`}>{plano.anual}{t("pages.galeria.unlock.perYear")}</p>
                   </div>
                 </div>
               </div>
@@ -109,20 +111,20 @@ function UnlockPopup({ onClose }: { onClose: () => void }) {
             <Link to="/signup" onClick={onClose}
               className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-white font-black text-sm transition-all hover:opacity-90"
               style={{ background: "linear-gradient(90deg,#ec4899,#9333ea)", boxShadow: "0 0 20px rgba(236,72,153,0.35)" }}>
-              → QUERO ACESSO AGORA
+              {t("pages.galeria.unlock.ctaBtn")}
             </Link>
             <Link to="/login" onClick={onClose}
               className="block w-full py-3 rounded-xl text-white text-sm font-semibold text-center transition-all"
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}>
-              Já tenho conta — Entrar
+              {t("pages.galeria.unlock.hasAccount")}
             </Link>
             <button onClick={onClose} className="w-full text-xs transition-colors"
               style={{ color: "rgba(255,255,255,0.22)" }}>
-              Continuar com preview gratuita
+              {t("pages.galeria.unlock.continueFree")}
             </button>
           </div>
           <div className="flex items-center justify-center gap-2 text-[11px]" style={{ color: "rgba(255,255,255,0.25)" }}>
-            <Shield size={11} /> Pagamento seguro · Cancela quando quiseres
+            <Shield size={11} /> {t("pages.galeria.unlock.securePayment")}
           </div>
         </div>
       </div>
@@ -178,6 +180,7 @@ function SideColumn({ imgs, side }: { imgs: string[]; side: "left" | "right" }) 
 // Componente principal
 // ─────────────────────────────────────────────
 export default function Galeria() {
+  const { t } = useTranslation();
   const [showPopup, setShowPopup] = useState(false);
   const totalUsers = 2847;
   const [previewThumbs, setPreviewThumbs] = useState<string[]>(PREVIEW_THUMBS);
@@ -250,7 +253,7 @@ export default function Galeria() {
               <div className="space-y-0.5">
                 <h1 className="font-black leading-tight text-white"
                   style={{ fontSize: "clamp(1.65rem,5.5vw,2.75rem)" }}>
-                  +1.000 fotos privadas
+                  {t("pages.galeria.hero.photoCount")}
                 </h1>
                 <h2 className="font-black leading-tight"
                   style={{ fontSize: "clamp(1.4rem,5vw,2.4rem)" }}>
@@ -273,7 +276,7 @@ export default function Galeria() {
 
               {/* Hook */}
               <p className="font-bold" style={{ color: "#ec4899", fontSize: "clamp(0.82rem,2.4vw,0.97rem)" }}>
-                Já imaginaste ver o que ninguém conseguiu ver?
+                {t("pages.galeria.hero.hook")}
               </p>
 
               {/* CTA principal */}
@@ -294,7 +297,7 @@ export default function Galeria() {
                     letterSpacing: "0.03em",
                   }}
                 >
-                  ➔ QUERO ACESSO AGORA
+                  {t("pages.galeria.hero.ctaBtn")}
                 </button>
               </div>
 
@@ -308,7 +311,7 @@ export default function Galeria() {
                   margin: "0 auto",
                 }}
               >
-                {[`${totalUsers.toLocaleString()} membros ativos`, "Atualizações diárias", "Conteúdo exclusivo"].map((item, i) => (
+                {[`${totalUsers.toLocaleString()} ${t("pages.galeria.hero.members")}`, t("pages.galeria.hero.dailyUpdates"), t("pages.galeria.hero.exclusiveContent")].map((item, i) => (
                   <div key={i} className="flex items-center gap-2.5"
                     style={{ fontSize: "clamp(0.78rem,2.3vw,0.88rem)", color: "rgba(255,255,255,0.82)" }}>
                     <Check size={14} style={{ color: "#4ade80", flexShrink: 0 }} />
@@ -344,7 +347,7 @@ export default function Galeria() {
                     <p className={`font-black ${plano.corText}`} style={{ fontSize: "clamp(0.95rem,3vw,1.15rem)" }}>
                       {plano.mensal}
                     </p>
-                    <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "9px" }}>/mês</p>
+                    <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "9px" }}>{t("pages.galeria.unlock.perMonth")}</p>
                   </button>
                 ))}
               </div>
@@ -429,7 +432,7 @@ export default function Galeria() {
                 {"destaque" in plano && plano.destaque && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-0.5 rounded-full text-white text-[10px] font-black whitespace-nowrap"
                     style={{ background: "linear-gradient(90deg,#ec4899,#9333ea)" }}>
-                    MAIS POPULAR
+                    {t("pages.galeria.unlock.mostPopular")}
                   </div>
                 )}
                 <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${plano.cor} flex items-center justify-center`}>
@@ -442,9 +445,9 @@ export default function Galeria() {
                 <div>
                   <div className="flex items-end gap-1">
                     <span className="text-2xl font-black text-white">{plano.mensal}</span>
-                    <span className="text-sm mb-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>/mês</span>
+                    <span className="text-sm mb-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{t("pages.galeria.unlock.perMonth")}</span>
                   </div>
-                  <p className={`text-xs ${plano.corText}`}>{plano.anual}/ano — poupas 2 meses</p>
+                  <p className={`text-xs ${plano.corText}`}>{plano.anual}{t("pages.galeria.unlock.perYear")} — {t("pages.galeria.unlock.saveMonths")}</p>
                 </div>
                 <div className="space-y-2">
                   {plano.beneficios.map((b, i) => (
@@ -458,7 +461,7 @@ export default function Galeria() {
                 </div>
                 <button onClick={() => setShowPopup(true)}
                   className={`w-full py-2.5 rounded-xl bg-gradient-to-r ${plano.cor} text-white font-black text-sm hover:opacity-90 transition-all`}>
-                  Começar agora
+                  {t("pages.galeria.unlock.startNow")}
                 </button>
               </div>
             ))}
@@ -472,12 +475,12 @@ export default function Galeria() {
                 background: "radial-gradient(circle,rgba(236,72,153,0.08) 0%,transparent 70%)" }} />
             <div className="relative max-w-md mx-auto space-y-3">
               <Shield size={30} style={{ margin: "0 auto", color: "#ec4899" }} />
-              <h2 className="text-xl font-black text-white">Acesso total à galeria</h2>
-              <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>3 planos disponíveis. Cancela quando quiseres.</p>
+              <h2 className="text-xl font-black text-white">{t("pages.galeria.cta.title")}</h2>
+              <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>{t("pages.galeria.cta.subtitle")}</p>
               <button onClick={() => setShowPopup(true)}
                 className="px-6 py-3 rounded-xl text-white font-black text-sm transition-all hover:opacity-90"
                 style={{ background: "linear-gradient(90deg,#ec4899,#9333ea)" }}>
-                Ver galeria completa
+                {t("pages.galeria.cta.viewGallery")}
               </button>
             </div>
           </div>

@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mail, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { requestPasswordReset } from "../services/auth";
 import { checkRateLimit } from "@/lib/rateLimiter";
 
 export default function ForgotPassword() {
+  const { t } = useTranslation();
   const [email, setEmail]       = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sent, setSent]         = useState(false);
@@ -17,7 +19,7 @@ export default function ForgotPassword() {
     // Rate limiting — máximo 3 pedidos em 60 minutos
     const rl = checkRateLimit("reset_password");
     if (!rl.allowed) {
-      setError(rl.message ?? "Demasiadas tentativas. Tenta mais tarde.");
+      setError(rl.message ?? t("auth.errors.tooManyAttempts"));
       return;
     }
 
@@ -52,9 +54,9 @@ export default function ForgotPassword() {
                 <span className="bg-gradient-to-r from-neon-purple to-neon-blue bg-clip-text text-transparent">sex</span>
               </h1>
             </Link>
-            <h2 className="text-lg font-black text-white mb-1">Recuperar senha</h2>
+            <h2 className="text-lg font-black text-white mb-1">{t("auth.forgot.title")}</h2>
             <p className="text-foreground/50 text-sm">
-              Indica o teu email e enviamos um link para redefinires a senha.
+              {t("auth.forgot.subtitle")}
             </p>
           </div>
 
@@ -64,14 +66,14 @@ export default function ForgotPassword() {
                 <CheckCircle size={28} className="text-emerald-400" />
               </div>
               <div>
-                <p className="text-white font-bold mb-1">Email enviado!</p>
+                <p className="text-white font-bold mb-1">{t("auth.forgot.sentTitle")}</p>
                 <p className="text-foreground/50 text-sm max-w-xs">
-                  Se este email está registado, receberás um link de recuperação. Verifica também a pasta de spam.
+                  {t("auth.forgot.sentBody")}
                 </p>
               </div>
               <Link to="/login"
                 className="inline-flex items-center gap-2 text-sm text-neon-purple hover:text-neon-pink transition-colors font-semibold mt-2">
-                <ArrowLeft size={14} /> Voltar ao login
+                <ArrowLeft size={14} /> {t("auth.backToLogin")}
               </Link>
             </div>
           ) : (
@@ -109,16 +111,16 @@ export default function ForgotPassword() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
-                      A enviar...
+                      {t("auth.forgot.loading")}
                     </span>
-                  ) : "Enviar link de recuperação"}
+                  ) : t("auth.forgot.submit")}
                 </button>
               </form>
 
               <p className="text-center text-foreground/50 text-xs mt-5">
                 <Link to="/login"
                   className="inline-flex items-center gap-1 text-neon-purple hover:text-neon-pink font-semibold transition-colors">
-                  <ArrowLeft size={12} /> Voltar ao login
+                  <ArrowLeft size={12} /> {t("auth.backToLogin")}
                 </Link>
               </p>
             </>

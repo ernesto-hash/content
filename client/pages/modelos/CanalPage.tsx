@@ -13,6 +13,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
 import { supabase } from "@/lib/supabaseClient";
@@ -58,6 +59,7 @@ const isTouchDevice = () =>
 // Mini card de vídeo reutilizável
 // ─────────────────────────────────────────────
 function VideoGridCard({ video, featured = false, authenticated = false }: { video: VideoItem; featured?: boolean; authenticated?: boolean }) {
+  const { t } = useTranslation();
   const videoPath = authenticated ? `/app/video/${video.id}` : `/video/${video.id}`;
   const videoRef        = useRef<HTMLVideoElement>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
@@ -162,7 +164,7 @@ function VideoGridCard({ video, featured = false, authenticated = false }: { vid
         {/* Featured pin badge */}
         {featured && !isPreviewing && (
           <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] font-bold">
-            <Pin size={9} fill="currentColor" /> Em destaque
+            <Pin size={9} fill="currentColor" /> {t("models.channel.featured")}
           </div>
         )}
 
@@ -173,18 +175,19 @@ function VideoGridCard({ video, featured = false, authenticated = false }: { vid
         )}
       </div>
       <p className="text-xs font-semibold text-foreground/80 line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug">
-        {video.title || "Sem título"}
+        {video.title || t("common.noTitle")}
       </p>
       <div className="flex items-center gap-2.5 mt-1 text-[10px] text-foreground/33">
         <span className="flex items-center gap-0.5"><Eye size={9} />{fmtNum(video.views)}</span>
         <span className="flex items-center gap-0.5"><Heart size={9} className="text-neon-pink/50" />{fmtNum(video.likes_count)}</span>
-        <span>{fmtRelative(video.created_at)}</span>
+        <span>{fmtRelative(video.created_at, t)}</span>
       </div>
     </Link>
   );
 }
 
 function VideoListCard({ video, authenticated = false }: { video: VideoItem; authenticated?: boolean }) {
+  const { t } = useTranslation();
   const videoPath = authenticated ? `/app/video/${video.id}` : `/video/${video.id}`;
   const videoRef        = useRef<HTMLVideoElement>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
@@ -278,7 +281,7 @@ function VideoListCard({ video, authenticated = false }: { video: VideoItem; aut
       </div>
       <div className="flex-1 min-w-0 py-0.5">
         <p className="text-sm font-semibold text-foreground/80 line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug mb-1.5">
-          {video.title || "Sem título"}
+          {video.title || t("common.noTitle")}
         </p>
         {video.category && (
           <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-neon-pink/70 capitalize border border-neon-pink/15">
@@ -288,7 +291,7 @@ function VideoListCard({ video, authenticated = false }: { video: VideoItem; aut
         <div className="flex items-center gap-3 mt-2 text-[11px] text-foreground/33">
           <span className="flex items-center gap-1"><Eye size={10} />{fmtNum(video.views)}</span>
           <span className="flex items-center gap-1"><Heart size={10} className="text-neon-pink/50" />{fmtNum(video.likes_count)}</span>
-          <span className="flex items-center gap-1"><Clock size={10} />{fmtRelative(video.created_at)}</span>
+          <span className="flex items-center gap-1"><Clock size={10} />{fmtRelative(video.created_at, t)}</span>
         </div>
       </div>
     </Link>
@@ -299,6 +302,7 @@ function VideoListCard({ video, authenticated = false }: { video: VideoItem; aut
 // Componente principal
 // ─────────────────────────────────────────────
 export default function CanalPage({ authenticated = false }: { authenticated?: boolean }) {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const LayoutWrapper = authenticated ? LayoutAuthenticated : Layout;
@@ -440,7 +444,7 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
         <div className="flex items-center justify-center min-h-[70vh]">
           <div className="text-center space-y-3">
             <Loader2 size={28} className="animate-spin text-neon-purple/50 mx-auto" />
-            <p className="text-foreground/30 text-sm">A carregar canal...</p>
+            <p className="text-foreground/30 text-sm">{t("models.channel.loading")}</p>
           </div>
         </div>
       </LayoutWrapper>
@@ -452,9 +456,9 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
       <LayoutWrapper>
         <div className="max-container safe-area py-24 text-center space-y-4">
           <Users size={40} className="mx-auto text-white/12" />
-          <p className="text-foreground/45">Modelo não encontrado.</p>
+          <p className="text-foreground/45">{t("models.channel.notFound")}</p>
           <button onClick={() => navigate(backPath)} className="text-sm text-neon-pink hover:text-neon-pink/80 transition-colors">
-            ← Voltar aos modelos
+            {t("models.channel.backToModels")}
           </button>
         </div>
       </LayoutWrapper>
@@ -507,7 +511,7 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
             onClick={() => navigate(backPath)}
             className="absolute top-4 left-4 sm:left-6 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/50 border border-white/10 text-white/65 text-xs hover:bg-black/70 hover:text-white transition-all backdrop-blur-sm"
           >
-            <ArrowLeft size={13} /> Modelos
+            <ArrowLeft size={13} /> {t("models.channel.backBtn")}
           </button>
         </div>
 
@@ -539,7 +543,7 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
                 </div>
                 <p className="text-foreground/38 text-sm">@{creator.username}</p>
                 <p className="text-foreground/25 text-xs flex items-center gap-1">
-                  <Calendar size={10} /> Membro desde {fmtDate(creator.created_at)}
+                  <Calendar size={10} /> {t("models.channel.memberSince", { date: fmtDate(creator.created_at) })}
                 </p>
               </div>
             </div>
@@ -555,7 +559,7 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
                     : "bg-white/5 border-white/10 text-foreground/55 hover:bg-white/9 hover:text-white"
                 }`}
               >
-                {linkCopied ? <><Check size={14} />Copiado!</> : <><Share2 size={14} />Partilhar</>}
+                {linkCopied ? <><Check size={14} />{t("models.channel.copied")}</> : <><Share2 size={14} />{t("models.channel.share")}</>}
               </button>
 
               {/* Mensagem */}
@@ -564,7 +568,7 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
                 className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold border border-white/10 bg-white/5 text-foreground/55 hover:bg-white/9 hover:text-white transition-all"
               >
                 <MessageCircle size={14} />
-                Mensagem
+                {t("models.channel.message")}
               </button>
 
               {/* Subscrever */}
@@ -577,8 +581,8 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
                 }`}
               >
                 {isSubscribed
-                  ? <><BellOff size={15} />Subscrito</>
-                  : <><Bell size={15} />Subscrever</>
+                  ? <><BellOff size={15} />{t("common.subscribed")}</>
+                  : <><Bell size={15} />{t("common.subscribe")}</>
                 }
               </button>
             </div>
@@ -587,10 +591,10 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
           {/* ── Stats do canal ── */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
             {[
-              { label: "Vídeos",       value: fmtNum(creator.video_count),      icon: Film,       color: "text-neon-pink",   bg: "from-neon-pink/8 to-transparent"   },
-              { label: "Visualizações",value: fmtNum(creator.total_views),      icon: Eye,        color: "text-neon-blue",   bg: "from-neon-blue/8 to-transparent"   },
-              { label: "Subscritores", value: fmtNum(subCount),                 icon: Users,      color: "text-neon-purple", bg: "from-neon-purple/8 to-transparent" },
-              { label: "Gostos",       value: fmtNum(creator.total_likes),      icon: Heart,      color: "text-rose-400",    bg: "from-rose-400/8 to-transparent"    },
+              { label: t("models.stats.videos"),        value: fmtNum(creator.video_count),  icon: Film,  color: "text-neon-pink",   bg: "from-neon-pink/8 to-transparent"   },
+              { label: t("models.channel.stats.views"), value: fmtNum(creator.total_views),  icon: Eye,   color: "text-neon-blue",   bg: "from-neon-blue/8 to-transparent"   },
+              { label: t("models.channel.subscribers"), value: fmtNum(subCount),             icon: Users, color: "text-neon-purple", bg: "from-neon-purple/8 to-transparent" },
+              { label: t("models.channel.stats.likes"), value: fmtNum(creator.total_likes),  icon: Heart, color: "text-rose-400",    bg: "from-rose-400/8 to-transparent"    },
             ].map(({ label, value, icon: Icon, color, bg }) => (
               <div key={label} className={`relative overflow-hidden bg-gradient-to-br ${bg} border border-white/7 rounded-2xl p-4 text-center`}>
                 <Icon size={18} className={`mx-auto mb-1.5 ${color}`} />
@@ -607,9 +611,9 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
             {/* Tabs */}
             <div className="flex items-center gap-1 bg-white/[0.03] border border-white/8 rounded-xl p-1">
               {([
-                ["videos",     "Vídeos",    Film],
-                ["populares",  "Populares", TrendingUp],
-                ["sobre",      "Sobre",     Info],
+                ["videos",     t("models.channel.tabs.videos"),  Film],
+                ["populares",  t("models.channel.tabs.popular"), TrendingUp],
+                ["sobre",      t("models.channel.tabs.about"),   Info],
               ] as [TabId, string, React.ElementType][]).map(([tab, label, Icon]) => (
                 <button
                   key={tab}
@@ -675,7 +679,7 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
                   {pinnedVideo && (
                     <div>
                       <h3 className="text-sm font-bold text-foreground/50 uppercase tracking-wider mb-3 flex items-center gap-2">
-                        <Pin size={12} className="text-amber-400" fill="currentColor" /> Em destaque
+                        <Pin size={12} className="text-amber-400" fill="currentColor" /> {t("models.channel.featured")}
                       </h3>
                       <Link to={authenticated ? `/app/video/${pinnedVideo.id}` : `/video/${pinnedVideo.id}`} className="group relative block rounded-2xl overflow-hidden bg-white/5 border border-white/8 hover:border-white/15 transition-all">
                         <div className="relative aspect-video sm:aspect-[21/8]">
@@ -710,7 +714,7 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
                   {/* Todos os vídeos */}
                   <div>
                     <h3 className="text-sm font-bold text-foreground/50 uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <Film size={12} /> Todos os vídeos
+                      <Film size={12} /> {t("models.channel.allVideos")}
                     </h3>
                     {viewMode === "grid" ? (
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -790,23 +794,23 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center gap-3 text-foreground/55">
                     <Calendar size={14} className="text-neon-purple/70 flex-shrink-0" />
-                    <span>Membro desde <strong className="text-foreground/75">{fmtDate(creator.created_at)}</strong></span>
+                    <span>{t("models.channel.memberSinceLabel")} <strong className="text-foreground/75">{fmtDate(creator.created_at)}</strong></span>
                   </div>
                   <div className="flex items-center gap-3 text-foreground/55">
                     <Film size={14} className="text-neon-pink/70 flex-shrink-0" />
-                    <span><strong className="text-foreground/75">{creator.video_count}</strong> vídeo{creator.video_count !== 1 ? "s" : ""} publicado{creator.video_count !== 1 ? "s" : ""}</span>
+                    <span><strong className="text-foreground/75">{creator.video_count}</strong> {t("models.channel.videosSuffix", { count: creator.video_count })}</span>
                   </div>
                   <div className="flex items-center gap-3 text-foreground/55">
                     <Eye size={14} className="text-neon-blue/70 flex-shrink-0" />
-                    <span><strong className="text-foreground/75">{fmtNum(creator.total_views)}</strong> visualizações totais</span>
+                    <span><strong className="text-foreground/75">{fmtNum(creator.total_views)}</strong> {t("models.channel.totalViewsLabel")}</span>
                   </div>
                   <div className="flex items-center gap-3 text-foreground/55">
                     <Users size={14} className="text-neon-purple/70 flex-shrink-0" />
-                    <span><strong className="text-foreground/75">{fmtNum(subCount)}</strong> subscritor{subCount !== 1 ? "es" : ""}</span>
+                    <span><strong className="text-foreground/75">{fmtNum(subCount)}</strong> {t("models.channel.subscribersSuffix", { count: subCount })}</span>
                   </div>
                   <div className="flex items-center gap-3 text-foreground/55">
                     <Heart size={14} className="text-rose-400/70 flex-shrink-0" />
-                    <span><strong className="text-foreground/75">{fmtNum(creator.total_likes)}</strong> gostos recebidos</span>
+                    <span><strong className="text-foreground/75">{fmtNum(creator.total_likes)}</strong> {t("models.channel.likesReceived")}</span>
                   </div>
                 </div>
               </div>
@@ -815,13 +819,13 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
               {!isSubscribed && (
                 <div className="relative overflow-hidden bg-gradient-to-br from-neon-pink/8 to-neon-purple/6 border border-neon-pink/18 rounded-2xl p-5 text-center">
                   <p className="text-white/70 text-sm mb-3">
-                    Subscreve o canal de <strong className="text-white">{creatorName}</strong> para nunca perderes novos conteúdos.
+                    {t("models.channel.subscribeCtaText", { name: creatorName })}
                   </p>
                   <button
                     onClick={handleSubscribe}
                     className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold hover:shadow-lg hover:shadow-neon-pink/22 transition-all"
                   >
-                    <Bell size={14} /> Subscrever canal
+                    <Bell size={14} /> {t("models.channel.subscribeCta")}
                   </button>
                 </div>
               )}
@@ -835,7 +839,7 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
                     : "bg-white/[0.03] border-white/8 text-foreground/45 hover:bg-white/7 hover:text-foreground/70"
                 }`}
               >
-                {linkCopied ? <><Check size={15} />Link copiado!</> : <><Copy size={15} />Copiar link do canal</>}
+                {linkCopied ? <><Check size={15} />{t("models.channel.linkCopied")}</> : <><Copy size={15} />{t("models.channel.copyLink")}</>}
               </button>
             </div>
           )}
@@ -852,21 +856,22 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
 // Estado vazio — canal sem vídeos
 // ─────────────────────────────────────────────
 function EmptyChannel({ onSubscribe, isSubscribed }: { onSubscribe: () => void; isSubscribed: boolean }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center justify-center py-24 gap-4">
       <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center">
         <Film size={28} className="text-foreground/18" />
       </div>
       <div className="text-center space-y-1">
-        <p className="text-foreground/55 font-semibold">Ainda sem vídeos publicados</p>
-        <p className="text-foreground/30 text-sm max-w-xs">Subscreve este canal para seres notificado quando publicar o primeiro vídeo.</p>
+        <p className="text-foreground/55 font-semibold">{t("models.channel.noVideos.title")}</p>
+        <p className="text-foreground/30 text-sm max-w-xs">{t("models.channel.noVideos.subtitleFull")}</p>
       </div>
       {!isSubscribed && (
         <button
           onClick={onSubscribe}
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold hover:shadow-lg hover:shadow-neon-pink/22 transition-all"
         >
-          <Bell size={14} /> Subscrever canal
+          <Bell size={14} /> {t("models.channel.noVideos.subscribeBtn")}
         </button>
       )}
     </div>

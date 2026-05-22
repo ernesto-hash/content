@@ -4,6 +4,7 @@
 // Sem skeleton cards — só mostra vídeos reais ou estado vazio
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { supabase } from "@/lib/supabaseClient";
@@ -58,6 +59,7 @@ const isTouchDevice = () =>
   window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 
 function VideoCard({ video, rank }: { video: Video; rank: number }) {
+  const { t } = useTranslation();
   const topRated = rank <= 3;
   const ratio    = likeRatio(video.likes_count, video.views);
   const videoRef        = useRef<HTMLVideoElement>(null);
@@ -156,7 +158,7 @@ function VideoCard({ video, rank }: { video: Video; rank: number }) {
       </div>
       <div className="p-4 space-y-2">
         <h3 className="text-sm font-semibold text-foreground line-clamp-2 group-hover:text-yellow-400 transition-colors leading-snug">
-          {video.title || "Sem título"}
+          {video.title || t("studio.common.noTitle")}
         </h3>
         <div className="flex items-center justify-between text-xs text-foreground/45">
           <span className="flex items-center gap-1"><Eye size={11} /> {fmtNum(video.views)}</span>
@@ -174,6 +176,7 @@ function VideoCard({ video, rank }: { video: Video; rank: number }) {
 }
 
 export default function MelhoresAvaliadosPage() {
+  const { t } = useTranslation();
   useDocumentTitle({ title: "Vídeos Mais Avaliados - SuckOrSex" });
   const [videos, setVideos]   = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -250,17 +253,17 @@ export default function MelhoresAvaliadosPage() {
                 </h1>
               </div>
               <p className="text-foreground/60 text-sm max-w-md">
-                Os favoritos da comunidade — mínimo de <strong className="text-yellow-400">{fmtNum(MIN_LIKES)} likes</strong> com pelo menos <strong className="text-yellow-400">{fmtNum(MIN_TOTAL_VIEWS)} views</strong>.
+                {t("pages.category.melhoresavaliados.desc", { minLikes: fmtNum(MIN_LIKES), minViews: fmtNum(MIN_TOTAL_VIEWS) })}
               </p>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
                 <p className="text-2xl font-black text-yellow-400">{loading ? "—" : displayed.length}</p>
-                <p className="text-xs text-foreground/45 mt-0.5">aprovados</p>
+                <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.melhoresavaliados.approved")}</p>
               </div>
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
                 <p className="text-2xl font-black text-orange-400">{fmtNum(MIN_LIKES)}</p>
-                <p className="text-xs text-foreground/45 mt-0.5">likes mín.</p>
+                <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.melhoresavaliados.minLikes")}</p>
               </div>
             </div>
           </div>
@@ -271,17 +274,17 @@ export default function MelhoresAvaliadosPage() {
           <div className="flex items-center gap-2 flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5">
             <Search size={15} className="text-foreground/40 flex-shrink-0" />
             <input value={query} onChange={(e) => setQuery(e.target.value)}
-              placeholder="Pesquisar nos melhores avaliados..."
+              placeholder={t("pages.category.melhoresavaliados.searchPlaceholder")}
               className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/30" />
           </div>
           <div className="flex items-center gap-2">
-            {([["likes", "Mais Curtidos"], ["ratio", "Melhor Rácio"]] as const).map(([s, label]) => (
+            {(["likes", "ratio"] as const).map((s) => (
               <button key={s} onClick={() => setSort(s)}
                 className={`px-4 py-2.5 rounded-xl text-xs font-semibold border transition-all ${
                   sort === s
                     ? "bg-yellow-500/15 border-yellow-500/40 text-yellow-400"
                     : "bg-white/5 border-white/10 text-foreground/55 hover:border-white/20"
-                }`}>{label}</button>
+                }`}>{t(`pages.category.melhoresavaliados.sort.${s}`)}</button>
             ))}
           </div>
         </div>
@@ -290,7 +293,7 @@ export default function MelhoresAvaliadosPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 size={32} className="animate-spin text-yellow-400" />
-            <p className="text-foreground/40 text-sm">A carregar melhores avaliados...</p>
+            <p className="text-foreground/40 text-sm">{t("pages.category.melhoresavaliados.loading")}</p>
           </div>
         ) : displayed.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
@@ -298,13 +301,13 @@ export default function MelhoresAvaliadosPage() {
               <Star size={28} className="text-foreground/20" />
             </div>
             <div className="text-center space-y-1">
-              <p className="text-foreground/60 font-medium">Ainda sem vídeos avaliados</p>
+              <p className="text-foreground/60 font-medium">{t("pages.category.melhoresavaliados.emptyTitle")}</p>
               <p className="text-foreground/35 text-sm max-w-xs">
-                Os vídeos aparecerão aqui automaticamente assim que atingirem {fmtNum(MIN_LIKES)} likes e {fmtNum(MIN_TOTAL_VIEWS)} views.
+                {t("pages.category.melhoresavaliados.emptyDesc", { minLikes: fmtNum(MIN_LIKES), minViews: fmtNum(MIN_TOTAL_VIEWS) })}
               </p>
             </div>
             <Link to="/populares" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-yellow-500/10 border border-yellow-500/25 text-yellow-400 text-sm hover:bg-yellow-500/18 transition-all mt-2">
-              Ver Populares <ChevronRight size={15} />
+              {t("pages.category.melhoresavaliados.seePopular")} <ChevronRight size={15} />
             </Link>
           </div>
         ) : (

@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { login, loginWithGoogle } from "../services/auth";
 import { checkRateLimit, resetRateLimit } from "@/lib/rateLimiter";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
@@ -19,7 +21,7 @@ export default function Login() {
     // Rate limiting — bloqueia após 5 tentativas em 15 minutos
     const rl = checkRateLimit("login");
     if (!rl.allowed) {
-      setError(rl.message ?? "Demasiadas tentativas. Tenta mais tarde.");
+      setError(rl.message ?? t("auth.errors.tooManyAttempts"));
       return;
     }
 
@@ -33,7 +35,7 @@ export default function Login() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Erro ao entrar. Tenta novamente.";
       // Mensagem genérica para não revelar se email existe
-      setError("Email ou senha incorretos.");
+      setError(t("auth.errors.invalidCredentials"));
       console.error("[Login]", msg);
     } finally {
       setIsLoading(false);
@@ -57,7 +59,7 @@ export default function Login() {
                 <span className="bg-gradient-to-r from-neon-purple to-neon-blue bg-clip-text text-transparent">sex</span>
               </h1>
             </Link>
-            <p className="text-foreground/60 text-sm mt-1">Bem-vindo de volta</p>
+            <p className="text-foreground/60 text-sm mt-1">{t("auth.login.welcome")}</p>
           </div>
 
           {error && (
@@ -86,7 +88,7 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-foreground text-xs font-semibold mb-1">Senha</label>
+              <label className="block text-foreground text-xs font-semibold mb-1">{t("auth.fields.password")}</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-neon-purple/50 w-4 h-4" />
                 <input
@@ -104,7 +106,7 @@ export default function Login() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-foreground/60 hover:text-neon-purple transition-colors"
                   disabled={isLoading}
-                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  aria-label={showPassword ? t("auth.fields.hidePassword") : t("auth.fields.showPassword")}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -118,10 +120,10 @@ export default function Login() {
                   className="w-3.5 h-3.5 rounded bg-white/10 border border-white/20 cursor-pointer accent-neon-purple"
                   disabled={isLoading}
                 />
-                <span className="text-foreground/60 text-xs">Lembrar-me</span>
+                <span className="text-foreground/60 text-xs">{t("auth.login.rememberMe")}</span>
               </label>
               <Link to="/forgot-password" className="text-neon-purple hover:text-neon-pink transition-colors text-xs font-semibold">
-                Esqueceu a senha?
+                {t("auth.login.forgotPassword")}
               </Link>
             </div>
 
@@ -136,9 +138,9 @@ export default function Login() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  Entrando...
+                  {t("auth.login.loading")}
                 </span>
-              ) : "Entrar"}
+              ) : t("auth.login.submit")}
             </button>
           </form>
 
@@ -147,7 +149,7 @@ export default function Login() {
               <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-2 bg-gradient-to-b from-background to-background text-foreground/60">ou</span>
+              <span className="px-2 bg-gradient-to-b from-background to-background text-foreground/60">{t("auth.divider")}</span>
             </div>
           </div>
 
@@ -167,9 +169,9 @@ export default function Login() {
           </button>
 
           <p className="text-center text-foreground/60 text-xs mt-4">
-            Não tem conta?{" "}
+            {t("auth.login.noAccount")}{" "}
             <Link to="/signup" className="text-neon-purple hover:text-neon-pink font-semibold transition-colors">
-              Criar conta
+              {t("auth.login.createAccount")}
             </Link>
           </p>
         </div>

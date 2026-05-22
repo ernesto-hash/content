@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
 import { Link, useSearchParams } from "react-router-dom";
 import { 
@@ -73,6 +74,7 @@ import {
 } from "lucide-react";
 
 export default function FotosGifsPage() {
+  const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedFilter, setSelectedFilter] = useState('recentes');
   const [selectedCategory, setSelectedCategory] = useState('todas');
@@ -454,7 +456,7 @@ export default function FotosGifsPage() {
       {/* Type indicator */}
       <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-lg flex items-center gap-1">
         <Camera size={10} />
-        Foto
+        {t("pages.fotosGifs.badges.photo")}
       </div>
 
       {/* Author avatar */}
@@ -556,7 +558,7 @@ export default function FotosGifsPage() {
           <div className="flex items-center gap-2 text-xs text-white/80">
             <span className="flex items-center gap-1">
               <Image size={10} />
-              {album.photoCount} fotos
+              {album.photoCount} {t("pages.fotosGifs.card.photos")}
             </span>
             <span className="flex items-center gap-1">
               <Eye size={10} />
@@ -579,7 +581,7 @@ export default function FotosGifsPage() {
       {/* Type indicator */}
       <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-lg flex items-center gap-1">
         <Grid3x3 size={10} />
-        Álbum
+        {t("pages.fotosGifs.badges.album")}
       </div>
     </div>
   );
@@ -788,7 +790,7 @@ export default function FotosGifsPage() {
           </span>
           <span className="flex items-center gap-1">
             <Image size={12} />
-            {album.photoCount} fotos
+            {album.photoCount} {t("pages.fotosGifs.card.photos")}
           </span>
         </div>
       </div>
@@ -866,7 +868,7 @@ export default function FotosGifsPage() {
               <div className="lg:w-1/3 space-y-4">
                 {/* Author info */}
                 <div className="bg-white/5 rounded-xl p-4">
-                  <h3 className="text-sm font-medium text-foreground/60 mb-3">Sobre</h3>
+                  <h3 className="text-sm font-medium text-foreground/60 mb-3">{t("pages.fotosGifs.modal.about")}</h3>
                   <div className="flex items-center gap-3 mb-3">
                     <img 
                       src={selectedMedia.authorAvatar} 
@@ -890,23 +892,23 @@ export default function FotosGifsPage() {
 
                 {/* Stats */}
                 <div className="bg-white/5 rounded-xl p-4">
-                  <h3 className="text-sm font-medium text-foreground/60 mb-3">Estatísticas</h3>
+                  <h3 className="text-sm font-medium text-foreground/60 mb-3">{t("pages.fotosGifs.modal.stats")}</h3>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="text-center p-2 bg-white/5 rounded-lg">
                       <Eye size={16} className="mx-auto mb-1 text-neon-pink" />
                       <p className="text-lg font-bold text-foreground">{selectedMedia.views}</p>
-                      <p className="text-xs text-foreground/40">Visualizações</p>
+                      <p className="text-xs text-foreground/40">{t("pages.fotosGifs.modal.views")}</p>
                     </div>
                     <div className="text-center p-2 bg-white/5 rounded-lg">
                       <Heart size={16} className="mx-auto mb-1 text-neon-pink" />
                       <p className="text-lg font-bold text-foreground">{selectedMedia.likes}</p>
-                      <p className="text-xs text-foreground/40">Curtidas</p>
+                      <p className="text-xs text-foreground/40">{t("pages.fotosGifs.modal.likes")}</p>
                     </div>
                     {selectedMedia.comments && (
                       <div className="text-center p-2 bg-white/5 rounded-lg">
                         <MessageCircle size={16} className="mx-auto mb-1 text-neon-purple" />
                         <p className="text-lg font-bold text-foreground">{selectedMedia.comments}</p>
-                        <p className="text-xs text-foreground/40">Comentários</p>
+                        <p className="text-xs text-foreground/40">{t("pages.fotosGifs.modal.comments")}</p>
                       </div>
                     )}
                     {selectedMedia.shares && (
@@ -921,7 +923,7 @@ export default function FotosGifsPage() {
 
                 {/* Details */}
                 <div className="bg-white/5 rounded-xl p-4">
-                  <h3 className="text-sm font-medium text-foreground/60 mb-3">Detalhes</h3>
+                  <h3 className="text-sm font-medium text-foreground/60 mb-3">{t("pages.fotosGifs.modal.details")}</h3>
                   <div className="space-y-2 text-sm">
                     {isPhoto && (
                       <>
@@ -1016,11 +1018,11 @@ export default function FotosGifsPage() {
           <div>
             <h1 className="text-3xl font-bold mb-2">
               <span className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-blue bg-clip-text text-transparent">
-                Fotos e GIFs
+                {t("pages.fotosGifs.title")}
               </span>
             </h1>
             <p className="text-foreground/60">
-              Explore milhares de fotos e GIFs sensuais exclusivos
+              {t("pages.fotosGifs.subtitle")}
             </p>
           </div>
 
@@ -1030,42 +1032,42 @@ export default function FotosGifsPage() {
               <button
                 onClick={() => setSelectedType('todos')}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedType === 'todos' 
-                    ? 'bg-neon-pink text-white' 
+                  selectedType === 'todos'
+                    ? 'bg-neon-pink text-white'
                     : 'text-foreground/60 hover:text-foreground'
                 }`}
               >
-                Todos
+                {t("pages.fotosGifs.filters.all")}
               </button>
               <button
                 onClick={() => setSelectedType('fotos')}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedType === 'fotos' 
-                    ? 'bg-neon-pink text-white' 
+                  selectedType === 'fotos'
+                    ? 'bg-neon-pink text-white'
                     : 'text-foreground/60 hover:text-foreground'
                 }`}
               >
-                Fotos
+                {t("pages.fotosGifs.filters.photos")}
               </button>
               <button
                 onClick={() => setSelectedType('gifs')}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedType === 'gifs' 
-                    ? 'bg-neon-pink text-white' 
+                  selectedType === 'gifs'
+                    ? 'bg-neon-pink text-white'
                     : 'text-foreground/60 hover:text-foreground'
                 }`}
               >
-                GIFs
+                {t("pages.fotosGifs.filters.gifs")}
               </button>
               <button
                 onClick={() => setSelectedType('albuns')}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedType === 'albuns' 
-                    ? 'bg-neon-pink text-white' 
+                  selectedType === 'albuns'
+                    ? 'bg-neon-pink text-white'
                     : 'text-foreground/60 hover:text-foreground'
                 }`}
               >
-                Álbuns
+                {t("pages.fotosGifs.filters.albums")}
               </button>
             </div>
 
@@ -1112,7 +1114,7 @@ export default function FotosGifsPage() {
               <div>
                 <h4 className="text-sm font-medium text-foreground/60 mb-3 flex items-center gap-2">
                   <span className="w-1 h-4 bg-neon-pink rounded-full"></span>
-                  Ordenar por
+                  {t("pages.fotosGifs.filters.sortBy")}
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {filters.map(filter => (
@@ -1136,7 +1138,7 @@ export default function FotosGifsPage() {
               <div>
                 <h4 className="text-sm font-medium text-foreground/60 mb-3 flex items-center gap-2">
                   <span className="w-1 h-4 bg-neon-purple rounded-full"></span>
-                  Categorias
+                  {t("pages.fotosGifs.filters.categories")}
                 </h4>
                 <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
                   {categories.map(category => (
@@ -1182,7 +1184,7 @@ export default function FotosGifsPage() {
             {/* Apply filters */}
             <div className="flex justify-end mt-6 pt-4 border-t border-white/10">
               <button className="px-6 py-2 bg-gradient-to-r from-neon-pink to-neon-purple text-white rounded-lg font-medium hover:shadow-[0_0_20px_rgba(236,72,153,0.3)] transition-all">
-                Aplicar Filtros
+                {t("pages.fotosGifs.filters.apply")}
               </button>
             </div>
           </div>
@@ -1215,11 +1217,11 @@ export default function FotosGifsPage() {
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Flame className="text-neon-pink" size={20} />
               <span className="bg-gradient-to-r from-neon-pink to-neon-purple bg-clip-text text-transparent">
-                Fotos Populares
+                {t("pages.fotosGifs.sections.popularPhotos")}
               </span>
             </h2>
             <Link to="/fotos-gifs?filtro=populares" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-pink transition-colors">
-              Ver todas
+              {t("pages.fotosGifs.sections.viewAll")}
               <ChevronRight size={14} />
             </Link>
           </div>
@@ -1245,11 +1247,11 @@ export default function FotosGifsPage() {
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Film className="text-neon-purple" size={20} />
               <span className="bg-gradient-to-r from-neon-purple to-neon-blue bg-clip-text text-transparent">
-                GIFs em Alta
+                {t("pages.fotosGifs.sections.trendingGifs")}
               </span>
             </h2>
             <Link to="/fotos-gifs?tipo=gifs&filtro=populares" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-purple transition-colors">
-              Ver todos
+              {t("pages.fotosGifs.sections.viewAllMasc")}
               <ChevronRight size={14} />
             </Link>
           </div>
@@ -1275,11 +1277,11 @@ export default function FotosGifsPage() {
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Grid3x3 className="text-neon-blue" size={20} />
               <span className="bg-gradient-to-r from-neon-blue to-neon-pink bg-clip-text text-transparent">
-                Álbuns em Destaque
+                {t("pages.fotosGifs.sections.featuredAlbums")}
               </span>
             </h2>
             <Link to="/fotos-gifs?tipo=albuns&filtro=destaque" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-blue transition-colors">
-              Ver todos
+              {t("pages.fotosGifs.sections.viewAllMasc")}
               <ChevronRight size={14} />
             </Link>
           </div>
@@ -1342,7 +1344,7 @@ export default function FotosGifsPage() {
         <section className="glass rounded-xl p-6 border border-white/10">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Hash size={18} className="text-neon-pink" />
-            Tags em Alta
+            {t("pages.fotosGifs.sections.trendingTags")}
           </h3>
           <div className="flex flex-wrap gap-2">
             {['sensual', 'lingerie', 'praia', 'casal', 'solo', 'ensaios', 'bastidores', 'biquini', 'cosplay', 'fetiche', 'artistico', 'vip', '4k', 'exclusivo'].map((tag, index) => (

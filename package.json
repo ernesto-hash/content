@@ -23,14 +23,17 @@
     "upload:galeria": "tsx scripts/upload-galeria.ts"
   },
   "dependencies": {
-"@stripe/react-stripe-js": "^6.2.0",
+    "@stripe/react-stripe-js": "^6.2.0",
     "@stripe/stripe-js": "^9.3.0",
     "@supabase/supabase-js": "^2.101.1",
     "appwrite": "^24.1.1",
     "cloudinary": "^2.9.0",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "i18next": "^26.2.0",
+    "i18next-browser-languagedetector": "^8.2.1",
     "node-appwrite": "^23.1.0",
+    "react-i18next": "^17.0.8",
     "zod": "^3.25.76"
   },
   "devDependencies": {

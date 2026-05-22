@@ -1,5 +1,6 @@
 import { createPortal } from "react-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Film, Search, Trash2, Eye, Lock, Globe, Pencil, Upload,
   X, Save, ImageIcon, Tag, AlignLeft, Layers, BookOpen,
@@ -138,6 +139,7 @@ function CategoryPicker({
   onChange: (v: string) => void;
   disabled?: boolean;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen]           = useState(false);
   const [dropStyle, setDropStyle] = useState<React.CSSProperties>({});
   const triggerRef                = useRef<HTMLButtonElement>(null);
@@ -188,7 +190,7 @@ function CategoryPicker({
               <button type="button" onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => { onChange(""); close(); }}
                 className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-red-400 hover:bg-red-500/8 border-b border-white/8 transition-all sticky top-0 bg-[#0e0e12] z-10">
-                <X size={12} /> Limpar selecção
+                <X size={12} /> {t("studio.common.clearSelection")}
               </button>
             )}
             {CATEGORY_GROUPS.map((group) => (
@@ -229,7 +231,7 @@ function CategoryPicker({
         <span className="flex items-center gap-2 min-w-0">
           {selected
             ? <><span className="flex-shrink-0 text-neon-pink">{selected.icon}</span><span className="truncate font-medium text-foreground">{selected.label}</span></>
-            : <span className="text-foreground/30">Seleccionar categoria...</span>
+            : <span className="text-foreground/30">{t("studio.common.categorySelect")}</span>
           }
         </span>
         <ChevronDown size={14} className={`flex-shrink-0 text-foreground/40 transition-transform ${open ? "rotate-180" : ""}`} />
@@ -250,6 +252,7 @@ function StatusDropdown({
   currentStatus: string | null;
   onUpdate: (id: string, status: string) => void;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen]           = useState(false);
   const [dropStyle, setDropStyle] = useState<React.CSSProperties>({});
   const triggerRef                = useRef<HTMLButtonElement>(null);
@@ -291,10 +294,10 @@ function StatusDropdown({
   }, [open]);
 
   const STATUS_OPTIONS = [
-    { s: "published", label: "Publicar",    icon: <Globe  size={13} />, cls: "text-neon-pink"     },
-    { s: "draft",     label: "Rascunho",    icon: <Pencil size={13} />, cls: "text-foreground/60" },
-    { s: "private",   label: "Privado",     icon: <Lock   size={13} />, cls: "text-foreground/60" },
-    { s: "unlisted",  label: "Não listado", icon: <Eye    size={13} />, cls: "text-neon-purple"   },
+    { s: "published", label: t("studio.status.publish"),  icon: <Globe  size={13} />, cls: "text-neon-pink"     },
+    { s: "draft",     label: t("studio.status.draft"),    icon: <Pencil size={13} />, cls: "text-foreground/60" },
+    { s: "private",   label: t("studio.status.private"),  icon: <Lock   size={13} />, cls: "text-foreground/60" },
+    { s: "unlisted",  label: t("studio.status.unlisted"), icon: <Eye    size={13} />, cls: "text-neon-purple"   },
   ];
 
   const dropdown = open
@@ -320,7 +323,7 @@ function StatusDropdown({
       <button ref={triggerRef} type="button"
         onClick={open ? close : openDropdown}
         className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-foreground/60 hover:text-foreground hover:bg-white/10 transition-all">
-        <Globe size={13} /> Status
+        <Globe size={13} /> {t("studio.videos.statusBtn")}
         <ChevronDown size={11} className={`transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {dropdown}
@@ -390,6 +393,7 @@ function EditDrawer({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation();
   const [saving, setSaving]           = useState(false);
   const [msg, setMsg]                 = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const drawerRef                     = useRef<HTMLDivElement>(null);
@@ -488,10 +492,10 @@ function EditDrawer({
 
       if (error) throw error;
 
-      setMsg({ type: "ok", text: "Alterações guardadas com sucesso." });
+      setMsg({ type: "ok", text: t("studio.videos.edit.saved") });
       setTimeout(() => { onSaved(); onClose(); }, 900);
     } catch (e: any) {
-      setMsg({ type: "err", text: e?.message || "Erro ao guardar." });
+      setMsg({ type: "err", text: e?.message || t("studio.videos.edit.saveError") });
     } finally {
       setSaving(false);
     }
@@ -515,8 +519,8 @@ function EditDrawer({
               <Pencil size={16} className="text-neon-pink" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-bold text-foreground truncate">Editar vídeo</p>
-              <p className="text-xs text-foreground/40 truncate">{video.title || "Sem título"}</p>
+              <p className="text-sm font-bold text-foreground truncate">{t("studio.videos.edit.title")}</p>
+              <p className="text-xs text-foreground/40 truncate">{video.title || t("studio.common.noTitle")}</p>
             </div>
           </div>
           <button onClick={onClose}
@@ -543,9 +547,9 @@ function EditDrawer({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-1.5 text-sm font-medium text-foreground/80">
-                <ImageIcon size={13} className="text-foreground/40" /> Miniatura
+                <ImageIcon size={13} className="text-foreground/40" /> {t("studio.videos.edit.thumbnailLabel")}
               </label>
-              <span className="text-xs text-foreground/35">JPG, PNG, WEBP</span>
+              <span className="text-xs text-foreground/35">{t("studio.videos.edit.thumbnailFormats")}</span>
             </div>
 
             {/* Branch 1: manual file selected */}
@@ -554,13 +558,13 @@ function EditDrawer({
                 <img src={edit.thumbnailPreview!} alt="" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
                   <label className="cursor-pointer flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/15 border border-white/20 text-xs text-white font-medium hover:bg-white/25 transition-all">
-                    <ImageIcon size={13} /> Trocar
+                    <ImageIcon size={13} /> {t("studio.videos.edit.thumbnailChange")}
                     <input type="file" accept="image/*" className="hidden"
                       onChange={(e) => handleThumbnail(e.target.files?.[0] ?? null)} />
                   </label>
                   <button onClick={() => handleThumbnail(null)}
                     className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/20 border border-red-500/30 text-xs text-red-300 font-medium hover:bg-red-500/30 transition-all">
-                    <X size={13} /> Remover
+                    <X size={13} /> {t("studio.videos.edit.thumbnailRemove")}
                   </button>
                 </div>
               </div>
@@ -569,7 +573,7 @@ function EditDrawer({
               /* Branch 2: extracting frames */
               <div className="aspect-video rounded-xl bg-black/20 border border-white/10 flex flex-col items-center justify-center gap-2">
                 <Loader2 size={20} className="animate-spin text-neon-pink/60" />
-                <span className="text-xs text-foreground/35">A extrair frames do vídeo...</span>
+                <span className="text-xs text-foreground/35">{t("studio.videos.edit.thumbnailExtracting")}</span>
               </div>
 
             ) : frameUrls.length > 0 ? (
@@ -595,7 +599,7 @@ function EditDrawer({
                   })}
                 </div>
                 <label className="flex items-center justify-center gap-1.5 text-xs text-foreground/40 hover:text-foreground/60 cursor-pointer transition-colors py-1">
-                  <Upload size={12} /> Carregar imagem personalizada
+                  <Upload size={12} /> {t("studio.videos.edit.thumbnailCustom")}
                   <input type="file" accept="image/*" className="hidden"
                     onChange={(e) => handleThumbnail(e.target.files?.[0] ?? null)} />
                 </label>
@@ -605,7 +609,7 @@ function EditDrawer({
               /* Branch 4: fallback manual upload */
               <label className="flex flex-col items-center justify-center w-full aspect-video rounded-xl bg-black/20 border border-dashed border-white/15 gap-2 cursor-pointer hover:bg-white/5 hover:border-white/25 transition-all">
                 <ImageIcon size={24} className="text-foreground/20" />
-                <span className="text-xs text-foreground/35">Clique para adicionar miniatura</span>
+                <span className="text-xs text-foreground/35">{t("studio.videos.edit.thumbnailAdd")}</span>
                 <input type="file" accept="image/*" className="hidden"
                   onChange={(e) => handleThumbnail(e.target.files?.[0] ?? null)} />
               </label>
@@ -615,9 +619,9 @@ function EditDrawer({
           {/* Título */}
           <div className="space-y-2">
             <label className="flex items-center gap-1.5 text-sm font-medium text-foreground/80">
-              <BookOpen size={13} className="text-foreground/40" /> Título
+              <BookOpen size={13} className="text-foreground/40" /> {t("studio.videos.edit.titleLabel")}
             </label>
-            <input type="text" className={inputBase} placeholder="Título do vídeo" maxLength={100}
+            <input type="text" className={inputBase} placeholder={t("studio.videos.edit.titlePlaceholder")} maxLength={100}
               value={edit.title}
               onChange={(e) => setEdit((p) => ({ ...p, title: e.target.value }))} />
             <div className="flex justify-end">
@@ -628,10 +632,10 @@ function EditDrawer({
           {/* Descrição */}
           <div className="space-y-2">
             <label className="flex items-center gap-1.5 text-sm font-medium text-foreground/80">
-              <AlignLeft size={13} className="text-foreground/40" /> Descrição
+              <AlignLeft size={13} className="text-foreground/40" /> {t("studio.videos.edit.descLabel")}
             </label>
             <textarea className={`${inputBase} resize-none leading-relaxed`}
-              placeholder="Descreva o conteúdo do vídeo..." rows={5} maxLength={5000}
+              placeholder={t("studio.videos.edit.descPlaceholder")} rows={5} maxLength={5000}
               value={edit.description}
               onChange={(e) => setEdit((p) => ({ ...p, description: e.target.value }))} />
             <div className="flex justify-end">
@@ -642,7 +646,7 @@ function EditDrawer({
           {/* Categoria */}
           <div className="space-y-2">
             <label className="flex items-center gap-1.5 text-sm font-medium text-foreground/80">
-              <Layers size={13} className="text-foreground/40" /> Categoria
+              <Layers size={13} className="text-foreground/40" /> {t("studio.videos.edit.categoryLabel")}
             </label>
             <CategoryPicker
               value={edit.category}
@@ -653,7 +657,7 @@ function EditDrawer({
               return cat ? (
                 <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-neon-pink/6 border border-neon-pink/15 text-xs text-neon-pink">
                   <span>{cat.icon}</span>
-                  <span>Publicado em <strong>{cat.label}</strong></span>
+                  <span>{t("studio.videos.edit.categoryPublishedIn", { category: cat.label })}</span>
                 </div>
               ) : null;
             })()}
@@ -662,7 +666,7 @@ function EditDrawer({
           {/* Tags */}
           <div className="space-y-2">
             <label className="flex items-center gap-1.5 text-sm font-medium text-foreground/80">
-              <Tag size={13} className="text-foreground/40" /> Tags
+              <Tag size={13} className="text-foreground/40" /> {t("studio.videos.edit.tagsLabel")}
             </label>
             <input type="text" className={inputBase} placeholder="tag1, tag2..."
               value={edit.tags}
@@ -681,7 +685,7 @@ function EditDrawer({
           {/* Visibilidade */}
           <div className="space-y-3">
             <label className="flex items-center gap-1.5 text-sm font-medium text-foreground/80">
-              <Globe size={13} className="text-foreground/40" /> Visibilidade
+              <Globe size={13} className="text-foreground/40" /> {t("studio.videos.edit.visibilityLabel")}
             </label>
             <div className="grid grid-cols-3 gap-2">
               {VISIBILITY_OPTIONS.map((opt) => {
@@ -698,7 +702,7 @@ function EditDrawer({
                       {opt.icon}
                     </span>
                     <span className={`text-[11px] font-semibold ${isActive ? "text-foreground" : "text-foreground/45"}`}>
-                      {opt.label}
+                      {t(`studio.visibility.${opt.value}`)}
                     </span>
                   </button>
                 );
@@ -710,9 +714,9 @@ function EditDrawer({
               : "bg-white/5 border-white/10 text-foreground/40"
             }`}>
               <span className="flex-shrink-0">{activeVis.icon}</span>
-              {edit.visibility === "public"   && "Visível para todos e recomendado na plataforma."}
-              {edit.visibility === "unlisted" && "Só acessível via link directo — não aparece em pesquisas."}
-              {edit.visibility === "private"  && "Apenas você tem acesso a este vídeo."}
+              {edit.visibility === "public"   && t("studio.visibility.descPublic")}
+              {edit.visibility === "unlisted" && t("studio.visibility.descUnlisted")}
+              {edit.visibility === "private"  && t("studio.visibility.descPrivate")}
             </div>
           </div>
 
@@ -722,13 +726,13 @@ function EditDrawer({
         <div className="flex items-center gap-3 px-6 py-4 border-t border-white/8 flex-shrink-0 bg-[#0e0e12]">
           <button onClick={onClose}
             className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-foreground/60 hover:text-foreground hover:bg-white/10 transition-all font-medium">
-            Cancelar
+            {t("studio.videos.edit.cancel")}
           </button>
           <button onClick={save} disabled={saving}
             className="flex-[2] flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-neon-pink/15">
             {saving
-              ? <><Loader2 size={15} className="animate-spin" /> Guardando...</>
-              : <><Save size={15} /> Guardar alterações</>
+              ? <><Loader2 size={15} className="animate-spin" /> {t("studio.videos.edit.saving")}</>
+              : <><Save size={15} /> {t("studio.videos.edit.save")}</>
             }
           </button>
         </div>
@@ -747,6 +751,7 @@ function EditDrawer({
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function StudioVideos() {
+  const { t } = useTranslation();
   const [loading, setLoading]     = useState(true);
   const [list, setList]           = useState<Video[]>([]);
   const [query, setQuery]         = useState("");
@@ -797,20 +802,20 @@ export default function StudioVideos() {
   };
 
   return (
-    <StudioLayout subtitle="Gerencie seus uploads, rascunhos e publicações">
+    <StudioLayout subtitle={t("studio.videos.subtitle")}>
       <div className="space-y-6">
 
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
           <div>
-            <h1 className="text-xl font-black text-foreground">Meus vídeos</h1>
-            <p className="text-sm text-foreground/50 mt-1">Edite, filtre, publique e organize os seus vídeos.</p>
+            <h1 className="text-xl font-black text-foreground">{t("studio.videos.title")}</h1>
+            <p className="text-sm text-foreground/50 mt-1">{t("studio.videos.desc")}</p>
           </div>
           <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
             <Search size={15} className="text-foreground/40 flex-shrink-0" />
             <input value={query} onChange={(e) => setQuery(e.target.value)}
               className="bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/30 w-52"
-              placeholder="Buscar por título..." />
+              placeholder={t("studio.videos.searchPlaceholder")} />
           </div>
         </div>
 
@@ -823,7 +828,7 @@ export default function StudioVideos() {
                   ? "bg-neon-pink/15 border border-neon-pink/30 text-foreground"
                   : "text-foreground/55 hover:text-foreground/80 hover:bg-white/5 border border-transparent"
               }`}>
-              {f.label}
+              {f.id === "all" ? t("studio.videos.allVideos") : t(`studio.status.${f.id}`)}
             </button>
           ))}
           <span className="ml-auto text-xs text-foreground/30 whitespace-nowrap pr-1">
@@ -835,21 +840,21 @@ export default function StudioVideos() {
         <div className="glass border border-white/10 rounded-2xl overflow-hidden">
           <div className="px-5 py-3.5 border-b border-white/8 flex items-center justify-between">
             <span className="text-sm font-semibold text-foreground">
-              {tab === "all" ? "Todos os vídeos" : STATUS_FILTERS.find((x) => x.id === tab)?.label}
+              {tab === "all" ? t("studio.videos.allVideos") : t(`studio.status.${tab}`)}
             </span>
             <a href="/studio/upload"
               className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-foreground/70 hover:text-neon-pink hover:bg-white/10 transition-all">
-              <Upload size={15} /> Novo upload
+              <Upload size={15} /> {t("studio.videos.newUpload")}
             </a>
           </div>
 
           <div className="p-4">
             {!loading && filtered.length === 0 ? (
               <EmptyState
-                title="Nenhum resultado"
-                description="Tente outro filtro ou envie o seu primeiro vídeo."
+                title={t("studio.videos.emptyTitle")}
+                description={t("studio.videos.emptyDesc")}
                 icon={<Film size={22} />}
-                actionLabel="Enviar vídeo"
+                actionLabel={t("studio.common.uploadBtn")}
                 actionTo="/studio/upload"
               />
             ) : (
@@ -894,6 +899,7 @@ function VideoRow({
   onUpdateStatus: (id: string, status: string) => void;
   onRemove: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col lg:flex-row lg:items-center gap-3 p-3.5 rounded-2xl bg-white/4 border border-white/8 hover:bg-white/7 hover:border-white/14 transition-all">
 
@@ -907,7 +913,7 @@ function VideoRow({
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-foreground truncate leading-snug">
-            {v.title || "Sem título"}
+            {v.title || t("studio.common.noTitle")}
           </p>
           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
             <StatusPill status={v.status} />
@@ -925,7 +931,7 @@ function VideoRow({
       <div className="flex items-center gap-2 flex-shrink-0">
         <button onClick={onEdit}
           className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-neon-pink/10 border border-neon-pink/25 text-neon-pink text-xs font-semibold hover:bg-neon-pink/18 transition-all">
-          <Pencil size={13} /> Editar
+          <Pencil size={13} /> {t("studio.videos.editBtn")}
         </button>
 
         <StatusDropdown
@@ -946,16 +952,18 @@ function VideoRow({
 // ─── StatusPill ───────────────────────────────────────────────────────────────
 
 function StatusPill({ status }: { status: string | null }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    published: { label: "Publicado",   cls: "bg-emerald-500/10 border-emerald-500/25 text-emerald-400" },
-    draft:     { label: "Rascunho",    cls: "bg-white/5 border-white/12 text-foreground/45"            },
-    private:   { label: "Privado",     cls: "bg-neon-purple/10 border-neon-purple/25 text-neon-purple" },
-    unlisted:  { label: "Não listado", cls: "bg-yellow-500/10 border-yellow-500/25 text-yellow-400"    },
+  const { t } = useTranslation();
+  const clsMap: Record<string, string> = {
+    published: "bg-emerald-500/10 border-emerald-500/25 text-emerald-400",
+    draft:     "bg-white/5 border-white/12 text-foreground/45",
+    private:   "bg-neon-purple/10 border-neon-purple/25 text-neon-purple",
+    unlisted:  "bg-yellow-500/10 border-yellow-500/25 text-yellow-400",
   };
-  const item = map[status ?? "draft"] ?? map.draft;
+  const key = status ?? "draft";
+  const cls = clsMap[key] ?? clsMap.draft;
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-semibold ${item.cls}`}>
-      {item.label}
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-semibold ${cls}`}>
+      {t(`studio.status.${key}`)}
     </span>
   );
 }

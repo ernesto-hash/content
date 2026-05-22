@@ -4,6 +4,7 @@
 // Sem skeleton cards — só mostra vídeos reais ou estado vazio
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { supabase } from "@/lib/supabaseClient";
@@ -50,7 +51,17 @@ const isTouchDevice = () =>
   window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 
 function VideoCard({ video }: { video: Video }) {
+  const { t } = useTranslation();
   const isNew = (Date.now() - new Date(video.created_at).getTime()) < 24 * 3_600_000;
+
+  const tTimeAgo = (iso: string) => {
+    const diff = Date.now() - new Date(iso).getTime();
+    const h = Math.floor(diff / 3_600_000);
+    if (h < 1)  return t("pages.category.recentes.timeAgo.lessThan1h");
+    if (h < 24) return t("pages.category.recentes.timeAgo.hours", { h });
+    const d = Math.floor(h / 24);
+    return t("pages.category.recentes.timeAgo.days", { count: d });
+  };
   const videoRef        = useRef<HTMLVideoElement>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -119,7 +130,7 @@ function VideoCard({ video }: { video: Video }) {
         />
         {isNew && (
           <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-gradient-to-r from-neon-purple to-neon-blue text-white text-[10px] font-bold uppercase tracking-wide shadow-lg">
-            Novo
+            {t("pages.category.recentes.badgeNew")}
           </div>
         )}
         {video.duration && (
@@ -142,12 +153,12 @@ function VideoCard({ video }: { video: Video }) {
       </div>
       <div className="p-4 space-y-2">
         <h3 className="text-sm font-semibold text-foreground line-clamp-2 group-hover:text-neon-purple transition-colors leading-snug">
-          {video.title || "Sem título"}
+          {video.title || t("studio.common.noTitle")}
         </h3>
         <div className="flex items-center justify-between text-xs text-foreground/45">
           <span className="flex items-center gap-1"><Eye size={11} /> {fmtNum(video.views)}</span>
           <span className="flex items-center gap-1"><Heart size={11} className="text-neon-pink" /> {fmtNum(video.likes_count)}</span>
-          <span className="flex items-center gap-1 text-neon-purple/70"><CalendarDays size={10} /> {timeAgo(video.created_at)}</span>
+          <span className="flex items-center gap-1 text-neon-purple/70"><CalendarDays size={10} /> {tTimeAgo(video.created_at)}</span>
         </div>
         {video.category && (
           <span className="inline-block px-2 py-0.5 rounded-md bg-neon-purple/10 border border-neon-purple/20 text-neon-purple text-[10px] font-medium capitalize">
@@ -160,6 +171,7 @@ function VideoCard({ video }: { video: Video }) {
 }
 
 export default function RecentesPage() {
+  const { t } = useTranslation();
   useDocumentTitle({ title: "Vídeos Recentes - SuckOrSex" });
   const [videos, setVideos]   = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -243,17 +255,17 @@ export default function RecentesPage() {
                 </h1>
               </div>
               <p className="text-foreground/60 text-sm max-w-md">
-                Novidades dos últimos <strong className="text-neon-purple">{DAYS_WINDOW} dias</strong>. Conteúdo fresco acabado de publicar.
+                {t("pages.category.recentes.desc", { days: DAYS_WINDOW })}
               </p>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
                 <p className="text-2xl font-black text-neon-purple">{loading ? "—" : videos.length}</p>
-                <p className="text-xs text-foreground/45 mt-0.5">esta semana</p>
+                <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.recentes.thisWeek")}</p>
               </div>
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
                 <p className="text-2xl font-black text-neon-blue">{loading ? "—" : todayCount}</p>
-                <p className="text-xs text-foreground/45 mt-0.5">hoje</p>
+                <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.recentes.today")}</p>
               </div>
             </div>
           </div>
@@ -264,7 +276,7 @@ export default function RecentesPage() {
           <div className="flex items-center gap-2 flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5">
             <Search size={15} className="text-foreground/40 flex-shrink-0" />
             <input value={query} onChange={(e) => setQuery(e.target.value)}
-              placeholder="Pesquisar nos recentes..."
+              placeholder={t("pages.category.recentes.searchPlaceholder")}
               className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/30" />
           </div>
           <div className="flex items-center gap-2">
@@ -274,7 +286,7 @@ export default function RecentesPage() {
                   filter === f
                     ? "bg-neon-purple/15 border-neon-purple/40 text-neon-purple"
                     : "bg-white/5 border-white/10 text-foreground/55 hover:border-white/20"
-                }`}>{f}</button>
+                }`}>{t(`pages.category.recentes.filter.${f}`)}</button>
             ))}
           </div>
         </div>
@@ -283,7 +295,7 @@ export default function RecentesPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 size={32} className="animate-spin text-neon-purple" />
-            <p className="text-foreground/40 text-sm">A carregar vídeos recentes...</p>
+            <p className="text-foreground/40 text-sm">{t("pages.category.recentes.loading")}</p>
           </div>
         ) : displayed.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
@@ -291,13 +303,13 @@ export default function RecentesPage() {
               <Sparkles size={28} className="text-foreground/20" />
             </div>
             <div className="text-center space-y-1">
-              <p className="text-foreground/60 font-medium">Ainda sem vídeos recentes</p>
+              <p className="text-foreground/60 font-medium">{t("pages.category.recentes.emptyTitle")}</p>
               <p className="text-foreground/35 text-sm max-w-xs">
-                Os vídeos aparecerão aqui automaticamente assim que forem publicados nos últimos {DAYS_WINDOW} dias.
+                {t("pages.category.recentes.emptyDesc", { days: DAYS_WINDOW })}
               </p>
             </div>
             <Link to="/videos" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neon-purple/10 border border-neon-purple/25 text-neon-purple text-sm hover:bg-neon-purple/18 transition-all mt-2">
-              Ver todos os vídeos <ChevronRight size={15} />
+              {t("pages.category.recentes.seeAll")} <ChevronRight size={15} />
             </Link>
           </div>
         ) : (

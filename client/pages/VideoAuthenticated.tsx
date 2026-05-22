@@ -1,6 +1,7 @@
 // src/pages/VideoAuthenticated.tsx
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Play, Pause, Share2, Bookmark, Sparkles, TrendingUp,
   Eye, ThumbsUp, ThumbsDown, MessageCircle,
@@ -92,15 +93,15 @@ function fmtDate(iso: string) {
   });
 }
 
-function fmtRelative(iso: string) {
+function fmtRelative(iso: string, t: (key: string, opts?: object) => string) {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "agora mesmo";
-  if (mins < 60) return `há ${mins} min`;
+  if (mins < 1) return t("video.time.justNow");
+  if (mins < 60) return t("video.time.minutesAgo", { count: mins });
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `há ${hrs}h`;
+  if (hrs < 24) return t("video.time.hoursAgo", { count: hrs });
   const days = Math.floor(hrs / 24);
-  if (days < 30) return `há ${days}d`;
+  if (days < 30) return t("video.time.daysAgo", { count: days });
   return fmtDate(iso);
 }
 
@@ -213,6 +214,7 @@ function CreatorLink({
 }
 
 export default function VideoAuthenticated() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -592,7 +594,7 @@ export default function VideoAuthenticated() {
             <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center animate-pulse">
               <Play size={32} className="text-white" />
             </div>
-            <p className="text-white/50 text-sm">A carregar vídeo...</p>
+            <p className="text-white/50 text-sm">{t("video.loading")}</p>
           </div>
         </div>
       </LayoutAuthenticated>
@@ -604,14 +606,14 @@ export default function VideoAuthenticated() {
       <LayoutAuthenticated>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <Film size={48} className="text-white/20" />
-          <p className="text-white/50">Vídeo não encontrado.</p>
-          <Link to="/app" className="text-pink-400 text-sm hover:text-pink-300">← Voltar ao início</Link>
+          <p className="text-white/50">{t("video.notFound")}</p>
+          <Link to="/app" className="text-pink-400 text-sm hover:text-pink-300">{t("video.backToHome")}</Link>
         </div>
       </LayoutAuthenticated>
     );
   }
 
-  const creatorName = creator?.full_name || creator?.username || "Criador";
+  const creatorName = creator?.full_name || creator?.username || t("common.creator");
   const creatorChannelUrl = creator ? `/app/modelo/${creator.id}` : "#";
   const displayTime = fmtDuration(Math.floor(currentTime));
   const displayDuration = fmtDuration(Math.floor(duration));
@@ -695,7 +697,7 @@ export default function VideoAuthenticated() {
                     : <Film size={64} className="text-white/20" />
                   }
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <p className="text-white/40 text-sm">Vídeo não disponível</p>
+                    <p className="text-white/40 text-sm">{t("video.unavailable")}</p>
                   </div>
                 </div>
               )}
@@ -764,7 +766,7 @@ export default function VideoAuthenticated() {
                   {/* ── AVATAR — clicável em mobile e desktop ── */}
                   <CreatorLink
                     to={creatorChannelUrl}
-                    title={`Ver canal de ${creatorName}`}
+                    title={t("video.viewChannel", { name: creatorName })}
                     className="w-11 h-11 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center overflow-hidden flex-shrink-0 hover:ring-2 hover:ring-neon-pink/50 transition-all"
                   >
                     {creator?.avatar_url ? (
@@ -779,14 +781,14 @@ export default function VideoAuthenticated() {
                       {/* ── NOME — clicável em mobile e desktop ── */}
                       <CreatorLink
                         to={creatorChannelUrl}
-                        title={`Ver canal de ${creatorName}`}
+                        title={t("video.viewChannel", { name: creatorName })}
                         className="font-semibold text-white text-sm hover:text-neon-pink transition-colors"
                       >
                         {creatorName}
                       </CreatorLink>
                       <Sparkles size={13} className="text-pink-400 pointer-events-none" />
                     </div>
-                    <p className="text-xs text-white/45">{fmtViews(subscriberCount)} subscritores</p>
+                    <p className="text-xs text-white/45">{t("video.subscribers", { count: fmtViews(subscriberCount) as unknown as number })}</p>
                   </div>
 
                   <button
@@ -797,7 +799,7 @@ export default function VideoAuthenticated() {
                         : "bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:shadow-[0_0_20px_rgba(236,72,153,0.35)]"
                     }`}
                   >
-                    {isSubscribed ? <><CheckCircle size={14} />Subscrito</> : <><Users size={14} />Subscrever</>}
+                    {isSubscribed ? <><CheckCircle size={14} />{t("video.subscribed")}</> : <><Users size={14} />{t("video.subscribe")}</>}
                   </button>
                 </div>
 
@@ -815,18 +817,18 @@ export default function VideoAuthenticated() {
                   </div>
                   <button onClick={handleShare} className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium border transition-all ${shareCopied ? "text-green-400 bg-green-500/10 border-green-500/20" : "text-white/50 hover:text-blue-400 bg-white/5 border-white/10"}`}>
                     <Share2 size={16} />
-                    <span>{shareCopied ? "Copiado!" : "Partilhar"}</span>
+                    <span>{shareCopied ? t("video.shared") : t("video.share")}</span>
                   </button>
                   <button onClick={() => setIsSaved(!isSaved)} className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium border transition-all ${isSaved ? "text-purple-400 bg-purple-500/10 border-purple-500/20" : "text-white/50 hover:text-purple-400 bg-white/5 border-white/10"}`}>
                     <Bookmark size={16} className={isSaved ? "fill-purple-400" : ""} />
-                    <span>Guardar</span>
+                    <span>{t("video.save")}</span>
                   </button>
                 </div>
               </div>
 
               <div className="bg-white/[0.04] border border-white/8 rounded-xl p-4 space-y-3">
                 <div className="flex flex-wrap items-center gap-4 text-xs text-white/40">
-                  <span className="flex items-center gap-1.5"><Eye size={13} />{fmtViews(video.views)} visualizações</span>
+                  <span className="flex items-center gap-1.5"><Eye size={13} />{t("video.views", { count: fmtViews(video.views) as unknown as number })}</span>
                   <span className="flex items-center gap-1.5"><Calendar size={13} />{fmtDate(video.created_at)}</span>
                   {video.category && <span className="flex items-center gap-1.5"><Award size={13} />{video.category}</span>}
                   {video.duration && <span className="flex items-center gap-1.5"><Clock size={13} />{fmtDuration(video.duration)}</span>}
@@ -841,7 +843,7 @@ export default function VideoAuthenticated() {
             <div className="space-y-5 pt-2">
               <h3 className="text-base font-semibold text-white flex items-center gap-2">
                 <MessageCircle size={17} className="text-pink-400" />
-                Comentários <span className="text-white/30 text-sm font-normal">({commentsCount})</span>
+                {t("video.comments.title")} <span className="text-white/30 text-sm font-normal">({commentsCount})</span>
               </h3>
 
               <form onSubmit={handleCommentSubmit} className="flex gap-3">
@@ -850,7 +852,7 @@ export default function VideoAuthenticated() {
                 </div>
                 <div className="flex-1 relative">
                   <input type="text" value={newComment} onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="Adicione um comentário..." disabled={submittingComment}
+                    placeholder={t("video.comments.placeholder")} disabled={submittingComment}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 pr-12 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-pink-500/40 focus:border-pink-500/30 disabled:opacity-50" />
                   <button type="submit" disabled={submittingComment || !newComment.trim()} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-pink-400 disabled:opacity-30 transition-colors">
                     {submittingComment ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
@@ -861,13 +863,13 @@ export default function VideoAuthenticated() {
               {comments.length === 0 ? (
                 <div className="text-center py-10 text-white/25 text-sm">
                   <MessageCircle size={32} className="mx-auto mb-3 opacity-30" />
-                  Ainda sem comentários. Sê o primeiro!
+                  {t("video.comments.empty")}
                 </div>
               ) : (
                 <div className="space-y-5">
                   {comments.map((comment) => {
                     const cUser = comment.profiles;
-                    const cName = cUser?.full_name || cUser?.username || "Utilizador";
+                    const cName = cUser?.full_name || cUser?.username || t("video.comments.userDefault");
                     return (
                       <div key={comment.id} className="flex gap-3">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500/40 to-purple-500/40 flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -876,7 +878,7 @@ export default function VideoAuthenticated() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-sm font-semibold text-white/80 truncate">{cName}</span>
-                            <span className="text-[10px] text-white/25 flex-shrink-0">{fmtRelative(comment.created_at)}</span>
+                            <span className="text-[10px] text-white/25 flex-shrink-0">{fmtRelative(comment.created_at, t)}</span>
                           </div>
                           <p className="text-sm text-white/70 leading-relaxed break-words">{comment.conteudo}</p>
                         </div>
@@ -892,10 +894,10 @@ export default function VideoAuthenticated() {
           <div className="space-y-3">
             <h3 className="text-base font-semibold text-white flex items-center gap-2">
               <TrendingUp size={17} className="text-pink-400" />
-              Recomendados
+              {t("video.recommended.title")}
             </h3>
             {recommended.length === 0 ? (
-              <p className="text-white/25 text-sm py-4">Sem vídeos relacionados.</p>
+              <p className="text-white/25 text-sm py-4">{t("video.recommended.empty")}</p>
             ) : (
               <div className="space-y-1">
                 {recommended.map((rec) => (
@@ -913,11 +915,11 @@ export default function VideoAuthenticated() {
                       </div>
                     </div>
                     <div className="flex-1 min-w-0 py-0.5">
-                      <p className="text-xs font-semibold text-white/80 line-clamp-2 group-hover:text-pink-300 transition-colors leading-snug">{rec.title || "Sem título"}</p>
+                      <p className="text-xs font-semibold text-white/80 line-clamp-2 group-hover:text-pink-300 transition-colors leading-snug">{rec.title || t("common.noTitle")}</p>
                       <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-white/30">
                         <Eye size={9} />{fmtViews(rec.views)}
                         <span className="mx-0.5">·</span>
-                        {fmtRelative(rec.created_at)}
+                        {fmtRelative(rec.created_at, t)}
                       </div>
                     </div>
                   </div>

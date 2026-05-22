@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Lock, Eye, EyeOff, CheckCircle, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { confirmPasswordReset } from "../services/auth";
 import { supabase } from "../lib/supabaseClient";
 
@@ -9,6 +10,7 @@ type PageState = "loading" | "form" | "success" | "invalid";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [pageState, setPageState] = useState<PageState>("loading");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -42,11 +44,11 @@ export default function ResetPassword() {
     setError("");
 
     if (password.length < 8) {
-      setError("A senha deve ter pelo menos 8 caracteres.");
+      setError(t("auth.errors.passwordTooShort"));
       return;
     }
     if (password !== confirm) {
-      setError("As senhas não coincidem.");
+      setError(t("auth.errors.passwordMismatch"));
       return;
     }
 
@@ -55,7 +57,7 @@ export default function ResetPassword() {
       await confirmPasswordReset(password);
       setPageState("success");
     } catch (err: any) {
-      setError(err.message ?? "Ocorreu um erro. Tenta novamente.");
+      setError(err.message ?? t("auth.errors.generic"));
     } finally {
       setIsLoading(false);
     }
@@ -92,7 +94,7 @@ export default function ResetPassword() {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
-              <p className="text-foreground/50 text-sm">A verificar o link...</p>
+              <p className="text-foreground/50 text-sm">{t("auth.reset.verifying")}</p>
             </div>
           )}
 
@@ -103,19 +105,19 @@ export default function ResetPassword() {
                 <AlertCircle size={28} className="text-red-400" />
               </div>
               <div>
-                <p className="text-white font-bold mb-1">Link inválido ou expirado</p>
+                <p className="text-white font-bold mb-1">{t("auth.reset.invalidTitle")}</p>
                 <p className="text-foreground/50 text-sm max-w-xs">
-                  Este link de recuperação já não é válido. Solicita um novo link de recuperação.
+                  {t("auth.reset.invalidBody")}
                 </p>
               </div>
               <Link
                 to="/forgot-password"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold hover:shadow-[0_0_20px_rgba(236,72,153,0.4)] transition-all mt-2"
               >
-                Solicitar novo link
+                {t("auth.reset.requestNew")}
               </Link>
               <Link to="/login" className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors">
-                Voltar ao login
+                {t("auth.backToLogin")}
               </Link>
             </div>
           )}
@@ -123,9 +125,9 @@ export default function ResetPassword() {
           {/* Formulário de nova senha */}
           {pageState === "form" && (
             <>
-              <h2 className="text-lg font-black text-white mb-1 text-center">Nova senha</h2>
+              <h2 className="text-lg font-black text-white mb-1 text-center">{t("auth.reset.formTitle")}</h2>
               <p className="text-foreground/50 text-sm text-center mb-5">
-                Escolhe uma senha segura para a tua conta.
+                {t("auth.reset.formSubtitle")}
               </p>
 
               {error && (
@@ -138,7 +140,7 @@ export default function ResetPassword() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-foreground text-xs font-semibold mb-1">
-                    Nova senha
+                    {t("auth.reset.formTitle")}
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-neon-purple/50 w-4 h-4" />
@@ -146,7 +148,7 @@ export default function ResetPassword() {
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Mínimo 8 caracteres"
+                      placeholder={t("auth.fields.passwordMinPlaceholder")}
                       className="w-full pl-9 pr-9 py-2.5 text-sm rounded-lg glass border border-white/20 text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-neon-purple/50 transition-all duration-300"
                       required
                       minLength={8}
@@ -163,13 +165,13 @@ export default function ResetPassword() {
                     </button>
                   </div>
                   {password.length > 0 && password.length < 8 && (
-                    <p className="text-xs text-red-400 mt-1">Mínimo de 8 caracteres</p>
+                    <p className="text-xs text-red-400 mt-1">{t("auth.reset.passwordMin")}</p>
                   )}
                 </div>
 
                 <div>
                   <label className="block text-foreground text-xs font-semibold mb-1">
-                    Confirmar senha
+                    {t("auth.fields.confirmPassword")}
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-neon-purple/50 w-4 h-4" />
@@ -177,7 +179,7 @@ export default function ResetPassword() {
                       type={showConfirm ? "text" : "password"}
                       value={confirm}
                       onChange={(e) => setConfirm(e.target.value)}
-                      placeholder="Repete a nova senha"
+                      placeholder={t("auth.reset.confirmPlaceholder")}
                       className="w-full pl-9 pr-9 py-2.5 text-sm rounded-lg glass border border-white/20 text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-neon-purple/50 transition-all duration-300"
                       required
                       disabled={isLoading}
@@ -192,7 +194,7 @@ export default function ResetPassword() {
                     </button>
                   </div>
                   {confirm.length > 0 && password !== confirm && (
-                    <p className="text-xs text-red-400 mt-1">As senhas não coincidem</p>
+                    <p className="text-xs text-red-400 mt-1">{t("auth.errors.passwordMismatch")}</p>
                   )}
                 </div>
 
@@ -207,10 +209,10 @@ export default function ResetPassword() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
-                      A guardar...
+                      {t("auth.reset.loading")}
                     </span>
                   ) : (
-                    "Guardar nova senha"
+                    t("auth.reset.submit")
                   )}
                 </button>
               </form>
@@ -224,16 +226,16 @@ export default function ResetPassword() {
                 <CheckCircle size={28} className="text-emerald-400" />
               </div>
               <div>
-                <p className="text-white font-bold mb-1">Senha atualizada!</p>
+                <p className="text-white font-bold mb-1">{t("auth.reset.successTitle")}</p>
                 <p className="text-foreground/50 text-sm max-w-xs">
-                  A tua senha foi alterada com sucesso. Já podes entrar com a nova senha.
+                  {t("auth.reset.successBody")}
                 </p>
               </div>
               <button
                 onClick={() => navigate("/login")}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold hover:shadow-[0_0_20px_rgba(236,72,153,0.4)] transition-all mt-2"
               >
-                Ir para o login
+                {t("auth.reset.goToLogin")}
               </button>
             </div>
           )}

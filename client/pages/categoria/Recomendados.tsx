@@ -5,6 +5,7 @@
 // Sem skeleton cards — só mostra vídeos reais ou estado vazio
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { supabase } from "@/lib/supabaseClient";
@@ -52,9 +53,10 @@ function calcScore(views: number, likes: number, createdAt: string, maxViews: nu
 }
 
 function ScoreBadge({ score }: { score: number }) {
+  const { t } = useTranslation();
   const pct = Math.round(score * 100);
   const color = pct >= 80 ? "text-neon-pink" : pct >= 50 ? "text-blue-400" : "text-foreground/50";
-  return <span className={`text-[10px] font-bold ${color}`}>{pct}% match</span>;
+  return <span className={`text-[10px] font-bold ${color}`}>{pct}{t("pages.category.recomendados.matchLabel")}</span>;
 }
 
 const isTouchDevice = () =>
@@ -62,6 +64,7 @@ const isTouchDevice = () =>
   window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 
 function VideoCard({ video }: { video: Video }) {
+  const { t } = useTranslation();
   const videoRef        = useRef<HTMLVideoElement>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -129,7 +132,7 @@ function VideoCard({ video }: { video: Video }) {
           preload="none"
         />
         <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-[10px] font-bold flex items-center gap-1 shadow-lg">
-          <Sparkles size={9} /> Para si
+          <Sparkles size={9} /> {t("pages.category.recomendados.badgeForYou")}
         </div>
         {video.duration && (
           <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/70 text-white text-xs flex items-center gap-1">
@@ -151,7 +154,7 @@ function VideoCard({ video }: { video: Video }) {
       </div>
       <div className="p-4 space-y-2">
         <h3 className="text-sm font-semibold text-foreground line-clamp-2 group-hover:text-blue-400 transition-colors leading-snug">
-          {video.title || "Sem título"}
+          {video.title || t("studio.common.noTitle")}
         </h3>
         <div className="flex items-center justify-between text-xs text-foreground/45">
           <span className="flex items-center gap-1"><Eye size={11} /> {fmtNum(video.views)}</span>
@@ -169,6 +172,7 @@ function VideoCard({ video }: { video: Video }) {
 }
 
 export default function RecomendadosPage() {
+  const { t } = useTranslation();
   useDocumentTitle({ title: "Vídeos Recomendados - SuckOrSex" });
   const [videos, setVideos]   = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -249,16 +253,16 @@ export default function RecomendadosPage() {
                 </h1>
               </div>
               <p className="text-foreground/60 text-sm max-w-md">
-                Selecionados pelo nosso algoritmo com base em <strong className="text-blue-400">popularidade</strong>, <strong className="text-blue-400">likes</strong> e <strong className="text-blue-400">recência</strong>.
+                {t("pages.category.recomendados.desc")}
               </p>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
                 <p className="text-2xl font-black text-blue-400">{loading ? "—" : displayed.length}</p>
-                <p className="text-xs text-foreground/45 mt-0.5">selecionados</p>
+                <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.recomendados.selected")}</p>
               </div>
               <div className="hidden sm:block text-xs text-foreground/35 max-w-[120px] leading-relaxed border border-white/8 rounded-xl p-3 bg-white/3">
-                Views 50% · Likes 30% · Recência 20%
+                {t("pages.category.recomendados.algorithm")}
               </div>
             </div>
           </div>
@@ -268,7 +272,7 @@ export default function RecomendadosPage() {
         <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5">
           <Search size={15} className="text-foreground/40 flex-shrink-0" />
           <input value={query} onChange={(e) => setQuery(e.target.value)}
-            placeholder="Pesquisar nos recomendados..."
+            placeholder={t("pages.category.recomendados.searchPlaceholder")}
             className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/30" />
         </div>
 
@@ -276,7 +280,7 @@ export default function RecomendadosPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 size={32} className="animate-spin text-blue-400" />
-            <p className="text-foreground/40 text-sm">A carregar recomendados...</p>
+            <p className="text-foreground/40 text-sm">{t("pages.category.recomendados.loading")}</p>
           </div>
         ) : displayed.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
@@ -284,13 +288,13 @@ export default function RecomendadosPage() {
               <ThumbsUp size={28} className="text-foreground/20" />
             </div>
             <div className="text-center space-y-1">
-              <p className="text-foreground/60 font-medium">Ainda sem recomendações</p>
+              <p className="text-foreground/60 font-medium">{t("pages.category.recomendados.emptyTitle")}</p>
               <p className="text-foreground/35 text-sm max-w-xs">
-                Os vídeos aparecerão aqui automaticamente assim que atingirem {fmtNum(MIN_VIEWS)} views e {fmtNum(MIN_LIKES)} likes.
+                {t("pages.category.recomendados.emptyDesc", { minViews: fmtNum(MIN_VIEWS), minLikes: fmtNum(MIN_LIKES) })}
               </p>
             </div>
             <Link to="/recentes" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/25 text-blue-400 text-sm hover:bg-blue-500/18 transition-all mt-2">
-              Ver Recentes <ChevronRight size={15} />
+              {t("pages.category.recomendados.seeRecent")} <ChevronRight size={15} />
             </Link>
           </div>
         ) : (

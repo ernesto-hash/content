@@ -4,7 +4,8 @@
 // ✅ PUBLICIDADE REAL: AdBanner usa Supabase Realtime — actualiza após pagamento
 // ✅ SEM ANÚNCIOS: mostra espaço vazio com link "Anunciar aqui"
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const isTouchDeviceDash = () =>
   typeof window !== "undefined" &&
@@ -16,7 +17,7 @@ import { supabase } from "@/lib/supabaseClient";
 import {
   Play, Heart, Bookmark, Flame, Sparkles, TrendingUp,
   Eye, Film, Loader2,
-  Zap, User, ChevronDown, ThumbsDown, Bell,
+  Zap, User, ChevronDown, ChevronRight, ThumbsDown, Bell,
   Sun, Moon, VolumeX,
 } from "lucide-react";
 
@@ -39,48 +40,60 @@ function fmtDuration(s: number | null) {
   if (!s) return "";
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
-function fmtRelative(iso: string) {
+function fmtRelative(iso: string, t: (key: string, opts?: object) => string) {
   const diff = Date.now() - new Date(iso).getTime();
   const hrs  = Math.floor(diff / 3600000);
-  if (hrs < 1)  return "agora";
-  if (hrs < 24) return `há ${hrs}h`;
+  if (hrs < 1)  return t("pages.dashboard.time.now");
+  if (hrs < 24) return t("pages.dashboard.time.hoursAgo", { count: hrs });
   const days = Math.floor(hrs / 24);
-  if (days < 7)  return `há ${days}d`;
-  if (days < 30) return `há ${Math.floor(days / 7)}sem`;
-  return `há ${Math.floor(days / 30)}mes`;
+  if (days < 7)  return t("pages.dashboard.time.daysAgo", { count: days });
+  if (days < 30) return t("pages.dashboard.time.weeksAgo", { count: Math.floor(days / 7) });
+  return t("pages.dashboard.time.monthsAgo", { count: Math.floor(days / 30) });
 }
-function greeting() {
+function greeting(t: (key: string) => string) {
   const h = new Date().getHours();
-  if (h < 12) return "Bom dia";
-  if (h < 18) return "Boa tarde";
-  return "Boa noite";
+  if (h < 12) return t("pages.dashboard.greeting.morning");
+  if (h < 18) return t("pages.dashboard.greeting.afternoon");
+  return t("pages.dashboard.greeting.evening");
 }
-function interleaveDiversity(videos: Video[]): Video[] {
-  const groups = new Map<string, Video[]>();
+function distribuirPorModelo<T extends { user_id: string }>(videos: T[]): T[] {
+  if (videos.length === 0) return [];
+
+  const grupos = new Map<string, T[]>();
   for (const v of videos) {
-    if (!groups.has(v.user_id)) groups.set(v.user_id, []);
-    groups.get(v.user_id)!.push(v);
+    if (!grupos.has(v.user_id)) grupos.set(v.user_id, []);
+    grupos.get(v.user_id)!.push(v);
   }
-  const queues  = [...groups.values()].sort((a, b) => b.length - a.length);
-  const result: Video[] = [];
-  let changed = true;
-  while (changed) {
-    changed = false;
-    for (const q of queues) { if (q.length > 0) { result.push(q.shift()!); changed = true; } }
+
+  const filas = [...grupos.values()].sort(() => Math.random() - 0.5);
+  const resultado: T[] = [];
+  let posicao = 0;
+
+  while (resultado.length < videos.length) {
+    const filasActivas = filas.filter(f => f.length > 0);
+    if (filasActivas.length === 0) break;
+
+    const filaIndex = posicao % filasActivas.length;
+    const fila = filasActivas[filaIndex];
+    resultado.push(fila.shift()!);
+    posicao++;
   }
-  return result;
+
+  return resultado;
 }
 
 // ─────────────────────────────────────────────
 // VideoCard
 // ─────────────────────────────────────────────
-function VideoCard({ video, isLiked, isDisliked, isSaved, onLike, onDislike, onSave, index = 0 }: {
+function VideoCard({ video, isLiked, isDisliked, isSaved, onLike, onDislike, onSave, index = 0, className = "" }: {
   video: Video; isLiked: boolean; isDisliked: boolean; isSaved: boolean;
   onLike: (id: string, e: React.MouseEvent) => void;
   onDislike: (id: string, e: React.MouseEvent) => void;
   onSave: (id: string, e: React.MouseEvent) => void;
   index?: number;
+  className?: string;
 }) {
+  const { t } = useTranslation();
   const videoRef        = useRef<HTMLVideoElement>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -124,7 +137,7 @@ function VideoCard({ video, isLiked, isDisliked, isSaved, onLike, onDislike, onS
 
   return (
     <div
-      className="group"
+      className={`group ${className}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onTouchStart={handleTouchStart}
@@ -180,19 +193,23 @@ function VideoCard({ video, isLiked, isDisliked, isSaved, onLike, onDislike, onS
         )}
       </Link>
       <div className="space-y-0.5 px-0.5">
-        <div className="flex items-center gap-1.5 mb-1">
+        <Link
+          to={`/app/modelo/${video.user_id}`}
+          className="flex items-center gap-1.5 mb-1 group/creator w-fit max-w-full"
+          onClick={e => e.stopPropagation()}
+        >
           <div className="w-4 h-4 rounded-full bg-white/10 overflow-hidden flex-shrink-0">
             {video.creator_avatar ? <img src={video.creator_avatar} alt="" className="w-full h-full object-cover" /> : <User size={8} className="text-white/30 m-auto" />}
           </div>
-          <span className="text-[10px] text-foreground/35 truncate">{video.creator_name ?? "Criador"}</span>
-        </div>
+          <span className="text-[10px] text-foreground/35 truncate group-hover/creator:text-foreground/65 transition-colors">{video.creator_name ?? t("common.creator")}</span>
+        </Link>
         <Link to={`/video/${video.id}`} onClick={handleLinkClick}>
-          <h3 className="text-sm font-semibold text-foreground/80 line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug">{video.title || "Sem título"}</h3>
+          <h3 className="text-sm font-semibold text-foreground/80 line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug">{video.title || t("common.noTitle")}</h3>
         </Link>
         <div className="flex items-center gap-2 text-[10px] text-foreground/32 pt-0.5">
           <span className="flex items-center gap-0.5"><Eye size={9} />{fmtNum(video.views)}</span>
           <span className="flex items-center gap-0.5"><Heart size={9} className="text-neon-pink/45" />{fmtNum(video.likes_count)}</span>
-          <span className="ml-auto">{fmtRelative(video.created_at)}</span>
+          <span className="ml-auto">{fmtRelative(video.created_at, t)}</span>
         </div>
       </div>
     </div>
@@ -212,9 +229,71 @@ function Skeleton() {
 }
 
 // ─────────────────────────────────────────────
+// Secção "Em Destaque"
+// ─────────────────────────────────────────────
+function FeaturedSection({ videos, onLike, onDislike, onSave, likedIds, dislikedIds, savedIds }: {
+  videos: Video[];
+  onLike: (id: string, e: React.MouseEvent) => void;
+  onDislike: (id: string, e: React.MouseEvent) => void;
+  onSave: (id: string, e: React.MouseEvent) => void;
+  likedIds: Set<string>; dislikedIds: Set<string>; savedIds: Set<string>;
+}) {
+  const { t } = useTranslation();
+  if (videos.length === 0) return null;
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        <Flame size={15} className="text-amber-400" />
+        <h2 className="text-sm font-black text-white/80 uppercase tracking-wider">{t("pages.dashboard.featured")}</h2>
+      </div>
+      <div className="flex gap-4 overflow-x-auto scrollbar-none pb-2 -mx-1 px-1">
+        {videos.map(v => (
+          <VideoCard key={v.id} video={v} onLike={onLike} onDislike={onDislike} onSave={onSave}
+            isLiked={likedIds.has(v.id)} isDisliked={dislikedIds.has(v.id)} isSaved={savedIds.has(v.id)}
+            className="w-52 sm:w-60 flex-shrink-0" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Linha horizontal por categoria
+// ─────────────────────────────────────────────
+function CategoryRow({ category, videos, onLike, onDislike, onSave, likedIds, dislikedIds, savedIds }: {
+  category: string; videos: Video[];
+  onLike: (id: string, e: React.MouseEvent) => void;
+  onDislike: (id: string, e: React.MouseEvent) => void;
+  onSave: (id: string, e: React.MouseEvent) => void;
+  likedIds: Set<string>; dislikedIds: Set<string>; savedIds: Set<string>;
+}) {
+  const { t } = useTranslation();
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-black text-white/70 uppercase tracking-wider capitalize">{category}</h2>
+        <Link to={`/app/categoria/${encodeURIComponent(category)}`}
+          className="flex items-center gap-0.5 text-[11px] transition-colors"
+          style={{ color: "rgba(236,72,153,0.60)" }}>
+          {t("pages.dashboard.viewAll")} <ChevronRight size={11} />
+        </Link>
+      </div>
+      <div className="flex gap-3 overflow-x-auto scrollbar-none pb-2 -mx-1 px-1">
+        {videos.map(v => (
+          <VideoCard key={v.id} video={v} onLike={onLike} onDislike={onDislike} onSave={onSave}
+            isLiked={likedIds.has(v.id)} isDisliked={dislikedIds.has(v.id)} isSaved={savedIds.has(v.id)}
+            className="w-44 sm:w-52 flex-shrink-0" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
 // Componente principal
 // ─────────────────────────────────────────────
 export default function HomeAuthenticated() {
+  const { t } = useTranslation();
   const [allVideos, setAllVideos]     = useState<Video[]>([]);
   const [displayed, setDisplayed]     = useState<Video[]>([]);
   const [loading, setLoading]         = useState(true);
@@ -234,6 +313,35 @@ export default function HomeAuthenticated() {
   const subscriptionsRef                 = useRef<string[]>([]);
   const [myLikesCount,  setMyLikesCount]  = useState(0);
   const [mySubsCount,   setMySubsCount]   = useState(0);
+
+  // Em destaque: top-4 por views de criadores distintos (só se ≥2 criadores)
+  const featuredVideos = useMemo((): Video[] => {
+    if (allVideos.length < 2) return [];
+    const byViews = [...allVideos].sort((a, b) => b.views - a.views);
+    const seen    = new Set<string>();
+    const result: Video[] = [];
+    for (const v of byViews) {
+      if (!seen.has(v.user_id)) { seen.add(v.user_id); result.push(v); }
+      if (result.length === 4) break;
+    }
+    return seen.size >= 2 ? result : [];
+  }, [allVideos]);
+
+  // Top-3 categorias com ≥3 vídeos → linhas horizontais
+  const categoryRows = useMemo(() => {
+    if (displayed.length === 0) return [];
+    const catMap = new Map<string, Video[]>();
+    for (const v of displayed) {
+      if (!v.category) continue;
+      if (!catMap.has(v.category)) catMap.set(v.category, []);
+      catMap.get(v.category)!.push(v);
+    }
+    return [...catMap.entries()]
+      .sort(([, a], [, b]) => b.length - a.length)
+      .slice(0, 3)
+      .filter(([, vs]) => vs.length >= 3)
+      .map(([cat, vs]) => ({ cat, videos: vs.slice(0, 8) }));
+  }, [displayed]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -303,7 +411,7 @@ export default function HomeAuthenticated() {
         .eq("status", "published").eq("visibility", "public")
         .in("user_id", subs).order("created_at", { ascending: false }).range(0, 499);
       const enriched    = await bulkEnrich(data ?? []);
-      const interleaved = interleaveDiversity(enriched);
+      const interleaved = distribuirPorModelo(enriched);
       setTotalCount(count ?? 0);
       setAllVideos(interleaved); setDisplayed(interleaved.slice(0, PAGE_SIZE));
       setPage(0); setHasMore(interleaved.length > PAGE_SIZE);
@@ -325,7 +433,7 @@ export default function HomeAuthenticated() {
 
     const enriched    = await bulkEnrich(data as any[]);
     const sorted      = activeFilter === "alta" ? [...enriched].sort((a, b) => b.likes_count - a.likes_count) : enriched;
-    const interleaved = interleaveDiversity(sorted);
+    const interleaved = distribuirPorModelo(sorted);
 
     setAllVideos(interleaved); setDisplayed(interleaved.slice(0, PAGE_SIZE));
     setPage(0); setHasMore(interleaved.length > PAGE_SIZE);
@@ -398,25 +506,32 @@ export default function HomeAuthenticated() {
               {new Date().getHours() >= 18 ? <Moon size={15} className="text-neon-purple/80" /> : <Sun size={15} className="text-amber-400/80" />}
             </div>
             <div>
-              <p className="text-sm font-bold text-foreground/80">{greeting()}{userName ? `, ${userName.split(" ")[0]}` : ""}! 👋</p>
-              <p className="text-[10px] text-foreground/30">O que queres ver hoje?</p>
+              <p className="text-sm font-bold text-foreground/80">{greeting(t)}{userName ? `, ${userName.split(" ")[0]}` : ""}! 👋</p>
+              <p className="text-[10px] text-foreground/30">{t("pages.dashboard.subtitle")}</p>
             </div>
           </div>
           <div className="hidden sm:flex items-center gap-3 text-[11px] text-foreground/35">
-            <span className="flex items-center gap-1"><Heart size={11} className="text-neon-pink/50" />{fmtNum(myLikesCount)} gostos</span>
-            <span className="flex items-center gap-1"><Bell size={11} className="text-neon-purple/50" />{fmtNum(mySubsCount)} subscrições</span>
-            <span className="flex items-center gap-1"><Bookmark size={11} className="text-neon-blue/50" />{fmtNum(savedIds.size)} guardados</span>
+            <span className="flex items-center gap-1"><Heart size={11} className="text-neon-pink/50" />{fmtNum(myLikesCount)} {t("pages.dashboard.stats.likes")}</span>
+            <span className="flex items-center gap-1"><Bell size={11} className="text-neon-purple/50" />{fmtNum(mySubsCount)} {t("pages.dashboard.stats.subscriptions")}</span>
+            <span className="flex items-center gap-1"><Bookmark size={11} className="text-neon-blue/50" />{fmtNum(savedIds.size)} {t("pages.dashboard.stats.saved")}</span>
           </div>
         </div>
+
+        {/* Em Destaque */}
+        {!loading && featuredVideos.length > 0 && (
+          <FeaturedSection videos={featuredVideos}
+            onLike={handleLike} onDislike={handleDislike} onSave={handleSave}
+            likedIds={likedIds} dislikedIds={dislikedIds} savedIds={savedIds} />
+        )}
 
         {/* Filtros */}
         <div className="flex items-center gap-2 flex-wrap">
           {([
-            ["para_mim",    "Para si",       Sparkles],
-            ["alta",        "Em Alta",       Flame],
-            ["recentes",    "Recentes",      Zap],
-            ["vistos",      "Mais Vistos",   TrendingUp],
-            ["subscricoes", "Subscrições",   Bell],
+            ["para_mim",    t("pages.dashboard.filters.forYou"),       Sparkles],
+            ["alta",        t("pages.dashboard.filters.trending"),      Flame],
+            ["recentes",    t("pages.dashboard.filters.recent"),        Zap],
+            ["vistos",      t("pages.dashboard.filters.mostViewed"),    TrendingUp],
+            ["subscricoes", t("pages.dashboard.filters.subscriptions"), Bell],
           ] as [FilterTab, string, React.ElementType][]).map(([val, label, Icon]) => (
             <button key={val} onClick={() => setActiveFilter(val)}
               className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
@@ -428,8 +543,15 @@ export default function HomeAuthenticated() {
               )}
             </button>
           ))}
-          {!loading && <span className="ml-auto text-[10px] text-foreground/25">{fmtNum(totalCount)} vídeos</span>}
+          {!loading && <span className="ml-auto text-[10px] text-foreground/25">{t("pages.dashboard.totalVideos", { count: fmtNum(totalCount) as unknown as number })}</span>}
         </div>
+
+        {/* Linhas de categoria */}
+        {!loading && categoryRows.map(({ cat, videos }) => (
+          <CategoryRow key={cat} category={cat} videos={videos}
+            onLike={handleLike} onDislike={handleDislike} onSave={handleSave}
+            likedIds={likedIds} dislikedIds={dislikedIds} savedIds={savedIds} />
+        ))}
 
         {/* Grelha */}
         {loading ? (
@@ -442,11 +564,11 @@ export default function HomeAuthenticated() {
               {activeFilter === "subscricoes" ? <Bell size={26} className="text-foreground/18" /> : <Film size={26} className="text-foreground/18" />}
             </div>
             <p className="text-foreground/48 font-semibold">
-              {activeFilter === "subscricoes" ? "Sem vídeos de canais subscritos" : "Sem vídeos encontrados"}
+              {activeFilter === "subscricoes" ? t("pages.dashboard.empty.noSubscriptions") : t("pages.dashboard.empty.noVideos")}
             </p>
             {activeFilter === "subscricoes"
-              ? <Link to="/app/modelos" className="text-sm text-neon-pink hover:text-neon-pink/80">Descobrir modelos →</Link>
-              : <button onClick={() => setActiveFilter("para_mim")} className="text-sm text-neon-pink hover:text-neon-pink/80">Ver todos os vídeos</button>
+              ? <Link to="/app/modelos" className="text-sm text-neon-pink hover:text-neon-pink/80">{t("pages.dashboard.discoverModels")}</Link>
+              : <button onClick={() => setActiveFilter("para_mim")} className="text-sm text-neon-pink hover:text-neon-pink/80">{t("pages.dashboard.allVideos")}</button>
             }
           </div>
         ) : (
@@ -498,7 +620,7 @@ export default function HomeAuthenticated() {
           <div className="flex justify-center py-2">
             <button onClick={loadMore} disabled={loadingMore}
               className="flex items-center gap-2 px-8 py-3 rounded-xl bg-white/5 border border-white/10 text-foreground/58 text-sm font-semibold hover:bg-white/8 hover:border-white/16 hover:text-foreground transition-all disabled:opacity-50">
-              {loadingMore ? <><Loader2 size={14} className="animate-spin" />A carregar...</> : <><ChevronDown size={14} />Carregar mais vídeos</>}
+              {loadingMore ? <><Loader2 size={14} className="animate-spin" />{t("pages.dashboard.loading")}</> : <><ChevronDown size={14} />{t("pages.dashboard.loadMore")}</>}
             </button>
           </div>
         )}

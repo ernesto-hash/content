@@ -3,6 +3,7 @@
 // Rota: /app/checkout/pagamento?plano=X&periodo=Y
 
 import { useEffect, useState, FormEvent, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
 import {
@@ -103,6 +104,7 @@ function PaymentForm({
   periodo:    "mensal" | "anual";
   intentType: "payment" | "setup";
 }) {
+  const { t }    = useTranslation();
   const stripe   = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
@@ -171,27 +173,27 @@ function PaymentForm({
           <p className={`font-black text-sm ${plano.corText}`}>{plano.label}</p>
           <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
             {periodo === "mensal"
-              ? `3 dias grátis, depois ${plano.mensal}/mês`
-              : `${plano.anual}/ano`}
+              ? t("checkout.pagamento.trialLine", { price: plano.mensal })
+              : `${plano.anual}${t("checkout.pagamento.perYear")}`}
           </p>
         </div>
         <div className="text-right flex-shrink-0">
           <p className="font-black text-white text-sm">
             {periodo === "mensal" ? "0,00€" : plano.anual}
           </p>
-          <p className="text-[9px]" style={{ color: "rgba(255,255,255,0.25)" }}>hoje</p>
+          <p className="text-[9px]" style={{ color: "rgba(255,255,255,0.25)" }}>{t("checkout.pagamento.today")}</p>
         </div>
       </div>
 
       {/* Nome no cartão */}
       <div className="space-y-1.5">
         <label className="block text-xs font-semibold" style={{ color: "rgba(255,255,255,0.55)" }}>
-          Nome no cartão
+          {t("checkout.pagamento.cardName")}
         </label>
         <input
           ref={inputRef}
           type="text"
-          placeholder="Como aparece no cartão"
+          placeholder={t("checkout.pagamento.cardNamePlaceholder")}
           value={cardName}
           onChange={e => setCardName(e.target.value)}
           className="w-full px-3.5 py-3 rounded-[10px] text-sm text-white outline-none transition-all"
@@ -214,7 +216,7 @@ function PaymentForm({
       {/* Stripe PaymentElement */}
       <div className="space-y-1.5">
         <label className="block text-xs font-semibold" style={{ color: "rgba(255,255,255,0.55)" }}>
-          Dados do cartão
+          {t("checkout.pagamento.cardData")}
         </label>
         <PaymentElement options={{ layout: "tabs" }} />
       </div>
@@ -245,11 +247,11 @@ function PaymentForm({
       >
         {loading ? (
           <span className="flex items-center justify-center gap-2">
-            <Loader2 size={20} className="animate-spin" /> A processar...
+            <Loader2 size={20} className="animate-spin" /> {t("checkout.pagamento.processing")}
           </span>
         ) : (
           <span>
-            {periodo === "mensal" ? "ACTIVAR 3 DIAS GRÁTIS →" : "PAGAR E ACTIVAR →"}
+            {periodo === "mensal" ? t("checkout.pagamento.activateTrial") : t("checkout.pagamento.payAndActivate")}
           </span>
         )}
       </button>
@@ -271,6 +273,7 @@ function PaymentForm({
 // Componente principal
 // ─────────────────────────────────────────────
 export default function CheckoutPagamento() {
+  const { t }          = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate       = useNavigate();
 
@@ -289,8 +292,8 @@ export default function CheckoutPagamento() {
     if (!PLANOS.find(p => p.id === planoParam)) {
       navigate("/app/galeria", { replace: true });
     }
-    const t = setTimeout(() => setAnimIn(true), 80);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setAnimIn(true), 80);
+    return () => clearTimeout(timer);
   }, [planoParam, navigate]);
 
   useEffect(() => {
@@ -365,12 +368,12 @@ export default function CheckoutPagamento() {
               onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = "#ec4899")}
               onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.30)")}
             >
-              <ArrowLeft size={13} /> Voltar
+              <ArrowLeft size={13} /> {t("checkout.pagamento.back")}
             </button>
             <h1 className="text-3xl md:text-4xl font-black text-white">
-              Introduz os dados do{" "}
+              {t("checkout.pagamento.titlePrefix")}{" "}
               <span style={{ background: "linear-gradient(90deg,#ec4899,#9333ea)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                cartão
+                {t("checkout.pagamento.titleHighlight")}
               </span>
             </h1>
           </div>
@@ -386,7 +389,7 @@ export default function CheckoutPagamento() {
 
             {/* ── Coluna esquerda — Resumo do plano ────────────────────────── */}
             <div className="space-y-5">
-              <h2 className="text-lg font-black text-white">O teu plano</h2>
+              <h2 className="text-lg font-black text-white">{t("checkout.pagamento.planTitle")}</h2>
 
               {/* Card com borda animada */}
               <div
@@ -409,7 +412,7 @@ export default function CheckoutPagamento() {
                     <div>
                       <p className={`font-black text-base ${plano.corText}`}>{plano.label}</p>
                       <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
-                        Subscrição {periodoParam}
+                        {t("checkout.subscriptionLabel", { period: t(`checkout.period.${periodoParam}`) })}
                       </p>
                     </div>
                   </div>
@@ -420,19 +423,19 @@ export default function CheckoutPagamento() {
                     style={{ borderTop: "1px solid rgba(255,255,255,0.07)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}
                   >
                     <div className="flex items-end justify-between">
-                      <span className="text-sm" style={{ color: "rgba(255,255,255,0.40)" }}>Total hoje</span>
+                      <span className="text-sm" style={{ color: "rgba(255,255,255,0.40)" }}>{t("checkout.totalToday")}</span>
                       <div className="text-right">
                         {periodoParam === "mensal" ? (
                           <>
                             <p className="text-3xl font-black text-white">0,00€</p>
                             <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.30)" }}>
-                              3 dias grátis, depois {plano.mensal}/mês
+                              {t("checkout.pagamento.trialLine", { price: plano.mensal })}
                             </p>
                           </>
                         ) : (
                           <>
                             <p className="text-3xl font-black text-white">{plano.anual}</p>
-                            <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.30)" }}>/ano</p>
+                            <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.30)" }}>{t("checkout.pagamento.perYear")}</p>
                           </>
                         )}
                       </div>
@@ -463,14 +466,14 @@ export default function CheckoutPagamento() {
               >
                 <Shield size={13} style={{ color: "#34d399", flexShrink: 0 }} />
                 <p className="text-xs" style={{ color: "rgba(52,211,153,0.75)" }}>
-                  Pagamento 100% seguro via Stripe · Cancela quando quiseres
+                  {t("checkout.securePayment")}
                 </p>
               </div>
             </div>
 
             {/* ── Coluna direita — Stripe Elements ─────────────────────────── */}
             <div>
-              <h2 className="text-lg font-black text-white mb-4">Dados de pagamento</h2>
+              <h2 className="text-lg font-black text-white mb-4">{t("checkout.pagamento.paymentDataTitle")}</h2>
 
               <div
                 className="rounded-2xl p-6"
@@ -488,14 +491,14 @@ export default function CheckoutPagamento() {
                       className="text-xs px-4 py-2 rounded-lg transition-colors"
                       style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.50)" }}
                     >
-                      ← Voltar ao resumo
+                      {t("checkout.pagamento.backToSummary")}
                     </button>
                   </div>
                 ) : !clientSecret ? (
                   <div className="flex flex-col items-center justify-center gap-3 py-12">
                     <Loader2 size={28} className="animate-spin" style={{ color: "#ec4899" }} />
                     <p className="text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>
-                      A preparar checkout seguro...
+                      {t("checkout.pagamento.preparingCheckout")}
                     </p>
                   </div>
                 ) : (

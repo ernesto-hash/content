@@ -3,6 +3,7 @@
 // Fluxo: Escolher plano → Preencher detalhes → Confirmar → /anunciar/pagamento
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import {
@@ -85,6 +86,7 @@ type FormData = {
 };
 
 export default function Anunciar() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [step,         setStep]        = useState<Step>("plan");
   const [selectedPlan, setSelectedPlan] = useState(PLANS[1]);
@@ -137,21 +139,21 @@ export default function Anunciar() {
           <div className="relative">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase mb-4"
               style={{ background: "rgba(236,72,153,0.1)", border: "1px solid rgba(236,72,153,0.2)", color: "rgba(236,72,153,0.9)" }}>
-              <Megaphone size={12} /> Publicidade
+              <Megaphone size={12} /> {t("anunciar.badge")}
             </div>
             <h1 className="text-3xl sm:text-4xl font-black text-white mb-3 leading-tight">
-              Anuncia para milhares de<br />
+              {t("anunciar.heroTitle1")}<br />
               <span style={{ background: "linear-gradient(90deg,#ec4899,#8b5cf6,#3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                utilizadores activos
+                {t("anunciar.heroTitle2")}
               </span>
             </h1>
-            <p className="text-white/50 text-base max-w-lg mx-auto mb-8">O teu anúncio aparece automaticamente para todos os visitantes. Começa em minutos.</p>
+            <p className="text-white/50 text-base max-w-lg mx-auto mb-8">{t("anunciar.heroDesc")}</p>
             <div className="flex items-center justify-center gap-8 flex-wrap">
               {[
-                { icon: Users,      val: "50K+",  label: "Visitantes/mês" },
-                { icon: Eye,        val: "200K+", label: "Impressões/mês" },
-                { icon: TrendingUp, val: "2.8%",  label: "CTR médio"      },
-                { icon: BarChart3,  val: "18-35", label: "Idade principal" },
+                { icon: Users,      val: "50K+",  label: t("anunciar.stats.visitors") },
+                { icon: Eye,        val: "200K+", label: t("anunciar.stats.impressions") },
+                { icon: TrendingUp, val: "2.8%",  label: t("anunciar.stats.ctr") },
+                { icon: BarChart3,  val: "18-35", label: t("anunciar.stats.age") },
               ].map(({ icon: Icon, val, label }) => (
                 <div key={label} className="text-center">
                   <Icon size={14} className="text-neon-pink/60 mx-auto mb-1" />
@@ -166,7 +168,7 @@ export default function Anunciar() {
         {/* Steps */}
         <div className="flex items-center justify-center gap-2">
           {(["plan","details","payment"] as Step[]).map((s, i) => {
-            const labels = ["Plano","Detalhes","Pagamento"];
+            const labels = [t("anunciar.steps.plan"), t("anunciar.steps.details"), t("anunciar.steps.payment")];
             const done   = ["plan","details","payment"].indexOf(step) > i;
             const active = step === s;
             return (
@@ -186,7 +188,7 @@ export default function Anunciar() {
         {/* ── STEP 1: PLANO ── */}
         {step === "plan" && (
           <div className="space-y-6">
-            <h2 className="text-xl font-black text-white text-center">Escolhe o teu plano</h2>
+            <h2 className="text-xl font-black text-white text-center">{t("anunciar.plan.title")}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               {PLANS.map(plan => {
                 const Icon     = plan.icon;
@@ -202,7 +204,7 @@ export default function Anunciar() {
                     {plan.popular && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-black text-white"
                         style={{ background: "linear-gradient(90deg,#ec4899,#8b5cf6)" }}>
-                        Mais popular
+                        {t("anunciar.plan.mostPopular")}
                       </div>
                     )}
                     <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center"
@@ -210,8 +212,8 @@ export default function Anunciar() {
                       <Icon size={18} className="text-white" />
                     </div>
                     <p className="text-base font-black text-white mb-0.5">{plan.name}</p>
-                    <p className="text-[11px] mb-3" style={{ color: plan.accentColor }}>{plan.days} dia{plan.days > 1 ? "s" : ""} de exibição</p>
-                    <p className="text-2xl font-black text-white mb-4">€{plan.price}<span className="text-xs text-white/35 font-normal"> /total</span></p>
+                    <p className="text-[11px] mb-3" style={{ color: plan.accentColor }}>{t("anunciar.plan.daysDisplay", { count: plan.days })}</p>
+                    <p className="text-2xl font-black text-white mb-4">€{plan.price}<span className="text-xs text-white/35 font-normal"> {t("anunciar.plan.priceTotal")}</span></p>
                     <ul className="space-y-1.5">
                       {plan.features.map(f => (
                         <li key={f} className="flex items-center gap-1.5 text-[11px] text-white/55">
@@ -227,14 +229,14 @@ export default function Anunciar() {
               <button onClick={() => setStep("details")}
                 className="flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.02]"
                 style={{ background: "linear-gradient(135deg,#ec4899,#8b5cf6)", boxShadow: "0 0 24px rgba(236,72,153,0.3)" }}>
-                Continuar com {selectedPlan.name} — €{selectedPlan.price} <ArrowRight size={16} />
+                {t("anunciar.plan.continueWith", { name: selectedPlan.name, price: selectedPlan.price })} <ArrowRight size={16} />
               </button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
-                { icon: Shield, title: "Pagamento seguro",       desc: "Processado pelo Stripe. Dados protegidos." },
-                { icon: Zap,    title: "Activação imediata",     desc: "Anúncio activo após pagamento." },
-                { icon: Target, title: "Audiência qualificada",  desc: "Adultos 18+ com interesse real." },
+                { icon: Shield, title: t("anunciar.trust.payment"),    desc: t("anunciar.trust.paymentDesc") },
+                { icon: Zap,    title: t("anunciar.trust.activation"), desc: t("anunciar.trust.activationDesc") },
+                { icon: Target, title: t("anunciar.trust.audience"),   desc: t("anunciar.trust.audienceDesc") },
               ].map(({ icon: Icon, title, desc }) => (
                 <div key={title} className="flex items-start gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/8">
                   <div className="w-8 h-8 rounded-lg bg-neon-pink/10 flex items-center justify-center flex-shrink-0">
@@ -253,12 +255,12 @@ export default function Anunciar() {
         {/* ── STEP 2: DETALHES ── */}
         {step === "details" && (
           <div className="max-w-2xl mx-auto space-y-6">
-            <h2 className="text-xl font-black text-white text-center">Detalhes do anúncio</h2>
+            <h2 className="text-xl font-black text-white text-center">{t("anunciar.details.title")}</h2>
 
             {/* Preview em tempo real */}
             <div className="rounded-2xl overflow-hidden border" style={{ borderColor: `${form.accent_color}30` }}>
               <div className="px-3 py-1.5 flex justify-between items-center" style={{ background: "rgba(0,0,0,0.4)" }}>
-                <span className="text-[9px] text-white/25 tracking-wider uppercase">Pré-visualização do anúncio</span>
+                <span className="text-[9px] text-white/25 tracking-wider uppercase">{t("anunciar.details.previewLabel")}</span>
                 <span className="text-[9px] text-white/20">{selectedPlan.name} · {selectedPlan.days} dias</span>
               </div>
               <div className="flex items-center" style={{ background: form.bg_color, minHeight: "90px" }}>
@@ -290,27 +292,27 @@ export default function Anunciar() {
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs text-white/50 mb-1.5 flex items-center gap-1"><Building2 size={11} />Nome da empresa *</label>
+                  <label className="block text-xs text-white/50 mb-1.5 flex items-center gap-1"><Building2 size={11} />{t("anunciar.details.companyName")}</label>
                   <input value={form.company_name} onChange={e => upd("company_name", e.target.value)}
                     placeholder="Ex: NovaSkin Portugal"
                     className="w-full bg-white/5 border border-white/12 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/25 outline-none focus:border-neon-pink/40 transition-colors" />
                 </div>
                 <div>
-                  <label className="block text-xs text-white/50 mb-1.5 flex items-center gap-1"><Mail size={11} />Email de contacto *</label>
+                  <label className="block text-xs text-white/50 mb-1.5 flex items-center gap-1"><Mail size={11} />{t("anunciar.details.email")}</label>
                   <input type="email" value={form.company_email} onChange={e => upd("company_email", e.target.value)}
                     placeholder="anuncios@empresa.com"
                     className="w-full bg-white/5 border border-white/12 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/25 outline-none focus:border-neon-pink/40 transition-colors" />
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-white/50 mb-1.5 flex items-center gap-1"><Globe size={11} />URL do site (destino ao clicar) *</label>
+                <label className="block text-xs text-white/50 mb-1.5 flex items-center gap-1"><Globe size={11} />{t("anunciar.details.websiteUrl")}</label>
                 <input value={form.website_url} onChange={e => upd("website_url", e.target.value)}
                   placeholder="https://www.empresa.com"
                   className="w-full bg-white/5 border border-white/12 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/25 outline-none focus:border-neon-pink/40 transition-colors" />
               </div>
               <div>
                 <label className="block text-xs text-white/50 mb-1.5 flex items-center gap-1">
-                  <FileText size={11} />Título do anúncio *
+                  <FileText size={11} />{t("anunciar.details.adTitle")}
                   <span className="ml-auto text-white/25">{form.headline.length}/60</span>
                 </label>
                 <input maxLength={60} value={form.headline} onChange={e => upd("headline", e.target.value)}
@@ -319,7 +321,7 @@ export default function Anunciar() {
               </div>
               <div>
                 <label className="block text-xs text-white/50 mb-1.5 flex items-center gap-1">
-                  <FileText size={11} />Descrição *
+                  <FileText size={11} />{t("anunciar.details.description")}
                   <span className="ml-auto text-white/25">{form.description.length}/100</span>
                 </label>
                 <textarea maxLength={100} value={form.description} onChange={e => upd("description", e.target.value)}
@@ -329,19 +331,19 @@ export default function Anunciar() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs text-white/50 mb-1.5">Texto do botão CTA</label>
+                  <label className="block text-xs text-white/50 mb-1.5">{t("anunciar.details.ctaText")}</label>
                   <input value={form.cta_text} onChange={e => upd("cta_text", e.target.value)} placeholder="Saber mais"
                     className="w-full bg-white/5 border border-white/12 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/25 outline-none focus:border-neon-pink/40 transition-colors" />
                 </div>
                 <div>
-                  <label className="block text-xs text-white/50 mb-1.5">URL do logótipo (opcional)</label>
+                  <label className="block text-xs text-white/50 mb-1.5">{t("anunciar.details.logoUrl")}</label>
                   <input value={form.logo_url} onChange={e => upd("logo_url", e.target.value)} placeholder="https://empresa.com/logo.png"
                     className="w-full bg-white/5 border border-white/12 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/25 outline-none focus:border-neon-pink/40 transition-colors" />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs text-white/50 mb-2 flex items-center gap-1"><Palette size={11} />Cor de fundo</label>
+                  <label className="block text-xs text-white/50 mb-2 flex items-center gap-1"><Palette size={11} />{t("anunciar.details.bgColor")}</label>
                   <div className="flex flex-wrap gap-2">
                     {BG_OPTIONS.map(o => (
                       <button key={o.value} onClick={() => upd("bg_color", o.value)} title={o.label}
@@ -351,7 +353,7 @@ export default function Anunciar() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs text-white/50 mb-2 flex items-center gap-1"><Palette size={11} />Cor de destaque</label>
+                  <label className="block text-xs text-white/50 mb-2 flex items-center gap-1"><Palette size={11} />{t("anunciar.details.accentColor")}</label>
                   <div className="flex flex-wrap gap-2">
                     {ACCENT_OPTIONS.map(o => (
                       <button key={o.value} onClick={() => upd("accent_color", o.value)} title={o.label}
@@ -364,11 +366,11 @@ export default function Anunciar() {
             </div>
             <div className="flex gap-3">
               <button onClick={() => setStep("plan")}
-                className="px-6 py-2.5 rounded-xl text-sm text-white/50 border border-white/10 hover:bg-white/5 transition-all">Voltar</button>
+                className="px-6 py-2.5 rounded-xl text-sm text-white/50 border border-white/10 hover:bg-white/5 transition-all">{t("anunciar.details.back")}</button>
               <button onClick={() => setStep("payment")} disabled={!formValid()}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.01] disabled:opacity-40 disabled:pointer-events-none"
                 style={{ background: "linear-gradient(135deg,#ec4899,#8b5cf6)" }}>
-                Continuar para pagamento <ArrowRight size={15} />
+                {t("anunciar.details.continueToPayment")} <ArrowRight size={15} />
               </button>
             </div>
           </div>
@@ -377,18 +379,18 @@ export default function Anunciar() {
         {/* ── STEP 3: CONFIRMAR E PAGAR ── */}
         {step === "payment" && (
           <div className="max-w-lg mx-auto space-y-6">
-            <h2 className="text-xl font-black text-white text-center">Confirmar pedido</h2>
+            <h2 className="text-xl font-black text-white text-center">{t("anunciar.confirm.title")}</h2>
 
             {/* Resumo */}
             <div className="rounded-2xl p-5 space-y-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }}>
-              <h3 className="text-sm font-bold text-white/70 mb-3">Resumo do pedido</h3>
+              <h3 className="text-sm font-bold text-white/70 mb-3">{t("anunciar.confirm.summary")}</h3>
               {[
-                ["Plano",          `${selectedPlan.name} — ${selectedPlan.days} dias`],
-                ["Empresa",        form.company_name],
-                ["Email",          form.company_email],
-                ["URL",            form.website_url],
-                ["Título",         form.headline],
-                ["Activo durante", `${selectedPlan.days} dia${selectedPlan.days > 1 ? "s" : ""}`],
+                [t("anunciar.confirm.rowPlan"),    `${selectedPlan.name} — ${t("anunciar.plan.daysDisplay", { count: selectedPlan.days })}`],
+                [t("anunciar.confirm.rowCompany"), form.company_name],
+                [t("anunciar.confirm.rowEmail"),   form.company_email],
+                [t("anunciar.confirm.rowUrl"),     form.website_url],
+                [t("anunciar.confirm.rowTitle"),   form.headline],
+                [t("anunciar.confirm.rowActive"),  t("anunciar.plan.daysDisplay", { count: selectedPlan.days })],
               ].map(([k, v]) => (
                 <div key={k} className="flex justify-between text-sm gap-4">
                   <span className="text-white/55 flex-shrink-0">{k}</span>
@@ -396,25 +398,25 @@ export default function Anunciar() {
                 </div>
               ))}
               <div className="border-t border-white/10 pt-3 flex justify-between">
-                <span className="text-white font-bold">Total</span>
+                <span className="text-white font-bold">{t("anunciar.confirm.total")}</span>
                 <span className="text-xl font-black text-neon-pink">€{selectedPlan.price}</span>
               </div>
             </div>
 
             <div className="flex items-center gap-2 text-[11px] text-white/30 bg-white/[0.02] rounded-xl px-3 py-3">
               <Shield size={12} className="text-green-400/60 flex-shrink-0" />
-              Introduzirás os dados do cartão na próxima página. Pagamento seguro via Stripe com SSL 256-bit.
+              {t("anunciar.confirm.sslMsg")}
             </div>
 
             <div className="flex gap-3">
               <button onClick={() => setStep("details")}
-                className="px-6 py-2.5 rounded-xl text-sm text-white/50 border border-white/10 hover:bg-white/5 transition-all">Voltar</button>
+                className="px-6 py-2.5 rounded-xl text-sm text-white/50 border border-white/10 hover:bg-white/5 transition-all">{t("anunciar.confirm.back")}</button>
               <button
                 onClick={handleGoToPayment}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-black text-white transition-all hover:scale-[1.01]"
                 style={{ background: "linear-gradient(135deg,#ec4899,#8b5cf6)", boxShadow: "0 0 24px rgba(236,72,153,0.3)" }}
               >
-                CONFIRMAR E IR PARA PAGAMENTO <ArrowRight size={15} />
+                {t("anunciar.confirm.submit")} <ArrowRight size={15} />
               </button>
             </div>
           </div>

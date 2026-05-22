@@ -7,6 +7,7 @@
 //   • Stats personalizadas (total de gostos dados pelo utilizador)
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
 import { supabase } from "@/lib/supabaseClient";
@@ -107,6 +108,7 @@ function VideoGridCardAuth({
   onLike: (id: string) => void;
   onSave: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   const videoRef        = useRef<HTMLVideoElement>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -198,7 +200,7 @@ function VideoGridCardAuth({
           {/* Trending / VolumeX */}
           {!isPreviewing && rank <= 3 && (
             <div className="absolute top-2 right-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-neon-pink/20 border border-neon-pink/30 text-neon-pink text-[9px] font-bold">
-              <TrendingUp size={8} /> Em alta
+              <TrendingUp size={8} /> {t("pages.populares.badge")}
             </div>
           )}
           {isPreviewing && (
@@ -219,13 +221,13 @@ function VideoGridCardAuth({
               : <div className="w-full h-full flex items-center justify-center"><Users size={10} className="text-white/28" /></div>
             }
           </div>
-          <span className="text-[11px] text-foreground/48 truncate">{video.creator_name ?? "Criador"}</span>
+          <span className="text-[11px] text-foreground/48 truncate">{video.creator_name ?? t("common.creator")}</span>
         </div>
 
         {/* Título */}
         <Link to={`/video/${video.id}`}>
           <h3 className="font-semibold text-sm text-foreground/85 line-clamp-2 hover:text-neon-pink transition-colors leading-snug cursor-pointer">
-            {video.title || "Sem título"}
+            {video.title || t("common.noTitle")}
           </h3>
         </Link>
 
@@ -258,7 +260,7 @@ function VideoGridCardAuth({
             }`}
           >
             <Bookmark size={11} className={isSaved ? "fill-neon-purple" : ""} />
-            {isSaved ? "Guardado" : "Guardar"}
+            {isSaved ? t("pages.populares.card.saved") : t("pages.populares.card.save")}
           </button>
         </div>
       </div>
@@ -274,6 +276,7 @@ function VideoListCardAuth({
   onLike: (id: string) => void;
   onSave: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   const videoRef        = useRef<HTMLVideoElement>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -369,11 +372,11 @@ function VideoListCardAuth({
       <div className="flex-1 min-w-0 py-0.5 flex flex-col justify-between">
         <div className="space-y-1.5">
           <Link to={`/video/${video.id}`}>
-            <h3 className="font-semibold text-sm text-foreground/85 line-clamp-2 hover:text-neon-pink transition-colors leading-snug">{video.title || "Sem título"}</h3>
+            <h3 className="font-semibold text-sm text-foreground/85 line-clamp-2 hover:text-neon-pink transition-colors leading-snug">{video.title || t("common.noTitle")}</h3>
           </Link>
           <div className="flex items-center gap-2 text-[11px] text-foreground/38">
             {video.creator_avatar && <img src={video.creator_avatar} alt="" className="w-4 h-4 rounded-full" />}
-            <span className="truncate">{video.creator_name ?? "Criador"}</span>
+            <span className="truncate">{video.creator_name ?? t("common.creator")}</span>
           </div>
           <div className="flex items-center gap-3 text-[11px] text-foreground/35">
             <span className="flex items-center gap-1"><Eye size={10} />{fmtNum(video.views)}</span>
@@ -404,7 +407,7 @@ function VideoListCardAuth({
             }`}
           >
             <Bookmark size={11} className={isSaved ? "fill-neon-purple" : ""} />
-            {isSaved ? "Guardado" : "Guardar"}
+            {isSaved ? t("pages.populares.card.saved") : t("pages.populares.card.save")}
           </button>
           {video.category && (
             <span className="ml-auto text-[10px] px-2 py-0.5 bg-white/5 rounded-full text-foreground/35 capitalize border border-white/6">{video.category}</span>
@@ -442,6 +445,7 @@ function SkeletonGrid() {
 const PAGE_SIZE = 24;
 
 export default function PopularesAuthenticatedPage() {
+  const { t } = useTranslation();
   const [videos, setVideos]           = useState<Video[]>([]);
   const [loading, setLoading]         = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -625,10 +629,10 @@ export default function PopularesAuthenticatedPage() {
                 <Flame className="text-neon-pink" size={26} />
               </div>
               <span className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-blue bg-clip-text text-transparent">
-                Vídeos Populares
+                {t("pages.populares.title")}
               </span>
             </h1>
-            <p className="text-foreground/48 text-sm">Os vídeos mais assistidos e curtidos da plataforma</p>
+            <p className="text-foreground/48 text-sm">{t("pages.populares.subtitle")}</p>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
@@ -636,7 +640,7 @@ export default function PopularesAuthenticatedPage() {
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/35" />
               <input
                 type="text"
-                placeholder="Pesquisar..."
+                placeholder={t("pages.populares.search.placeholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-8 pr-8 py-2 rounded-xl bg-white/5 border border-white/10 text-sm focus:outline-none focus:border-neon-pink/30 w-48 text-foreground placeholder:text-foreground/28"
@@ -659,7 +663,7 @@ export default function PopularesAuthenticatedPage() {
                   : "bg-white/5 border-white/10 text-foreground/55 hover:text-neon-pink"
               }`}
             >
-              <SlidersHorizontal size={14} /> Filtros
+              <SlidersHorizontal size={14} /> {t("pages.populares.filters.btn")}
               {activeFilters > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-white text-neon-pink text-[9px] flex items-center justify-center font-black">{activeFilters}</span>
               )}
@@ -671,10 +675,10 @@ export default function PopularesAuthenticatedPage() {
         {!loading && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Views totais",      value: fmtNum(totalViews),     icon: Eye,       color: "text-neon-blue",   bg: "from-neon-blue/8" },
-              { label: "Vídeos populares",  value: fmtNum(totalCount),     icon: Flame,     color: "text-neon-pink",   bg: "from-neon-pink/8" },
-              { label: "Gostos dados",      value: fmtNum(userLikesGiven), icon: Heart,     color: "text-rose-400",    bg: "from-rose-400/8" },
-              { label: "Guardados",         value: fmtNum(savedIds.size),  icon: Bookmark,  color: "text-neon-purple", bg: "from-neon-purple/8" },
+              { label: t("pages.populares.stats.totalViews"),    value: fmtNum(totalViews),     icon: Eye,       color: "text-neon-blue",   bg: "from-neon-blue/8" },
+              { label: t("pages.populares.stats.popularVideos"), value: fmtNum(totalCount),     icon: Flame,     color: "text-neon-pink",   bg: "from-neon-pink/8" },
+              { label: t("pages.populares.stats.likes"),         value: fmtNum(userLikesGiven), icon: Heart,     color: "text-rose-400",    bg: "from-rose-400/8" },
+              { label: t("pages.populares.stats.saved"),         value: fmtNum(savedIds.size),  icon: Bookmark,  color: "text-neon-purple", bg: "from-neon-purple/8" },
             ].map(({ label, value, icon: Icon, color, bg }) => (
               <div key={label} className={`bg-gradient-to-br ${bg} to-transparent border border-white/7 rounded-2xl p-3.5 text-center`}>
                 <Icon size={16} className={`mx-auto mb-1 ${color}`} />
@@ -687,11 +691,11 @@ export default function PopularesAuthenticatedPage() {
 
         {/* ── Ordenação ── */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-foreground/33 font-medium">Ordenar:</span>
+          <span className="text-xs text-foreground/33 font-medium">{t("pages.populares.sort.label")}</span>
           {([
-            ["views",    "Mais Vistos",   Eye],
-            ["likes",    "Mais Curtidos", Heart],
-            ["recentes", "Recentes",      Sparkles],
+            ["views",    t("pages.populares.sort.mostViewed"),  Eye],
+            ["likes",    t("pages.populares.sort.mostLiked"),   Heart],
+            ["recentes", t("pages.populares.sort.recent"),      Sparkles],
           ] as [SortBy, string, React.ElementType][]).map(([val, label, Icon]) => (
             <button
               key={val}
@@ -712,10 +716,16 @@ export default function PopularesAuthenticatedPage() {
           <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-5 space-y-5">
             <div>
               <h3 className="text-xs font-bold text-foreground/38 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <span className="w-1 h-3 bg-neon-pink rounded-full" /><Calendar size={12} /> Período
+                <span className="w-1 h-3 bg-neon-pink rounded-full" /><Calendar size={12} /> {t("pages.populares.filters.period")}
               </h3>
               <div className="flex flex-wrap gap-2">
-                {([["hoje","Hoje"],["semana","Esta semana"],["mes","Este mês"],["ano","Este ano"],["todos","Todos os tempos"]] as [TimePeriod,string][]).map(([val,label]) => (
+                {([
+                  ["hoje",   t("pages.populares.filters.today")],
+                  ["semana", t("pages.populares.filters.thisWeek")],
+                  ["mes",    t("pages.populares.filters.thisMonth")],
+                  ["ano",    t("pages.populares.filters.thisYear")],
+                  ["todos",  t("pages.populares.filters.allTime")],
+                ] as [TimePeriod,string][]).map(([val,label]) => (
                   <button key={val} onClick={() => setTimePeriod(val)}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${timePeriod === val ? "bg-neon-pink/12 border-neon-pink/35 text-neon-pink" : "bg-white/5 border-white/10 text-foreground/45 hover:border-white/20"}`}>
                     {label}
@@ -726,12 +736,12 @@ export default function PopularesAuthenticatedPage() {
             {availableCats.length > 0 && (
               <div>
                 <h3 className="text-xs font-bold text-foreground/38 uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <span className="w-1 h-3 bg-neon-purple rounded-full" /><Sparkles size={12} /> Categoria
+                  <span className="w-1 h-3 bg-neon-purple rounded-full" /><Sparkles size={12} /> {t("pages.populares.filters.category")}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   <button onClick={() => setSelectedCat("todas")}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${selectedCat === "todas" ? "bg-neon-purple/12 border-neon-purple/35 text-neon-purple" : "bg-white/5 border-white/10 text-foreground/45 hover:border-white/20"}`}>
-                    Todas
+                    {t("pages.populares.filters.all")}
                   </button>
                   {availableCats.map((cat) => (
                     <button key={cat} onClick={() => setSelectedCat(cat)}
@@ -746,7 +756,7 @@ export default function PopularesAuthenticatedPage() {
               <div className="flex justify-end pt-1 border-t border-white/6">
                 <button onClick={() => { setTimePeriod("todos"); setSelectedCat("todas"); }}
                   className="flex items-center gap-1.5 text-xs text-foreground/35 hover:text-neon-pink transition-colors">
-                  <X size={11} /> Limpar filtros
+                  <X size={11} /> {t("pages.populares.filters.clear")}
                 </button>
               </div>
             )}
@@ -761,11 +771,11 @@ export default function PopularesAuthenticatedPage() {
             <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center">
               <Flame size={28} className="text-foreground/18" />
             </div>
-            <p className="text-foreground/50 font-semibold">Nenhum vídeo encontrado</p>
-            <p className="text-foreground/28 text-sm">{dSearch ? "Tenta uma pesquisa diferente." : "Ajusta os filtros."}</p>
+            <p className="text-foreground/50 font-semibold">{t("pages.populares.empty.title")}</p>
+            <p className="text-foreground/28 text-sm">{dSearch ? t("pages.populares.empty.tryDifferent") : t("pages.populares.empty.adjustFilters")}</p>
             <button onClick={() => { setSearchTerm(""); setTimePeriod("todos"); setSelectedCat("todas"); }}
               className="text-sm text-neon-pink hover:text-neon-pink/80 transition-colors">
-              Limpar filtros
+              {t("pages.populares.filters.clear")}
             </button>
           </div>
         ) : viewMode === "grid" ? (
@@ -798,14 +808,14 @@ export default function PopularesAuthenticatedPage() {
               disabled={loadingMore}
               className="flex items-center gap-2 px-7 py-3 rounded-xl bg-white/5 border border-white/10 text-foreground/65 text-sm font-semibold hover:bg-white/8 hover:border-white/20 transition-all disabled:opacity-50"
             >
-              {loadingMore ? <><Loader2 size={15} className="animate-spin" />A carregar...</> : <><ChevronDown size={15} />Carregar mais vídeos</>}
+              {loadingMore ? <><Loader2 size={15} className="animate-spin" />{t("pages.populares.loading")}</> : <><ChevronDown size={15} />{t("pages.populares.loadMore")}</>}
             </button>
           </div>
         )}
 
         {!loading && videos.length > 0 && (
           <p className="text-center text-xs text-foreground/20 pb-2">
-            A mostrar {videos.length} de {fmtNum(totalCount)} vídeo{totalCount !== 1 ? "s" : ""}
+            {t("pages.populares.showing", { n: videos.length, total: fmtNum(totalCount), s: totalCount !== 1 ? "s" : "" })}
           </p>
         )}
 

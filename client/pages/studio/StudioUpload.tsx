@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   AlertTriangle, CheckCircle2, Loader2, RefreshCw,
   Globe, Link2, Lock, FileVideo, ImageIcon,
@@ -176,6 +177,7 @@ function CategoryPicker({ value, onChange, disabled, hasError }: {
   value: string; onChange: (v: string) => void;
   disabled?: boolean; hasError?: boolean;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen]             = useState(false);
   const [style, setStyle]           = useState<React.CSSProperties>({});
   const trigRef                     = useRef<HTMLButtonElement>(null);
@@ -221,7 +223,7 @@ function CategoryPicker({ value, onChange, disabled, hasError }: {
           <button type="button" onMouseDown={e => e.stopPropagation()}
             onClick={() => { onChange(""); setOpen(false); }}
             className="w-full flex items-center gap-2 px-4 py-2 text-xs text-red-400 hover:bg-red-500/8 border-b border-white/8 sticky top-0 bg-[#0e0e12] z-10">
-            <X size={10} /> Limpar selecção
+            <X size={10} /> {t("studio.common.clearSelection")}
           </button>
         )}
         {CATEGORY_GROUPS.map(g => (
@@ -266,7 +268,7 @@ function CategoryPicker({ value, onChange, disabled, hasError }: {
         <span className="flex items-center gap-2 min-w-0">
           {sel
             ? <><span className="text-neon-pink flex-shrink-0">{sel.icon}</span><span className="truncate font-semibold text-foreground">{sel.label}</span></>
-            : <span className={hasError && !value ? "text-red-400/70" : "text-foreground/30"}>Selecciona uma categoria...</span>
+            : <span className={hasError && !value ? "text-red-400/70" : "text-foreground/30"}>{t("studio.upload.categoryPlaceholder")}</span>
           }
         </span>
         <ChevronDown size={12} className={`flex-shrink-0 text-foreground/40 transition-transform ${open ? "rotate-180" : ""}`} />
@@ -288,6 +290,7 @@ const VIS = [
 function VisibilityPicker({ value, onChange, disabled }: {
   value: VideoVisibility; onChange: (v: VideoVisibility) => void; disabled?: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex gap-1.5">
       {VIS.map(o => (
@@ -295,7 +298,7 @@ function VisibilityPicker({ value, onChange, disabled }: {
           className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[11px] font-semibold transition-all flex-1 justify-center ${
             value === o.value ? o.cls : "border-white/8 bg-white/3 text-foreground/35 hover:bg-white/6 hover:text-foreground/55"
           }`}>
-          {o.icon} {o.label}
+          {o.icon} {t(`studio.visibility.${o.value}`)}
         </button>
       ))}
     </div>
@@ -311,6 +314,7 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
   onRemove: (id: string) => void;
   disabled: boolean;
 }) {
+  const { t } = useTranslation();
   const inp = "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-neon-pink/40 focus:bg-white/7 transition-all disabled:opacity-50";
 
   const isUploading = slot.status === "uploading";
@@ -339,7 +343,7 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
     : isUploading ? "bg-neon-pink/15 border-neon-pink/25 text-neon-pink"
     : "bg-white/5 border-white/10 text-foreground/40";
 
-  const badgeLabel = isDone ? "Publicado" : isError ? "Erro" : isUploading ? (slot.uploadMsg || "A publicar...") : "Aguarda";
+  const badgeLabel = isDone ? t("studio.upload.slot.statusPublished") : isError ? t("studio.upload.slot.statusError") : isUploading ? (slot.uploadMsg || t("studio.upload.slot.statusUploading")) : t("studio.upload.slot.statusWaiting");
 
   return (
     <div className={`glass border rounded-2xl overflow-hidden transition-all ${
@@ -357,7 +361,7 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-foreground truncate">{slot.file?.name || "Sem ficheiro"}</p>
+          <p className="text-sm font-semibold text-foreground truncate">{slot.file?.name || t("studio.upload.slot.noFile")}</p>
           <p className="text-[11px] text-foreground/35">
             {slot.file ? fmtBytes(slot.file.size) : "—"}
             {slot.title ? ` · ${slot.title.slice(0, 35)}${slot.title.length > 35 ? "…" : ""}` : ""}
@@ -402,7 +406,7 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
             <button type="button"
               onClick={() => onUpdate(slot.id, { status: "idle", progress: 0, errorMsg: null })}
               className="ml-2 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-500/15 border border-red-500/25 text-red-300 hover:bg-red-500/25 transition-all font-semibold flex-shrink-0">
-              <RefreshCw size={9} /> Tentar novamente
+              <RefreshCw size={9} /> {t("studio.upload.slot.retryBtn")}
             </button>
           )}
         </div>
@@ -416,7 +420,7 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
             {/* Miniatura */}
             <div className="space-y-2">
               <label className="text-[11px] font-semibold text-foreground/55 flex items-center gap-1.5">
-                <ImageIcon size={11} /> Miniatura
+                <ImageIcon size={11} /> {t("studio.upload.slot.thumbnailLabel")}
               </label>
 
               {/* 1. Manual upload preview — highest priority */}
@@ -433,7 +437,7 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
               ) : slot.thumbnailOptionsLoading ? (
                 <div className="aspect-video rounded-xl border border-white/8 bg-white/3 flex items-center justify-center gap-2">
                   <Loader2 size={13} className="animate-spin text-foreground/30 flex-shrink-0" />
-                  <span className="text-[10px] text-foreground/30">A gerar opções de thumbnail...</span>
+                  <span className="text-[10px] text-foreground/30">{t("studio.upload.slot.thumbnailGenerating")}</span>
                 </div>
 
               /* 3. Frame picker */
@@ -457,7 +461,7 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
                     ))}
                   </div>
                   <label className="flex items-center gap-1.5 text-[10px] text-foreground/35 hover:text-foreground/60 cursor-pointer transition-colors w-fit">
-                    <ImageIcon size={10} /> Carregar imagem personalizada
+                    <ImageIcon size={10} /> {t("studio.upload.slot.thumbnailCustom")}
                     <input type="file" accept="image/*" className="hidden"
                       onChange={e => onUpdate(slot.id, {
                         thumbnailFile: e.target.files?.[0] ?? null,
@@ -470,7 +474,7 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
               ) : (
                 <label className="flex flex-col items-center justify-center gap-1 aspect-video rounded-xl border border-dashed border-white/12 bg-white/3 hover:bg-white/5 hover:border-neon-pink/25 transition-all cursor-pointer">
                   <ImageIcon size={16} className="text-foreground/18" />
-                  <span className="text-[10px] text-foreground/28">Adicionar</span>
+                  <span className="text-[10px] text-foreground/28">{t("studio.upload.slot.thumbnailAdd")}</span>
                   <input type="file" accept="image/*" className="hidden"
                     onChange={e => onUpdate(slot.id, { thumbnailFile: e.target.files?.[0] ?? null })} />
                 </label>
@@ -485,7 +489,7 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
                   </div>
                   {slot.file.size > 2 * 1024 * 1024 * 1024 && (
                     <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/8 border border-amber-500/20 text-amber-400 text-[10px]">
-                      <AlertTriangle size={9} className="flex-shrink-0" /> Ficheiro grande (&gt;2 GB)
+                      <AlertTriangle size={9} className="flex-shrink-0" /> {t("studio.upload.slot.fileLarge")}
                     </div>
                   )}
                 </div>
@@ -498,22 +502,22 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
               {/* Título */}
               <div>
                 <label className="text-[11px] font-semibold text-foreground/55 flex items-center gap-1 mb-1.5">
-                  <BookOpen size={11} /> Título <span className="text-neon-pink">*</span>
+                  <BookOpen size={11} /> {t("studio.upload.slot.titleLabel")} <span className="text-neon-pink">*</span>
                 </label>
                 <input type="text" disabled={isDisabled} value={slot.title} maxLength={100}
                   onChange={e => onUpdate(slot.id, { title: e.target.value })}
-                  placeholder="Dê um nome ao vídeo"
+                  placeholder={t("studio.upload.slot.titlePlaceholder")}
                   className={inp} />
               </div>
 
               {/* Descrição */}
               <div>
                 <label className="text-[11px] font-semibold text-foreground/55 flex items-center gap-1 mb-1.5">
-                  <AlignLeft size={11} /> Descrição
+                  <AlignLeft size={11} /> {t("studio.upload.slot.descLabel")}
                 </label>
                 <textarea disabled={isDisabled} value={slot.description} maxLength={2000} rows={2}
                   onChange={e => onUpdate(slot.id, { description: e.target.value })}
-                  placeholder="Descreve o conteúdo..."
+                  placeholder={t("studio.upload.slot.descPlaceholder")}
                   className={`${inp} resize-none`} />
               </div>
 
@@ -521,7 +525,7 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[11px] font-semibold text-foreground/55 flex items-center gap-1 mb-1.5">
-                    <Layers size={11} /> Categoria <span className="text-neon-pink">*</span>
+                    <Layers size={11} /> {t("studio.upload.slot.categoryLabel")} <span className="text-neon-pink">*</span>
                   </label>
                   <CategoryPicker value={slot.category}
                     onChange={v => onUpdate(slot.id, { category: v })}
@@ -529,12 +533,12 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
                 </div>
                 <div>
                   <label className="text-[11px] font-semibold text-foreground/55 flex items-center gap-1 mb-1.5">
-                    <Tag size={11} /> Tags
-                    <span className="text-foreground/30 font-normal ml-1">(vírgula · ilimitadas)</span>
+                    <Tag size={11} /> {t("studio.upload.slot.tagsLabel")}
+                    <span className="text-foreground/30 font-normal ml-1">{t("studio.upload.slot.tagsHint")}</span>
                   </label>
                   <input type="text" disabled={isDisabled} value={slot.tags}
                     onChange={e => onUpdate(slot.id, { tags: e.target.value })}
-                    placeholder="ex: amador, hd, casal, angola, vazado"
+                    placeholder={t("studio.upload.slot.tagsPlaceholder")}
                     className={inp} />
                   {/* Chips de preview das tags */}
                   {slot.tags.trim() && (
@@ -562,7 +566,7 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
               {/* Visibilidade */}
               <div>
                 <label className="text-[11px] font-semibold text-foreground/55 flex items-center gap-1 mb-1.5">
-                  <Globe size={11} /> Visibilidade
+                  <Globe size={11} /> {t("studio.upload.slot.visibilityLabel")}
                 </label>
                 <VisibilityPicker value={slot.visibility}
                   onChange={v => onUpdate(slot.id, { visibility: v })}
@@ -578,11 +582,11 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
         <div className="px-5 py-2.5 flex items-center gap-4 text-[11px] text-foreground/35">
           {slot.category
             ? <span className="flex items-center gap-1"><Layers size={10} />{ALL_CATS.find(c => c.id === slot.category)?.label}</span>
-            : <span className="flex items-center gap-1 text-red-400/55"><AlertTriangle size={10} />Sem categoria</span>
+            : <span className="flex items-center gap-1 text-red-400/55"><AlertTriangle size={10} />{t("studio.upload.slot.noCategory")}</span>
           }
           <span className="flex items-center gap-1">
             {slot.visibility === "public" ? <Globe size={10} /> : slot.visibility === "unlisted" ? <Link2 size={10} /> : <Lock size={10} />}
-            {VIS.find(v => v.value === slot.visibility)?.label}
+            {t(`studio.visibility.${slot.visibility}`)}
           </span>
         </div>
       )}
@@ -594,6 +598,7 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
 // Componente principal
 // ─────────────────────────────────────────────────────────────────────────────
 export default function StudioUpload() {
+  const { t } = useTranslation();
   const navigate  = useNavigate();
   const dropRef = useRef<HTMLDivElement>(null);
 
@@ -647,13 +652,13 @@ export default function StudioUpload() {
       const user = await getCurrentUser();
       userId = user.id;
     } catch {
-      setGlobalMsg({ type: "err", text: "Não autenticado." });
+      setGlobalMsg({ type: "err", text: t("studio.upload.errors.notAuth") });
       return;
     }
 
     const toPublish = slots.filter(s => s.status === "idle" && s.file && s.title.trim() && s.category);
     if (!toPublish.length) {
-      setGlobalMsg({ type: "err", text: "Nenhum vídeo pronto. Verifica título e categoria." });
+      setGlobalMsg({ type: "err", text: t("studio.upload.errors.noReady") });
       return;
     }
 
@@ -742,13 +747,13 @@ export default function StudioUpload() {
   };
 
   return (
-    <StudioLayout subtitle="Envie até 30 vídeos de uma vez">
+    <StudioLayout subtitle={t("studio.upload.subtitle")}>
       <div className="max-w-5xl mx-auto space-y-6">
 
         {/* Cabeçalho */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-black text-foreground tracking-tight">Enviar vídeos</h1>
+            <h1 className="text-2xl font-black text-foreground tracking-tight">{t("studio.upload.title")}</h1>
             <p className="text-sm text-foreground/45 mt-1">
               Selecciona até <strong className="text-foreground/70">30 vídeos</strong> de uma vez e preenche os detalhes de cada um antes de publicar.
             </p>
@@ -813,14 +818,14 @@ export default function StudioUpload() {
 
             <div className="text-center space-y-1.5">
               <p className="text-base font-bold text-foreground/80">
-                {dragging ? "Larga os ficheiros aqui!" : "Arrasta ou clica para seleccionar"}
+                {dragging ? t("studio.upload.dropActive") : t("studio.upload.dropIdle")}
               </p>
               <p className="text-sm text-foreground/40">
                 Podes seleccionar até{" "}
                 <span className="text-neon-pink font-bold">{MAX_VIDEOS - total} vídeo{MAX_VIDEOS - total !== 1 ? "s" : ""}</span>{" "}
                 em simultâneo
               </p>
-              <p className="text-xs text-foreground/25">MP4, MOV, AVI · Máx. 1 GB por ficheiro</p>
+              <p className="text-xs text-foreground/25">{t("studio.upload.dropFormats")}</p>
             </div>
 
             {total > 0 && (
@@ -836,17 +841,17 @@ export default function StudioUpload() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold text-foreground/55 flex items-center gap-2">
-                <FileVideo size={13} className="text-neon-pink" /> Vídeos seleccionados
+                <FileVideo size={13} className="text-neon-pink" /> {t("studio.upload.selectedList")}
               </h2>
               <div className="flex items-center gap-3 text-[11px] text-foreground/35">
                 <button type="button" onClick={() => setSlots(p => p.map(s => ({ ...s, collapsed: true })))}
                   className="hover:text-foreground/60 transition-colors flex items-center gap-1">
-                  <ChevronUp size={10} /> Minimizar todos
+                  <ChevronUp size={10} /> {t("studio.upload.collapseAll")}
                 </button>
                 <span className="text-foreground/15">·</span>
                 <button type="button" onClick={() => setSlots(p => p.map(s => ({ ...s, collapsed: false })))}
                   className="hover:text-foreground/60 transition-colors flex items-center gap-1">
-                  <ChevronDown size={10} /> Expandir todos
+                  <ChevronDown size={10} /> {t("studio.upload.expandAll")}
                 </button>
               </div>
             </div>
@@ -866,7 +871,7 @@ export default function StudioUpload() {
               <div className="flex-1 text-sm text-foreground/50">
                 <p><span className="text-foreground/80 font-semibold">{readyCount}</span> de {total} vídeo{total !== 1 ? "s" : ""} prontos para publicar</p>
                 {total - readyCount - doneCount > 0 && (
-                  <p className="text-xs text-foreground/30 mt-0.5">{total - readyCount - doneCount} ainda sem título ou categoria</p>
+                  <p className="text-xs text-foreground/30 mt-0.5">{t("studio.upload.missingCount", { count: total - readyCount - doneCount })}</p>
                 )}
               </div>
               <button type="button" onClick={publishAll} disabled={!readyCount || publishing}
@@ -876,8 +881,8 @@ export default function StudioUpload() {
                     : "bg-white/5 border border-white/10 text-foreground/30 cursor-not-allowed"
                 }`}>
                 {publishing
-                  ? <><Loader2 size={15} className="animate-spin" /> A publicar...</>
-                  : <><Send size={15} /> Publicar {readyCount > 0 ? readyCount : ""} vídeo{readyCount !== 1 ? "s" : ""}</>
+                  ? <><Loader2 size={15} className="animate-spin" /> {t("studio.upload.publishing")}</>
+                  : <><Send size={15} /> {t("studio.upload.publishBtn")}{readyCount > 0 ? ` (${readyCount})` : ""}</>
                 }
               </button>
             </div>
@@ -892,7 +897,7 @@ export default function StudioUpload() {
         {/* Estado vazio */}
         {slots.length === 0 && (
           <p className="text-center py-6 text-foreground/25 text-sm">
-            Ainda não seleccionaste nenhum vídeo. Arrasta ou clica na zona acima.
+            {t("studio.upload.emptySlots")}
           </p>
         )}
 
@@ -906,16 +911,16 @@ export default function StudioUpload() {
               <p className="text-lg font-black text-foreground">
                 {doneCount} vídeo{doneCount !== 1 ? "s" : ""} publicado{doneCount !== 1 ? "s" : ""}!
               </p>
-              <p className="text-sm text-foreground/40 mt-1">Já estão disponíveis na plataforma.</p>
+              <p className="text-sm text-foreground/40 mt-1">{t("studio.upload.allDoneSubtitle")}</p>
             </div>
             <div className="flex items-center justify-center gap-3">
               <button type="button" onClick={() => { setSlots([]); setGlobalMsg(null); }}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm font-semibold text-foreground/60 hover:bg-white/10 hover:text-foreground transition-all">
-                <Plus size={13} /> Enviar mais
+                <Plus size={13} /> {t("studio.upload.uploadMore")}
               </button>
               <button type="button" onClick={() => navigate("/studio/videos")}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold hover:opacity-90 transition-all">
-                <Film size={13} /> Ver os meus vídeos
+                <Film size={13} /> {t("studio.upload.viewVideos")}
               </button>
             </div>
           </div>

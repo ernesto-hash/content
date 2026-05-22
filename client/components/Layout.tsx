@@ -9,6 +9,7 @@ import {
   SkipBack, Pause, Circle, CircleDot, CircleDotDashed, Loader2,
 } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/lib/supabaseClient";
 import AdBanner from "@/components/AdBanner";
 
@@ -68,10 +69,40 @@ function fmtViews(n: number) {
 }
 
 // ─────────────────────────────────────────────
+// Selector de idioma
+// ─────────────────────────────────────────────
+function LanguageSelector() {
+  const { i18n } = useTranslation();
+  const langs = [
+    { code: "pt", label: "PT" },
+    { code: "en", label: "EN" },
+    { code: "es", label: "ES" },
+  ];
+  return (
+    <div className="hidden sm:flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-lg p-0.5">
+      {langs.map(({ code, label }) => (
+        <button
+          key={code}
+          onClick={() => i18n.changeLanguage(code)}
+          className={`px-2 py-1 rounded text-xs font-medium transition-all ${
+            i18n.language === code
+              ? "bg-white/15 text-foreground"
+              : "text-foreground/40 hover:text-foreground/70"
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
 // Componente da barra de pesquisa com dropdown
 // ─────────────────────────────────────────────
 function SearchBar({ mobile = false }: { mobile?: boolean }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(false);
@@ -182,7 +213,7 @@ function SearchBar({ mobile = false }: { mobile?: boolean }) {
               onChange={e => handleChange(e.target.value)}
               onFocus={() => { setFocused(true); if (suggestions.length > 0) setOpen(true); }}
               onBlur={() => setFocused(false)}
-              placeholder="Buscar vídeos..."
+              placeholder={t("nav.search.placeholderMobile")}
               className="flex-1 bg-transparent text-foreground text-sm placeholder:text-foreground/30 outline-none"
             />
             {loading && <Loader2 size={14} className="text-foreground/30 animate-spin flex-shrink-0" />}
@@ -211,7 +242,7 @@ function SearchBar({ mobile = false }: { mobile?: boolean }) {
               onChange={e => handleChange(e.target.value)}
               onFocus={() => { setFocused(true); if (suggestions.length > 0) setOpen(true); }}
               onBlur={() => setFocused(false)}
-              placeholder="Buscar vídeos, modelos, categorias..."
+              placeholder={t("nav.search.placeholderDesktop")}
               className="flex-1 bg-transparent text-foreground text-sm placeholder:text-foreground/30 outline-none"
             />
             {loading && <Loader2 size={15} className="text-foreground/30 animate-spin flex-shrink-0" />}
@@ -240,6 +271,7 @@ function SearchDropdown({
   onSelect: (path: string) => void;
 }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   if (!open || suggestions.length === 0) return null;
 
@@ -254,7 +286,7 @@ function SearchDropdown({
       {videos.length > 0 && (
         <div>
           <div className="px-4 pt-3 pb-1 flex items-center gap-1.5 text-[10px] font-bold text-foreground/35 uppercase tracking-widest">
-            <Film size={10} /> Vídeos
+            <Film size={10} /> {t("nav.search.sections.videos")}
           </div>
           {videos.map(v => (
             <button
@@ -281,7 +313,7 @@ function SearchDropdown({
       {models.length > 0 && (
         <div className={videos.length > 0 ? "border-t border-white/8" : ""}>
           <div className="px-4 pt-3 pb-1 flex items-center gap-1.5 text-[10px] font-bold text-foreground/35 uppercase tracking-widest">
-            <Users size={10} /> Modelos
+            <Users size={10} /> {t("nav.search.sections.models")}
           </div>
           {models.map(m => (
             <button
@@ -308,7 +340,7 @@ function SearchDropdown({
       {cats.length > 0 && (
         <div className={(videos.length > 0 || models.length > 0) ? "border-t border-white/8" : ""}>
           <div className="px-4 pt-3 pb-1 flex items-center gap-1.5 text-[10px] font-bold text-foreground/35 uppercase tracking-widest">
-            <Grid size={10} /> Categorias
+            <Grid size={10} /> {t("nav.search.sections.categories")}
           </div>
           <div className="px-3 pb-3 flex flex-wrap gap-2">
             {cats.map(c => (
@@ -331,7 +363,7 @@ function SearchDropdown({
           className="w-full flex items-center gap-2 text-sm text-neon-pink hover:text-neon-pink/80 transition-colors font-medium"
         >
           <Search size={13} />
-          Ver todos os resultados para "{query}"
+          {t("nav.search.viewAll", { query })}
         </button>
       </div>
     </div>
@@ -351,6 +383,7 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const { t } = useTranslation();
 
   const location = useLocation();
 
@@ -402,16 +435,17 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
             {/* Search desktop */}
             <SearchBar />
 
-            {/* Auth buttons */}
+            {/* Auth buttons + Language selector */}
             <div className="flex items-center gap-2">
+              <LanguageSelector />
               <div className="flex items-center gap-2 ml-2">
                 <Link to="/login" className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-all border border-white/10" onClick={closeMenu}>
                   <LogIn size={16} />
-                  <span className="text-sm font-medium">Entrar</span>
+                  <span className="text-sm font-medium">{t("nav.auth.login")}</span>
                 </Link>
                 <Link to="/signup" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-neon-pink to-neon-purple text-white hover:shadow-[0_0_20px_rgba(236,72,153,0.3)] transition-all" onClick={closeMenu}>
                   <User size={16} />
-                  <span className="text-sm font-medium hidden sm:inline">Criar Conta</span>
+                  <span className="text-sm font-medium hidden sm:inline">{t("nav.auth.createAccount")}</span>
                 </Link>
               </div>
             </div>
@@ -426,16 +460,16 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
           <div className="max-container safe-area">
             <div className="flex items-center gap-1 overflow-x-auto py-2 scrollbar-hide">
               <Link to="/" className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${location.pathname === "/" ? "text-foreground bg-gradient-to-r from-neon-pink/20 to-neon-purple/20 border border-neon-pink/30" : "text-foreground/80 hover:text-neon-pink hover:bg-white/5"}`}>
-                Página Inicial
+                {t("nav.links.home")}
               </Link>
               <Link to="/videos" className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${location.pathname === "/videos" ? "text-foreground bg-gradient-to-r from-neon-pink/20 to-neon-purple/20 border border-neon-pink/30" : "text-foreground/80 hover:text-neon-pink hover:bg-white/5"}`}>
-                Vídeos
+                {t("nav.links.videos")}
               </Link>
               <Link to="/galeria" className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all flex items-center gap-1 ${location.pathname === "/galeria" ? "text-foreground bg-gradient-to-r from-neon-pink/20 to-neon-purple/20 border border-neon-pink/30" : "text-foreground/80 hover:text-neon-pink hover:bg-white/5"}`}>
-                <Crown size={13} className="text-yellow-400" /> Galeria
+                <Crown size={13} className="text-yellow-400" /> {t("nav.links.gallery")}
               </Link>
               <Link to="/modelos" className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${location.pathname === "/modelos" ? "text-foreground bg-gradient-to-r from-neon-pink/20 to-neon-purple/20 border border-neon-pink/30" : "text-foreground/80 hover:text-neon-pink hover:bg-white/5"}`}>
-                Modelos
+                {t("nav.links.models")}
               </Link>
             </div>
           </div>
@@ -446,10 +480,10 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
           <div className="max-container safe-area">
             <div className="flex items-center gap-4 overflow-x-auto py-2 scrollbar-hide">
               <Link to="/populares" className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all flex items-center gap-1 ${location.pathname === "/populares" ? "text-neon-pink" : "text-foreground/80 hover:text-neon-pink"}`}>
-                <Flame size={12} /> Populares
+                <Flame size={12} /> {t("nav.links.popular")}
               </Link>
               <Link to="/recomendados" className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all flex items-center gap-1 ${location.pathname === "/recomendados" ? "text-neon-pink" : "text-foreground/80 hover:text-neon-pink"}`}>
-                <Star size={12} /> Recomendados
+                <Star size={12} /> {t("nav.links.recommended")}
               </Link>
             </div>
           </div>
@@ -461,28 +495,28 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
             <div className="p-4 space-y-4">
               <div className="space-y-1">
                 <Link to="/" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${location.pathname === "/" ? "bg-gradient-to-r from-neon-pink/20 to-neon-purple/20 text-foreground border border-neon-pink/30" : "hover:bg-white/5 text-foreground/80"}`} onClick={closeMenu}>
-                  <Home size={18} className="text-neon-pink" /><span>Página Inicial</span>
+                  <Home size={18} className="text-neon-pink" /><span>{t("nav.links.home")}</span>
                 </Link>
                 <Link to="/videos" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${location.pathname === "/videos" ? "bg-gradient-to-r from-neon-pink/20 to-neon-purple/20 text-foreground border border-neon-pink/30" : "hover:bg-white/5 text-foreground/80"}`} onClick={closeMenu}>
-                  <Video size={18} className="text-neon-purple" /><span>Vídeos</span>
+                  <Video size={18} className="text-neon-purple" /><span>{t("nav.links.videos")}</span>
                 </Link>
                 <Link to="/galeria" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${location.pathname === "/galeria" ? "bg-gradient-to-r from-yellow-500/20 to-neon-pink/20 text-foreground border border-yellow-500/30" : "hover:bg-white/5 text-foreground/80"}`} onClick={closeMenu}>
-                  <Crown size={18} className="text-yellow-400" /><span>Galeria Premium</span>
+                  <Crown size={18} className="text-yellow-400" /><span>{t("nav.mobile.galleryPremium")}</span>
                 </Link>
               </div>
 
               {/* Países */}
               <div className="border-t border-white/10 pt-4">
                 <button onClick={() => toggleCategory("paises")} className="flex items-center justify-between w-full px-4 py-2 text-neon-pink font-semibold hover:bg-white/5 rounded-lg transition-colors">
-                  <div className="flex items-center gap-2"><Globe size={18} /><span>PAÍSES</span></div>
+                  <div className="flex items-center gap-2"><Globe size={18} /><span>{t("nav.mobile.countries")}</span></div>
                   <ChevronDown size={16} className={`transition-transform ${openCategory === "paises" ? "rotate-180" : ""}`} />
                 </button>
                 {openCategory === "paises" && (
                   <div className="grid grid-cols-2 gap-2 mt-2">
-                    <Link to="/categoria/brasil" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> Brasil</Link>
-                    <Link to="/categoria/eua" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> EUA</Link>
-                    <Link to="/categoria/espanha" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> Espanha</Link>
-                    <Link to="/categoria/colombia" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> Colombia</Link>
+                    <Link to="/categoria/brasil" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> {t("nav.mobile.countries_list.brazil")}</Link>
+                    <Link to="/categoria/eua" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> {t("nav.mobile.countries_list.usa")}</Link>
+                    <Link to="/categoria/espanha" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> {t("nav.mobile.countries_list.spain")}</Link>
+                    <Link to="/categoria/colombia" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors" onClick={closeMenu}><Flag size={14} className="inline mr-1" /> {t("nav.mobile.countries_list.colombia")}</Link>
                   </div>
                 )}
               </div>
@@ -490,17 +524,17 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
               {/* Modelos */}
               <div className="border-t border-white/10 pt-4">
                 <button onClick={() => toggleCategory("modelos")} className="flex items-center justify-between w-full px-4 py-2 text-neon-purple font-semibold hover:bg-white/5 rounded-lg transition-colors">
-                  <div className="flex items-center gap-2"><Users size={18} /><span>MODELOS</span></div>
+                  <div className="flex items-center gap-2"><Users size={18} /><span>{t("nav.mobile.models")}</span></div>
                   <ChevronDown size={16} className={`transition-transform ${openCategory === "modelos" ? "rotate-180" : ""}`} />
                 </button>
                 {openCategory === "modelos" && (
                   <div className="grid grid-cols-2 gap-2 mt-2">
-                    <Link to="/modelos?filtro=populares" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>🔥 Populares</Link>
-                    <Link to="/modelos?filtro=novos" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>✨ Novos</Link>
-                    <Link to="/modelos?filtro=vip" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>👑 VIP</Link>
-                    <Link to="/modelos?filtro=verificados" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>✅ Verificados</Link>
-                    <Link to="/modelos?filtro=plus" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>💎 Premium</Link>
-                    <Link to="/modelos?filtro=estreantes" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>🌟 Estreantes</Link>
+                    <Link to="/modelos?filtro=populares" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>🔥 {t("nav.mobile.models_list.popular")}</Link>
+                    <Link to="/modelos?filtro=novos" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>✨ {t("nav.mobile.models_list.new")}</Link>
+                    <Link to="/modelos?filtro=vip" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>👑 {t("nav.mobile.models_list.vip")}</Link>
+                    <Link to="/modelos?filtro=verificados" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>✅ {t("nav.mobile.models_list.verified")}</Link>
+                    <Link to="/modelos?filtro=plus" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>💎 {t("nav.mobile.models_list.premium")}</Link>
+                    <Link to="/modelos?filtro=estreantes" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-purple hover:bg-white/10 transition-colors" onClick={closeMenu}>🌟 {t("nav.mobile.models_list.newcomers")}</Link>
                   </div>
                 )}
               </div>
@@ -508,19 +542,19 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
               {/* Categorias */}
               <div className="border-t border-white/10 pt-4">
                 <button onClick={() => toggleCategory("categorias")} className="flex items-center justify-between w-full px-4 py-2 text-neon-blue font-semibold hover:bg-white/5 rounded-lg transition-colors">
-                  <div className="flex items-center gap-2"><Grid size={18} /><span>CATEGORIAS</span></div>
+                  <div className="flex items-center gap-2"><Grid size={18} /><span>{t("nav.mobile.categories")}</span></div>
                   <ChevronDown size={16} className={`transition-transform ${openCategory === "categorias" ? "rotate-180" : ""}`} />
                 </button>
                 {openCategory === "categorias" && (
                   <div className="grid grid-cols-2 gap-2 mt-2">
-                    <Link to="/categoria/amador" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>🎥 Amador</Link>
-                    <Link to="/categoria/profissional" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>🎬 Profissional</Link>
-                    <Link to="/categoria/casal" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>💑 Casal</Link>
-                    <Link to="/categoria/solo" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>👤 Solo</Link>
-                    <Link to="/categoria/grupo" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>👥 Grupo</Link>
-                    <Link to="/categoria/gay" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>👬 Gay</Link>
-                    <Link to="/categoria/trans" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>⚧ Trans</Link>
-                    <Link to="/categoria/lesbica" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>👭 Lésbico</Link>
+                    <Link to="/categoria/amador" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>🎥 {t("nav.mobile.categories_list.amateur")}</Link>
+                    <Link to="/categoria/profissional" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>🎬 {t("nav.mobile.categories_list.professional")}</Link>
+                    <Link to="/categoria/casal" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>💑 {t("nav.mobile.categories_list.couple")}</Link>
+                    <Link to="/categoria/solo" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>👤 {t("nav.mobile.categories_list.solo")}</Link>
+                    <Link to="/categoria/grupo" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>👥 {t("nav.mobile.categories_list.group")}</Link>
+                    <Link to="/categoria/gay" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>👬 {t("nav.mobile.categories_list.gay")}</Link>
+                    <Link to="/categoria/trans" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>⚧ {t("nav.mobile.categories_list.trans")}</Link>
+                    <Link to="/categoria/lesbica" className="px-4 py-2 bg-white/5 rounded-lg text-sm text-foreground/80 hover:text-neon-blue hover:bg-white/10 transition-colors" onClick={closeMenu}>👭 {t("nav.mobile.categories_list.lesbian")}</Link>
                   </div>
                 )}
               </div>
@@ -528,10 +562,10 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
               {/* Auth */}
               <div className="border-t border-white/10 pt-4 mt-4">
                 <Link to="/login" className="flex items-center gap-2 px-4 py-3 rounded-lg bg-white/5 text-foreground/80 hover:text-neon-pink hover:bg-white/10 transition-colors mb-2" onClick={closeMenu}>
-                  <LogIn size={18} /><span>Entrar</span>
+                  <LogIn size={18} /><span>{t("nav.auth.login")}</span>
                 </Link>
                 <Link to="/signup" className="flex items-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-neon-pink to-neon-purple text-white hover:shadow-[0_0_20px_rgba(236,72,153,0.3)] transition-all" onClick={closeMenu}>
-                  <User size={18} /><span>Criar Conta</span>
+                  <User size={18} /><span>{t("nav.auth.createAccount")}</span>
                 </Link>
               </div>
             </div>
@@ -556,32 +590,32 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
             </div>
             <div>
               <h4 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                <span className="w-1 h-4 bg-gradient-to-b from-neon-pink to-neon-purple rounded-full" />Navegação
+                <span className="w-1 h-4 bg-gradient-to-b from-neon-pink to-neon-purple rounded-full" />{t("nav.footer.navigation")}
               </h4>
               <ul className="space-y-2 text-foreground/60 text-sm">
-                <li><Link to="/" className="hover:text-neon-pink transition-colors">Início</Link></li>
-                <li><Link to="/categorias" className="hover:text-neon-pink transition-colors">Categorias</Link></li>
-                <li><Link to="/modelos" className="hover:text-neon-pink transition-colors">Modelos</Link></li>
-                <li><Link to="/galeria" className="hover:text-neon-pink transition-colors">Galeria</Link></li>
-                <li><Link to="/anunciar" className="hover:text-neon-pink transition-colors">Publicidade</Link></li>
+                <li><Link to="/" className="hover:text-neon-pink transition-colors">{t("nav.footer.links.home")}</Link></li>
+                <li><Link to="/categorias" className="hover:text-neon-pink transition-colors">{t("nav.footer.links.categories")}</Link></li>
+                <li><Link to="/modelos" className="hover:text-neon-pink transition-colors">{t("nav.footer.links.models")}</Link></li>
+                <li><Link to="/galeria" className="hover:text-neon-pink transition-colors">{t("nav.footer.links.gallery")}</Link></li>
+                <li><Link to="/anunciar" className="hover:text-neon-pink transition-colors">{t("nav.footer.links.advertising")}</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                <span className="w-1 h-4 bg-gradient-to-b from-neon-purple to-neon-blue rounded-full" />Política
+                <span className="w-1 h-4 bg-gradient-to-b from-neon-purple to-neon-blue rounded-full" />{t("nav.footer.policy")}
               </h4>
               <ul className="space-y-2 text-foreground/60 text-sm">
-                <li><a href="/terms" className="hover:text-neon-purple transition-colors">Termos de Serviço</a></li>
-                <li><a href="/privacycookies" className="hover:text-neon-purple transition-colors">Cookies</a></li>
+                <li><a href="/terms" className="hover:text-neon-purple transition-colors">{t("nav.footer.links.terms")}</a></li>
+                <li><a href="/privacycookies" className="hover:text-neon-purple transition-colors">{t("nav.footer.links.cookies")}</a></li>
               </ul>
             </div>
           </div>
           <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between">
-            <p className="text-foreground/50 text-sm">© 2026 suck or sex. Todos os direitos reservados.</p>
+            <p className="text-foreground/50 text-sm">{t("nav.footer.copyright")}</p>
             <div className="flex items-center gap-4 mt-4 md:mt-0">
               <span className="text-foreground/30 text-xs">18+</span>
               <span className="w-1 h-1 bg-foreground/30 rounded-full" />
-              <p className="text-foreground/50 text-sm">Conteúdo Adulto</p>
+              <p className="text-foreground/50 text-sm">{t("nav.footer.adultContent")}</p>
             </div>
           </div>
         </div>

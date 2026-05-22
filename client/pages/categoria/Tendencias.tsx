@@ -4,6 +4,7 @@
 // Sem skeleton cards — só mostra vídeos reais ou estado vazio
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { supabase } from "@/lib/supabaseClient";
@@ -47,6 +48,7 @@ const isTouchDevice = () =>
   window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 
 function VideoCard({ video, rank, hot }: { video: Video; rank: number; hot?: boolean }) {
+  const { t } = useTranslation();
   const videoRef        = useRef<HTMLVideoElement>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -118,7 +120,7 @@ function VideoCard({ video, rank, hot }: { video: Video; rank: number; hot?: boo
         </div>
         {hot && (
           <div className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-gradient-to-r from-orange-500 to-red-500 text-white text-[10px] font-bold flex items-center gap-1">
-            <Zap size={10} fill="white" /> Em alta
+            <Zap size={10} fill="white" /> {t("pages.category.tendencias.badgeHot")}
           </div>
         )}
         {video.duration && (
@@ -141,12 +143,12 @@ function VideoCard({ video, rank, hot }: { video: Video; rank: number; hot?: boo
       </div>
       <div className="p-4 space-y-2">
         <h3 className="text-sm font-semibold text-foreground line-clamp-2 group-hover:text-neon-blue transition-colors leading-snug">
-          {video.title || "Sem título"}
+          {video.title || t("studio.common.noTitle")}
         </h3>
         <div className="flex items-center justify-between text-xs text-foreground/45">
           <span className="flex items-center gap-1"><Eye size={11} /> {fmtNum(video.views)}</span>
           <span className="flex items-center gap-1"><Heart size={11} className="text-neon-pink" /> {fmtNum(video.likes_count)}</span>
-          <span className="flex items-center gap-1 text-neon-blue/70"><TrendingUp size={10} /> {fmtNum(Math.round(video.velocity))}/dia</span>
+          <span className="flex items-center gap-1 text-neon-blue/70"><TrendingUp size={10} /> {fmtNum(Math.round(video.velocity))}{t("pages.category.tendencias.velocityUnit")}</span>
         </div>
         {video.category && (
           <span className="inline-block px-2 py-0.5 rounded-md bg-neon-blue/10 border border-neon-blue/20 text-neon-blue text-[10px] font-medium capitalize">
@@ -159,6 +161,7 @@ function VideoCard({ video, rank, hot }: { video: Video; rank: number; hot?: boo
 }
 
 export default function TendenciasPage() {
+  const { t } = useTranslation();
   useDocumentTitle({ title: "Vídeos em Tendência - SuckOrSex" });
   const [videos, setVideos]   = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -233,17 +236,17 @@ export default function TendenciasPage() {
                 </h1>
               </div>
               <p className="text-foreground/60 text-sm max-w-md">
-                Vídeos a crescer mais rápido — pelo menos <strong className="text-neon-blue">50K views</strong> nos últimos <strong className="text-neon-blue">30 dias</strong>, ordenados por velocidade.
+                {t("pages.category.tendencias.desc", { minViews: "50K", days: DAYS_WINDOW })}
               </p>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
                 <p className="text-2xl font-black text-neon-blue">{loading ? "—" : displayed.length}</p>
-                <p className="text-xs text-foreground/45 mt-0.5">em tendência</p>
+                <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.tendencias.inTrend")}</p>
               </div>
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
                 <p className="text-2xl font-black text-neon-pink">{DAYS_WINDOW}d</p>
-                <p className="text-xs text-foreground/45 mt-0.5">janela</p>
+                <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.tendencias.window")}</p>
               </div>
             </div>
           </div>
@@ -253,7 +256,7 @@ export default function TendenciasPage() {
         <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5">
           <Search size={15} className="text-foreground/40 flex-shrink-0" />
           <input value={query} onChange={(e) => setQuery(e.target.value)}
-            placeholder="Pesquisar nas tendências..."
+            placeholder={t("pages.category.tendencias.searchPlaceholder")}
             className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/30" />
         </div>
 
@@ -261,7 +264,7 @@ export default function TendenciasPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 size={32} className="animate-spin text-neon-blue" />
-            <p className="text-foreground/40 text-sm">A carregar tendências...</p>
+            <p className="text-foreground/40 text-sm">{t("pages.category.tendencias.loading")}</p>
           </div>
         ) : displayed.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
@@ -269,13 +272,13 @@ export default function TendenciasPage() {
               <TrendingUp size={28} className="text-foreground/20" />
             </div>
             <div className="text-center space-y-1">
-              <p className="text-foreground/60 font-medium">Ainda sem tendências</p>
+              <p className="text-foreground/60 font-medium">{t("pages.category.tendencias.emptyTitle")}</p>
               <p className="text-foreground/35 text-sm max-w-xs">
-                Os vídeos aparecerão aqui automaticamente assim que atingirem 50K views nos últimos 30 dias.
+                {t("pages.category.tendencias.emptyDesc", { minViews: "50K", days: DAYS_WINDOW })}
               </p>
             </div>
             <Link to="/populares" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neon-blue/10 border border-neon-blue/25 text-neon-blue text-sm hover:bg-neon-blue/18 transition-all mt-2">
-              Ver Populares <ChevronRight size={15} />
+              {t("pages.category.tendencias.seePopular")} <ChevronRight size={15} />
             </Link>
           </div>
         ) : (

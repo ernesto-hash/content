@@ -37,14 +37,14 @@ export function fmtDuration(s: number | null): string {
   if (m >= 60) return `${Math.floor(m / 60)}h${String(m % 60).padStart(2, "0")}`;
   return `${m}:${sec}`;
 }
-export function fmtRelative(iso: string): string {
+export function fmtRelative(iso: string, t?: (key: string, opts?: object) => string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const days = Math.floor(diff / 86400000);
-  if (days < 1)   return "hoje";
-  if (days < 7)   return `há ${days}d`;
-  if (days < 30)  return `há ${Math.floor(days / 7)}sem`;
-  if (days < 365) return `há ${Math.floor(days / 30)}mes`;
-  return `há ${Math.floor(days / 365)}a`;
+  if (days < 1)   return t ? t("models.time.today") : "hoje";
+  if (days < 7)   return t ? t("models.time.daysAgo", { count: days }) : `há ${days}d`;
+  if (days < 30)  return t ? t("models.time.weeksAgo", { count: Math.floor(days / 7) }) : `há ${Math.floor(days / 7)}sem`;
+  if (days < 365) return t ? t("models.time.monthsAgo", { count: Math.floor(days / 30) }) : `há ${Math.floor(days / 30)}mes`;
+  return t ? t("models.time.yearsAgo", { count: Math.floor(days / 365) }) : `há ${Math.floor(days / 365)}a`;
 }
 export function fmtDate(iso: string): string {
   return new Date(iso).toLocaleDateString("pt-PT", { month: "long", year: "numeric" });

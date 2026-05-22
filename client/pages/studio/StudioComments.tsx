@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { BarChart3, TrendingUp } from "lucide-react";
 import StudioLayout from "@/components/studio/StudioLayout";
 import EmptyState from "@/components/studio/EmptyState";
@@ -7,6 +8,7 @@ import { supabase } from "@/lib/supabaseClient";
 type Video = { id: string; title: string | null; views?: number | null; created_at: string };
 
 export default function StudioAnalytics() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [videos, setVideos] = useState<Video[]>([]);
 
@@ -54,52 +56,52 @@ export default function StudioAnalytics() {
   }, [videos]);
 
   return (
-    <StudioLayout subtitle="Métricas essenciais para decisões melhores">
+    <StudioLayout subtitle={t("studio.analytics.subtitle")}>
       <div className="space-y-6">
         <div>
-          <h1 className="text-xl font-black text-foreground">Estatísticas</h1>
-          <p className="text-sm text-foreground/50 mt-1">Visão geral de desempenho (base: seus dados).</p>
+          <h1 className="text-xl font-black text-foreground">{t("studio.analytics.title")}</h1>
+          <p className="text-sm text-foreground/50 mt-1">{t("studio.analytics.desc")}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="glass border border-white/10 rounded-2xl p-4">
-            <div className="text-xs text-foreground/50">Views totais</div>
+            <div className="text-xs text-foreground/50">{t("studio.analytics.totalViews")}</div>
             <div className="mt-2 text-2xl font-black text-foreground">{loading ? "…" : totalViews}</div>
-            <div className="mt-1 text-xs text-foreground/40">Soma de views dos seus vídeos</div>
+            <div className="mt-1 text-xs text-foreground/40">{t("studio.analytics.totalViewsDesc")}</div>
           </div>
 
           <div className="glass border border-white/10 rounded-2xl p-4">
-            <div className="text-xs text-foreground/50">Vídeos analisados</div>
+            <div className="text-xs text-foreground/50">{t("studio.analytics.videosAnalyzed")}</div>
             <div className="mt-2 text-2xl font-black text-foreground">{loading ? "…" : videos.length}</div>
-            <div className="mt-1 text-xs text-foreground/40">Últimos 20 no Studio</div>
+            <div className="mt-1 text-xs text-foreground/40">{t("studio.analytics.videosAnalyzedDesc")}</div>
           </div>
 
           <div className="glass border border-white/10 rounded-2xl p-4">
             <div className="flex items-center justify-between">
-              <div className="text-xs text-foreground/50">Sugestão</div>
+              <div className="text-xs text-foreground/50">{t("studio.analytics.suggestion")}</div>
               <TrendingUp size={18} className="text-neon-pink" />
             </div>
             <div className="mt-2 text-sm font-semibold text-foreground">
-              Publique com consistência
+              {t("studio.analytics.suggestionTitle")}
             </div>
             <div className="mt-1 text-xs text-foreground/40">
-              Rotina forte + boa thumbnail + título claro = crescimento.
+              {t("studio.analytics.suggestionDesc")}
             </div>
           </div>
         </div>
 
         <div className="glass border border-white/10 rounded-2xl overflow-hidden">
           <div className="p-4 border-b border-white/10 flex items-center gap-2 text-sm font-semibold text-foreground">
-            <BarChart3 size={16} className="text-neon-pink" /> Top recente (views)
+            <BarChart3 size={16} className="text-neon-pink" /> {t("studio.analytics.chartTitle")}
           </div>
 
           <div className="p-4">
             {!loading && videos.length === 0 ? (
               <EmptyState
-                title="Sem dados ainda"
-                description="Envie vídeos para começar a gerar estatísticas."
+                title={t("studio.analytics.emptyTitle")}
+                description={t("studio.analytics.emptyDesc")}
                 icon={<BarChart3 size={22} />}
-                actionLabel="Enviar vídeo"
+                actionLabel={t("studio.common.uploadBtn")}
                 actionTo="/studio/upload"
               />
             ) : (

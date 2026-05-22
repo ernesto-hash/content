@@ -16,6 +16,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
 import { useRecommendations, getSessionId, RecoTab } from "@/hooks/useRecommendations";
 import {
@@ -37,14 +38,14 @@ function fmtDuration(s: number | null) {
   if (!s) return "";
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
-function fmtRelative(iso: string) {
+function fmtRelative(iso: string, t: (key: string, opts?: object) => string) {
   const diff = Date.now() - new Date(iso).getTime();
   const hrs  = Math.floor(diff / 3600000);
-  if (hrs < 1) return "agora";
-  if (hrs < 24) return `há ${hrs}h`;
+  if (hrs < 1) return t("pages.recomendados.time.now");
+  if (hrs < 24) return t("pages.recomendados.time.hoursAgo", { count: hrs });
   const days = Math.floor(hrs / 24);
-  if (days < 7) return `há ${days}d`;
-  return `há ${Math.floor(days / 7)}sem`;
+  if (days < 7) return t("pages.recomendados.time.daysAgo", { count: days });
+  return t("pages.recomendados.time.weeksAgo", { count: Math.floor(days / 7) });
 }
 
 // ─────────────────────────────────────────────
@@ -58,6 +59,7 @@ const isTouchDevice = () =>
 // Card de vídeo — Grid
 // ─────────────────────────────────────────────
 function VideoGridCard({ video }: { video: any }) {
+  const { t } = useTranslation();
   const videoRef        = useRef<HTMLVideoElement>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -181,12 +183,12 @@ function VideoGridCard({ video }: { video: any }) {
               : <div className="w-full h-full flex items-center justify-center"><Users size={10} className="text-white/28" /></div>
             }
           </div>
-          <span className="text-[11px] text-foreground/45 truncate">{video.creator_name ?? "Criador"}</span>
+          <span className="text-[11px] text-foreground/45 truncate">{video.creator_name ?? t("common.creator")}</span>
         </div>
 
         {/* Título */}
         <h3 className="font-semibold text-sm text-foreground/85 line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug">
-          {video.title || "Sem título"}
+          {video.title || t("common.noTitle")}
         </h3>
 
         {/* Stats */}
@@ -217,6 +219,7 @@ function VideoGridCard({ video }: { video: any }) {
 // Card — List
 // ─────────────────────────────────────────────
 function VideoListCard({ video }: { video: any }) {
+  const { t } = useTranslation();
   const videoRef        = useRef<HTMLVideoElement>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -312,12 +315,12 @@ function VideoListCard({ video }: { video: any }) {
           <Sparkles size={8} />{video.reason}
         </span>
         <h3 className="font-semibold text-sm text-foreground/85 line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug">
-          {video.title || "Sem título"}
+          {video.title || t("common.noTitle")}
         </h3>
         <div className="flex items-center gap-3 text-[11px] text-foreground/35">
           <span className="flex items-center gap-1"><Eye size={10} />{fmtNum(video.views)}</span>
           <span className="flex items-center gap-1"><Heart size={10} className="text-neon-pink/50" />{fmtNum(video.likes_count)}</span>
-          <span className="flex items-center gap-1 ml-auto"><ThumbsUp size={10} />{video.relevance}% compat.</span>
+          <span className="flex items-center gap-1 ml-auto"><ThumbsUp size={10} />{video.relevance}{t("pages.recomendados.compatibility")}</span>
         </div>
       </div>
     </Link>
@@ -350,6 +353,7 @@ function SkeletonGrid() {
 // Componente principal
 // ─────────────────────────────────────────────
 export default function RecomendadosPage() {
+  const { t } = useTranslation();
   const { videos, loading, activeTab, setActiveTab, interestProfile,
           profileReady, trackSearch, refresh } = useRecommendations(null);
 
@@ -378,9 +382,9 @@ export default function RecomendadosPage() {
     : videos;
 
   const TABS: { id: RecoTab; label: string; icon: React.ElementType; desc: string }[] = [
-    { id: "para_voce",  label: "Para si",       icon: Sparkles,  desc: "Mix personalizado" },
-    { id: "historico",  label: "Do histórico",  icon: History,   desc: "Categorias que viu" },
-    { id: "tendencias", label: "Tendências",    icon: TrendingUp,desc: "Mais vistos agora" },
+    { id: "para_voce",  label: t("pages.recomendados.tabs.forYou"),      icon: Sparkles,  desc: t("pages.recomendados.tabs.forYouDesc") },
+    { id: "historico",  label: t("pages.recomendados.tabs.fromHistory"), icon: History,   desc: t("pages.recomendados.tabs.fromHistoryDesc") },
+    { id: "tendencias", label: t("pages.recomendados.tabs.trending"),    icon: TrendingUp,desc: t("pages.recomendados.tabs.trendingDesc") },
   ];
 
   return (
@@ -393,24 +397,24 @@ export default function RecomendadosPage() {
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-5">
             <div className="max-w-lg">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neon-pink/10 border border-neon-pink/20 text-neon-pink text-[11px] font-bold tracking-wider uppercase mb-3">
-                <Zap size={10} /> Personalizado para si
+                <Zap size={10} /> {t("pages.recomendados.hero.badge")}
               </div>
               <h1 className="text-3xl font-black text-white mb-2 leading-tight">
                 <span className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-blue bg-clip-text text-transparent">
-                  Recomendados
-                </span>{" "}para si
+                  {t("pages.recomendados.hero.titleHighlight")}
+                </span>{" "}{t("pages.recomendados.hero.titleSuffix")}
               </h1>
               <p className="text-foreground/48 text-sm leading-relaxed">
                 {hasProfile
-                  ? "Selecionado com base nos vídeos que viste nesta sessão."
-                  : "Começa a ver vídeos para receberes recomendações personalizadas."}
+                  ? t("pages.recomendados.hero.subtitleProfile")
+                  : t("pages.recomendados.hero.subtitleNoProfile")}
               </p>
             </div>
 
             {/* Perfil de interesses */}
             {hasProfile && (
               <div className="flex-shrink-0 bg-white/[0.03] border border-white/8 rounded-2xl p-4 min-w-[160px]">
-                <p className="text-[10px] text-foreground/35 uppercase tracking-wider font-bold mb-3">Os teus interesses</p>
+                <p className="text-[10px] text-foreground/35 uppercase tracking-wider font-bold mb-3">{t("pages.recomendados.interests")}</p>
                 <div className="space-y-2">
                   {topCats.map(([cat, score]) => (
                     <div key={cat} className="flex items-center gap-2">
@@ -455,7 +459,7 @@ export default function RecomendadosPage() {
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Pesquisar nos recomendados..."
+              placeholder={t("pages.recomendados.searchPlaceholder")}
               className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/26"
             />
             {searchTerm && (
@@ -475,7 +479,7 @@ export default function RecomendadosPage() {
               onClick={refresh}
               disabled={loading}
               className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-foreground/40 hover:text-neon-pink hover:border-neon-pink/25 transition-all disabled:opacity-40"
-              title="Atualizar recomendações"
+              title={t("pages.recomendados.refreshTitle")}
             >
               <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
             </button>
@@ -489,14 +493,14 @@ export default function RecomendadosPage() {
               <Sparkles size={18} className="text-neon-pink" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-white/80">Recomendações estão a melhorar</p>
-              <p className="text-xs text-foreground/40 mt-0.5">Vê alguns vídeos e as sugestões ajustam-se automaticamente. Com conta, ficam ainda mais precisas.</p>
+              <p className="text-sm font-semibold text-white/80">{t("pages.recomendados.banner.title")}</p>
+              <p className="text-xs text-foreground/40 mt-0.5">{t("pages.recomendados.banner.subtitle")}</p>
             </div>
             <Link
               to="/signup"
               className="flex-shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-xs font-bold hover:shadow-md hover:shadow-neon-pink/20 transition-all"
             >
-              Criar conta
+              {t("pages.recomendados.banner.createAccount")}
             </Link>
           </div>
         )}
@@ -511,15 +515,15 @@ export default function RecomendadosPage() {
             </div>
             <div className="text-center space-y-1">
               <p className="text-foreground/55 font-semibold">
-                {dSearch ? `Sem resultados para "${dSearch}"` : "Ainda sem recomendações"}
+                {dSearch ? t("pages.recomendados.empty.withSearch", { query: dSearch }) : t("pages.recomendados.empty.noRecos")}
               </p>
               <p className="text-foreground/28 text-sm max-w-xs">
-                {dSearch ? "Tenta uma pesquisa diferente." : "Vê um vídeo para começarmos a personalizar as tuas sugestões."}
+                {dSearch ? t("pages.recomendados.empty.trySearch") : t("pages.recomendados.empty.watchVideo")}
               </p>
             </div>
             {dSearch && (
               <button onClick={() => setSearchTerm("")} className="text-sm text-neon-pink hover:text-neon-pink/80 transition-colors">
-                Limpar pesquisa
+                {t("pages.recomendados.clearSearch")}
               </button>
             )}
           </div>
@@ -540,7 +544,7 @@ export default function RecomendadosPage() {
               onClick={refresh}
               className="flex items-center gap-2 px-7 py-3 rounded-xl bg-white/5 border border-white/10 text-foreground/60 text-sm font-semibold hover:bg-white/8 hover:border-white/20 hover:text-foreground transition-all"
             >
-              <RefreshCw size={14} /> Ver mais recomendações
+              <RefreshCw size={14} /> {t("pages.recomendados.loadMore")}
             </button>
           </div>
         )}

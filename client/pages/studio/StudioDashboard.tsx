@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Upload, Film, Clock, TrendingUp, Eye, Heart } from "lucide-react";
 import StudioLayout from "@/components/studio/StudioLayout";
 import EmptyState from "@/components/studio/EmptyState";
@@ -39,6 +40,7 @@ function statusLabel(status: string | null) {
 // ─── component ─────────────────────────────────────────────────────────────────
 
 export default function StudioDashboard() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [userId, setUserId]   = useState<string | null>(null);
   const [videos, setVideos]   = useState<VideoRow[]>([]);
@@ -152,15 +154,15 @@ export default function StudioDashboard() {
 
   // ── render ─────────────────────────────────────────────────────────────────
   return (
-    <StudioLayout subtitle="Visão geral do seu canal e desempenho">
+    <StudioLayout subtitle={t("studio.dashboard.subtitle")}>
       <div className="space-y-6">
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-xl font-black text-foreground">Dashboard do Criador</h1>
+            <h1 className="text-xl font-black text-foreground">{t("studio.dashboard.title")}</h1>
             <p className="text-sm text-foreground/50 mt-1">
-              Acompanhe uploads, rascunhos e resultados em tempo real.
+              {t("studio.dashboard.desc")}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -168,45 +170,45 @@ export default function StudioDashboard() {
               to="/studio/upload"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-semibold hover:opacity-90 transition-all"
             >
-              <Upload size={16} /> Enviar vídeo
+              <Upload size={16} /> {t("studio.common.uploadBtn")}
             </Link>
             <Link
               to="/studio/videos"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-foreground/80 text-sm hover:text-neon-pink hover:bg-white/10 transition-all"
             >
-              <Film size={16} /> Gerenciar
+              <Film size={16} /> {t("studio.dashboard.manageBtn")}
             </Link>
           </div>
         </div>
 
         {/* KPI cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-          <KpiCard title="Total de vídeos" value={loading ? "…" : String(kpis.totalVideos)} icon={<Film size={18} />} />
-          <KpiCard title="Publicados"      value={loading ? "…" : String(kpis.published)}   icon={<TrendingUp size={18} />} highlight />
-          <KpiCard title="Rascunhos"       value={loading ? "…" : String(kpis.drafts)}      icon={<Clock size={18} />} />
-          <KpiCard title="Views totais"    value={loading ? "…" : String(kpis.totalViews)}  icon={<Eye size={18} />} />
-          <KpiCard title="Likes totais"    value={loading ? "…" : String(kpis.totalLikes)}  icon={<Heart size={18} />} />
+          <KpiCard title={t("studio.dashboard.kpi.totalVideos")} value={loading ? "…" : String(kpis.totalVideos)} icon={<Film size={18} />} />
+          <KpiCard title={t("studio.dashboard.kpi.published")}   value={loading ? "…" : String(kpis.published)}   icon={<TrendingUp size={18} />} highlight />
+          <KpiCard title={t("studio.dashboard.kpi.drafts")}      value={loading ? "…" : String(kpis.drafts)}      icon={<Clock size={18} />} />
+          <KpiCard title={t("studio.dashboard.kpi.totalViews")}  value={loading ? "…" : String(kpis.totalViews)}  icon={<Eye size={18} />} />
+          <KpiCard title={t("studio.dashboard.kpi.totalLikes")}  value={loading ? "…" : String(kpis.totalLikes)}  icon={<Heart size={18} />} />
         </div>
 
         {/* Lista recente */}
         <div className="glass border border-white/10 rounded-2xl overflow-hidden">
           <div className="p-4 border-b border-white/10 flex items-center justify-between">
             <div>
-              <div className="text-sm font-semibold text-foreground">Últimos vídeos</div>
-              <div className="text-xs text-foreground/40">Os 5 mais recentes</div>
+              <div className="text-sm font-semibold text-foreground">{t("studio.dashboard.recent.title")}</div>
+              <div className="text-xs text-foreground/40">{t("studio.dashboard.recent.desc")}</div>
             </div>
             <Link to="/studio/videos" className="text-sm text-foreground/70 hover:text-neon-pink transition-colors">
-              Ver todos →
+              {t("studio.dashboard.recent.viewAll")}
             </Link>
           </div>
 
           <div className="p-4">
             {!loading && lastVideos.length === 0 ? (
               <EmptyState
-                title="Nenhum vídeo ainda"
-                description="Crie seu primeiro upload e comece a construir seu catálogo."
+                title={t("studio.dashboard.recent.emptyTitle")}
+                description={t("studio.dashboard.recent.emptyDesc")}
                 icon={<Upload size={22} />}
-                actionLabel="Enviar vídeo"
+                actionLabel={t("studio.common.uploadBtn")}
                 actionTo="/studio/upload"
               />
             ) : (
@@ -214,7 +216,7 @@ export default function StudioDashboard() {
                 {loading
                   ? Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} />)
                   : lastVideos.map((v) => {
-                      const { label, color } = statusLabel(v.status);
+                      const { color } = statusLabel(v.status);
                       return (
                         <div
                           key={v.id}
@@ -229,10 +231,10 @@ export default function StudioDashboard() {
                             </div>
                             <div className="min-w-0">
                               <div className="text-sm font-semibold text-foreground truncate">
-                                {v.title || "Sem título"}
+                                {v.title || t("studio.common.noTitle")}
                               </div>
                               <div className="text-xs mt-0.5 flex items-center gap-2">
-                                <span className={color}>{label}</span>
+                                <span className={color}>{t(`studio.status.${v.status ?? "draft"}`)}</span>
                                 {(v.views ?? 0) > 0 && (
                                   <span className="text-foreground/40 flex items-center gap-1">
                                     <Eye size={10} /> {v.views}
@@ -245,7 +247,7 @@ export default function StudioDashboard() {
                             to="/studio/videos"
                             className="text-xs px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-foreground/70 hover:text-neon-pink hover:bg-white/10 transition-all flex-shrink-0"
                           >
-                            Gerenciar
+                            {t("studio.dashboard.recent.manage")}
                           </Link>
                         </div>
                       );
@@ -270,6 +272,7 @@ function KpiCard({
   icon: JSX.Element;
   highlight?: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <div className={`glass border rounded-2xl p-4 ${highlight ? "border-neon-pink/30" : "border-white/10"}`}>
       <div className="flex items-center justify-between">
@@ -283,7 +286,7 @@ function KpiCard({
         </div>
       </div>
       <div className="mt-2 text-2xl font-black text-foreground">{value}</div>
-      <div className="mt-1 text-xs text-foreground/40">Actualiza em tempo real</div>
+      <div className="mt-1 text-xs text-foreground/40">{t("studio.dashboard.kpi.realtime")}</div>
     </div>
   );
 }

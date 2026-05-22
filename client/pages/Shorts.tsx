@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
 import { Link, useSearchParams } from "react-router-dom";
 import { 
@@ -64,6 +65,7 @@ import {
 } from "lucide-react";
 
 export default function ShortiesPage() {
+  const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedFilter, setSelectedFilter] = useState('paraVoce');
   const [selectedCategory, setSelectedCategory] = useState('todos');
@@ -341,27 +343,27 @@ export default function ShortiesPage() {
   };
 
   const filters = [
-    { id: 'paraVoce', label: 'Para Você', icon: Sparkles },
-    { id: 'trending', label: 'Em Alta', icon: Flame },
-    { id: 'seguindo', label: 'Seguindo', icon: Users },
-    { id: 'musicas', label: 'Músicas', icon: Music },
-    { id: 'dancas', label: 'Danças', icon: Users },
-    { id: 'funny', label: 'Engraçados', icon: Smile },
-    { id: 'vip', label: 'VIP', icon: Crown },
-    { id: 'novos', label: 'Novos', icon: Sparkles },
+    { id: 'paraVoce', label: t("shorts.filterLabels.paraVoce"), icon: Sparkles },
+    { id: 'trending', label: t("shorts.filterLabels.trending"), icon: Flame },
+    { id: 'seguindo', label: t("shorts.filterLabels.seguindo"), icon: Users },
+    { id: 'musicas',  label: t("shorts.filterLabels.musicas"),  icon: Music },
+    { id: 'dancas',   label: t("shorts.filterLabels.dancas"),   icon: Users },
+    { id: 'funny',    label: t("shorts.filterLabels.funny"),    icon: Smile },
+    { id: 'vip',      label: t("shorts.filterLabels.vip"),      icon: Crown },
+    { id: 'novos',    label: t("shorts.filterLabels.novos"),    icon: Sparkles },
   ];
 
   const categories = [
-    { id: 'todos', label: 'Todos', icon: Zap },
-    { id: 'danca', label: 'Dança', icon: Users },
-    { id: 'solo', label: 'Solo', icon: User },
-    { id: 'casal', label: 'Casal', icon: Users },
-    { id: 'strip', label: 'Strip', icon: Film },
-    { id: 'lingerie', label: 'Lingerie', icon: Gift },
-    { id: 'massagem', label: 'Massagem', icon: Users },
-    { id: 'cosplay', label: 'Cosplay', icon: Drama },
-    { id: 'asmr', label: 'ASMR', icon: Headphones },
-    { id: 'funny', label: 'Humor', icon: Smile },
+    { id: 'todos',    label: t("shorts.categoryLabels.todos"),    icon: Zap },
+    { id: 'danca',    label: t("shorts.categoryLabels.danca"),    icon: Users },
+    { id: 'solo',     label: t("shorts.categoryLabels.solo"),     icon: User },
+    { id: 'casal',    label: t("shorts.categoryLabels.casal"),    icon: Users },
+    { id: 'strip',    label: t("shorts.categoryLabels.strip"),    icon: Film },
+    { id: 'lingerie', label: t("shorts.categoryLabels.lingerie"), icon: Gift },
+    { id: 'massagem', label: t("shorts.categoryLabels.massagem"), icon: Users },
+    { id: 'cosplay',  label: t("shorts.categoryLabels.cosplay"),  icon: Drama },
+    { id: 'asmr',     label: t("shorts.categoryLabels.asmr"),     icon: Headphones },
+    { id: 'funny',    label: t("shorts.categoryLabels.funny"),    icon: Smile },
   ];
 
   const ShortieCard = ({ shortie, index }: { shortie: any, index: number }) => {
@@ -605,11 +607,11 @@ export default function ShortiesPage() {
           <div>
             <h1 className="text-3xl font-bold mb-2">
               <span className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-blue bg-clip-text text-transparent">
-                Shorties
+                {t("shorts.title")}
               </span>
             </h1>
             <p className="text-foreground/60">
-              Vídeos curtos sensuais para você
+              {t("shorts.subtitle")}
             </p>
           </div>
 
@@ -682,7 +684,7 @@ export default function ShortiesPage() {
               <div>
                 <h4 className="text-sm font-medium text-foreground/60 mb-3 flex items-center gap-2">
                   <span className="w-1 h-4 bg-neon-pink rounded-full"></span>
-                  O que você quer ver?
+                  {t("shorts.filters.header")}
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {filters.map(filter => (
@@ -706,7 +708,7 @@ export default function ShortiesPage() {
               <div>
                 <h4 className="text-sm font-medium text-foreground/60 mb-3 flex items-center gap-2">
                   <span className="w-1 h-4 bg-neon-purple rounded-full"></span>
-                  Categorias
+                  {t("shorts.filters.categories")}
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {categories.map(category => (
@@ -730,20 +732,20 @@ export default function ShortiesPage() {
             {/* Duration range */}
             <div className="mt-6 pt-4 border-t border-white/10">
               <h4 className="text-sm font-medium text-foreground/60 mb-3">
-                Duração
+                {t("shorts.filters.duration")}
               </h4>
               <div className="flex items-center gap-4">
                 <button className="px-4 py-2 bg-neon-blue/20 text-neon-blue rounded-lg border border-neon-blue/30 text-sm">
-                  Até 15s
+                  {t("shorts.filters.upTo15")}
                 </button>
                 <button className="px-4 py-2 bg-white/5 text-foreground/60 hover:text-foreground rounded-lg border border-white/10 text-sm">
-                  15-30s
+                  {t("shorts.filters.from15to30")}
                 </button>
                 <button className="px-4 py-2 bg-white/5 text-foreground/60 hover:text-foreground rounded-lg border border-white/10 text-sm">
-                  30-60s
+                  {t("shorts.filters.from30to60")}
                 </button>
                 <button className="px-4 py-2 bg-white/5 text-foreground/60 hover:text-foreground rounded-lg border border-white/10 text-sm">
-                  60s+
+                  {t("shorts.filters.over60")}
                 </button>
               </div>
             </div>
@@ -751,7 +753,7 @@ export default function ShortiesPage() {
             {/* Apply filters button */}
             <div className="flex justify-end mt-6">
               <button className="px-6 py-2 bg-gradient-to-r from-neon-pink to-neon-purple text-white rounded-lg font-medium hover:shadow-[0_0_20px_rgba(236,72,153,0.3)] transition-all">
-                Aplicar Filtros
+                {t("shorts.filters.apply")}
               </button>
             </div>
           </div>
@@ -781,11 +783,11 @@ export default function ShortiesPage() {
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Sparkles className="text-neon-pink" size={20} />
               <span className="bg-gradient-to-r from-neon-pink to-neon-purple bg-clip-text text-transparent">
-                Para Você
+                {t("shorts.sections.forYou")}
               </span>
             </h2>
             <Link to="/shorties?filtro=para-voce" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-pink transition-colors">
-              Ver todos
+              {t("shorts.viewAll")}
               <ChevronRight size={14} />
             </Link>
           </div>
@@ -811,11 +813,11 @@ export default function ShortiesPage() {
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Flame className="text-neon-purple" size={20} />
               <span className="bg-gradient-to-r from-neon-purple to-neon-blue bg-clip-text text-transparent">
-                Em Alta 🔥
+                {t("shorts.sections.trending")}
               </span>
             </h2>
             <Link to="/shorties?filtro=trending" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-purple transition-colors">
-              Ver todos
+              {t("shorts.viewAll")}
               <ChevronRight size={14} />
             </Link>
           </div>
@@ -841,7 +843,7 @@ export default function ShortiesPage() {
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-pink/20 to-neon-purple/20 flex items-center justify-center mx-auto mb-2">
               <Users size={20} className="text-neon-pink" />
             </div>
-            <span className="text-sm font-medium text-foreground/80">Dança</span>
+            <span className="text-sm font-medium text-foreground/80">{t("shorts.categoryLabels.danca")}</span>
             <span className="text-xs text-foreground/40 block mt-1">2.5K vídeos</span>
           </Link>
 
@@ -849,7 +851,7 @@ export default function ShortiesPage() {
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-purple/20 to-neon-blue/20 flex items-center justify-center mx-auto mb-2">
               <Users size={20} className="text-neon-purple" />
             </div>
-            <span className="text-sm font-medium text-foreground/80">Casal</span>
+            <span className="text-sm font-medium text-foreground/80">{t("shorts.categoryLabels.casal")}</span>
             <span className="text-xs text-foreground/40 block mt-1">1.8K vídeos</span>
           </Link>
 
@@ -857,7 +859,7 @@ export default function ShortiesPage() {
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-blue/20 to-neon-pink/20 flex items-center justify-center mx-auto mb-2">
               <Film size={20} className="text-neon-blue" />
             </div>
-            <span className="text-sm font-medium text-foreground/80">Strip</span>
+            <span className="text-sm font-medium text-foreground/80">{t("shorts.categoryLabels.strip")}</span>
             <span className="text-xs text-foreground/40 block mt-1">1.2K vídeos</span>
           </Link>
 
@@ -865,7 +867,7 @@ export default function ShortiesPage() {
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-pink/20 to-neon-purple/20 flex items-center justify-center mx-auto mb-2">
               <Gift size={20} className="text-neon-pink" />
             </div>
-            <span className="text-sm font-medium text-foreground/80">Lingerie</span>
+            <span className="text-sm font-medium text-foreground/80">{t("shorts.categoryLabels.lingerie")}</span>
             <span className="text-xs text-foreground/40 block mt-1">3.1K vídeos</span>
           </Link>
 
@@ -873,7 +875,7 @@ export default function ShortiesPage() {
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-purple/20 to-neon-blue/20 flex items-center justify-center mx-auto mb-2">
               <Headphones size={20} className="text-neon-purple" />
             </div>
-            <span className="text-sm font-medium text-foreground/80">ASMR</span>
+            <span className="text-sm font-medium text-foreground/80">{t("shorts.categoryLabels.asmr")}</span>
             <span className="text-xs text-foreground/40 block mt-1">890 vídeos</span>
           </Link>
 
@@ -881,7 +883,7 @@ export default function ShortiesPage() {
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-blue/20 to-neon-pink/20 flex items-center justify-center mx-auto mb-2">
               <Smile size={20} className="text-neon-blue" />
             </div>
-            <span className="text-sm font-medium text-foreground/80">Humor</span>
+            <span className="text-sm font-medium text-foreground/80">{t("shorts.categoryLabels.funny")}</span>
             <span className="text-xs text-foreground/40 block mt-1">2.2K vídeos</span>
           </Link>
         </div>
@@ -892,11 +894,11 @@ export default function ShortiesPage() {
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Music className="text-neon-blue" size={20} />
               <span className="bg-gradient-to-r from-neon-blue to-neon-pink bg-clip-text text-transparent">
-                Trends Musicais
+                {t("shorts.sections.musical")}
               </span>
             </h2>
             <Link to="/shorties?filtro=musicas" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-blue transition-colors">
-              Ver todos
+              {t("shorts.viewAll")}
               <ChevronRight size={14} />
             </Link>
           </div>
@@ -922,11 +924,11 @@ export default function ShortiesPage() {
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Smile className="text-neon-pink" size={20} />
               <span className="bg-gradient-to-r from-neon-pink to-neon-purple bg-clip-text text-transparent">
-                Para dar risada
+                {t("shorts.sections.funny")}
               </span>
             </h2>
             <Link to="/shorties?filtro=humor" className="flex items-center gap-1 text-sm text-foreground/60 hover:text-neon-pink transition-colors">
-              Ver todos
+              {t("shorts.viewAll")}
               <ChevronRight size={14} />
             </Link>
           </div>
@@ -950,7 +952,7 @@ export default function ShortiesPage() {
         <section className="glass rounded-xl p-6 border border-white/10">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Zap size={18} className="text-neon-pink" />
-            Tags em Alta nos Shorties
+            {t("shorts.tagsTitle")}
           </h3>
           <div className="flex flex-wrap gap-2">
             {['dancachallenge', 'strip tease', 'lingerie', 'casal', 'asmr', 'cosplay', 'funny', 'fail', 'lipsync', 'trend', 'viral', 'sexy', 'hot', 'romantico', 'massagem'].map((tag, index) => (
@@ -969,18 +971,18 @@ export default function ShortiesPage() {
         <section className="text-center py-8">
           <h3 className="text-2xl font-bold mb-4">
             <span className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-blue bg-clip-text text-transparent">
-              Quer criar seus próprios shorties?
+              {t("shorts.cta.title")}
             </span>
           </h3>
           <p className="text-foreground/60 mb-6 max-w-2xl mx-auto">
-            Mostre seu talento e ganhe seguidores com vídeos curtos sensuais
+            {t("shorts.cta.subtitle")}
           </p>
           <Link
             to="/studio/upload"
             className="px-8 py-4 bg-gradient-to-r from-neon-pink to-neon-purple text-white rounded-xl font-medium hover:shadow-[0_0_30px_rgba(236,72,153,0.5)] transition-all inline-flex items-center gap-3 text-lg"
           >
             <Camera size={20} />
-            Criar Shortie Agora
+            {t("shorts.cta.createBtn")}
           </Link>
         </section>
 
@@ -988,7 +990,7 @@ export default function ShortiesPage() {
         <div className="flex justify-center pt-4">
           <button className="px-8 py-3 bg-white/5 text-foreground/80 rounded-lg font-medium hover:text-neon-pink hover:bg-white/10 transition-all border border-white/10 flex items-center gap-2">
             <Zap size={18} />
-            Carregar mais shorties
+            {t("shorts.loadMore")}
           </button>
         </div>
       </div>

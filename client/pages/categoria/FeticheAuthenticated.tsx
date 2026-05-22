@@ -4,6 +4,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
 import { supabase } from "@/lib/supabaseClient";
 import {
@@ -39,6 +40,8 @@ function fmtDate(iso: string) {
 
 
 export default function FeticheAuthenticatedPage() {
+  const { t } = useTranslation();
+  const CATEGORY_KEY = "fetiche";
   const [videos, setVideos]       = useState<Video[]>([]);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);
@@ -162,14 +165,14 @@ export default function FeticheAuthenticatedPage() {
                   <Flame size={20} className="text-white" />
                 </div>
                 <h1 className="text-3xl font-black bg-gradient-to-r from-orange-500 to-red-700 bg-clip-text text-transparent">
-                  Fetiche
+                  {t(`pages.category.list.${CATEGORY_KEY}.title`)}
                 </h1>
               </div>
-              <p className="text-foreground/60 text-sm max-w-md">Fetiches e fantasias sem limites.</p>
+              <p className="text-foreground/60 text-sm max-w-md">{t(`pages.category.list.${CATEGORY_KEY}.desc`)}</p>
             </div>
             <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
               <p className="text-2xl font-black text-foreground">{loading ? "—" : fmtNum(displayed.length)}</p>
-              <p className="text-xs text-foreground/45 mt-0.5">vídeos</p>
+              <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.countUnit")}</p>
             </div>
           </div>
         </div>
@@ -179,15 +182,15 @@ export default function FeticheAuthenticatedPage() {
           <div className="flex items-center gap-2 flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5">
             <Search size={15} className="text-foreground/40 flex-shrink-0" />
             <input value={query} onChange={(e) => setQuery(e.target.value)}
-              placeholder="Pesquisar em Fetiche..."
+              placeholder={t("pages.category.searchIn", { name: t(`pages.category.list.${CATEGORY_KEY}.title`) })}
               className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/30" />
           </div>
           <div className="flex items-center gap-2">
             <SlidersHorizontal size={15} className="text-foreground/40" />
             {([
-              ["recentes", "Recentes"],
-              ["views",    "Mais Vistos"],
-              ["likes",    "Mais Curtidos"],
+              ["recentes", t("pages.category.sort.recentes")],
+              ["views",    t("pages.category.sort.views")],
+              ["likes",    t("pages.category.sort.likes")],
             ] as const).map(([s, label]) => (
               <button key={s} onClick={() => setSort(s)}
                 className={`px-4 py-2.5 rounded-xl text-xs font-semibold border transition-all ${
@@ -203,7 +206,7 @@ export default function FeticheAuthenticatedPage() {
           <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
             <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium mb-0.5">Erro ao carregar vídeos</p>
+              <p className="font-medium mb-0.5">{t("pages.category.errorTitle")}</p>
               <p className="text-red-400/70 text-xs">{error}</p>
             </div>
           </div>
@@ -219,7 +222,7 @@ export default function FeticheAuthenticatedPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 size={32} className="animate-spin text-foreground/40" />
-            <p className="text-foreground/40 text-sm">A carregar vídeos...</p>
+            <p className="text-foreground/40 text-sm">{t("pages.category.loading")}</p>
           </div>
         ) : !error && displayed.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
@@ -227,13 +230,13 @@ export default function FeticheAuthenticatedPage() {
               <Flame size={28} className="text-foreground/20" />
             </div>
             <div className="text-center space-y-1">
-              <p className="text-foreground/60 font-medium">Ainda sem vídeos nesta categoria</p>
+              <p className="text-foreground/60 font-medium">{t("pages.category.emptyTitle")}</p>
               <p className="text-foreground/35 text-sm max-w-xs">
-                Assim que um criador publicar um vídeo na categoria "Fetiche", aparece aqui automaticamente.
+                {t("pages.category.emptyDescAuto", { name: t(`pages.category.list.${CATEGORY_KEY}.title`) })}
               </p>
             </div>
             <Link to="/categorias" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/8 border border-white/15 text-foreground/70 text-sm hover:bg-white/12 transition-all mt-2">
-              Explorar categorias <ChevronRight size={15} />
+              {t("pages.category.exploreCategories")} <ChevronRight size={15} />
             </Link>
           </div>
         ) : (

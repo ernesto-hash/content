@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ElementType } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Film, Heart, Eye, Calendar, CheckCircle2,
   Play, Lock, Link2, Loader2, Camera, X, Save, AlertTriangle,
@@ -61,6 +62,7 @@ const isTouchDevice = () =>
   window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 
 function ProfileVideoCard({ video }: { video: VideoItem }) {
+  const { t } = useTranslation();
   const visIcon =
     video.visibility === "private"  ? <Lock  size={8} /> :
     video.visibility === "unlisted" ? <Link2 size={8} /> : null;
@@ -161,7 +163,7 @@ function ProfileVideoCard({ video }: { video: VideoItem }) {
       <div className="space-y-0.5 px-0.5">
         <Link to={`/app/video/${video.id}`}>
           <h3 className="text-sm font-semibold text-foreground/80 line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug">
-            {video.title || "Sem título"}
+            {video.title || t("common.noTitle")}
           </h3>
         </Link>
         <div className="flex items-center gap-2 text-[10px] text-foreground/32 pt-0.5">
@@ -195,6 +197,7 @@ function EditModal({
   onClose:  () => void;
   onSave:   (updated: ProfileData) => void;
 }) {
+  const { t } = useTranslation();
   const [fullName,      setFullName]      = useState(profile.full_name ?? "");
   const [username,      setUsername]      = useState(profile.username  ?? "");
   const [bio,           setBio]           = useState(profile.bio       ?? "");
@@ -231,7 +234,7 @@ function EditModal({
     // Username format validation
     const trimmedUsername = username.trim();
     if (trimmedUsername && !/^[a-zA-Z0-9_]+$/.test(trimmedUsername)) {
-      setUsernameError("Apenas letras, números e underscore (_) são permitidos.");
+      setUsernameError(t("pages.profile.edit.usernameHint"));
       return;
     }
 
@@ -244,7 +247,7 @@ function EditModal({
         .neq("id", profile.id)
         .maybeSingle();
       if (existing) {
-        setUsernameError("Nome de utilizador já existe.");
+        setUsernameError(t("pages.profile.edit.usernameExists"));
         return;
       }
     }
@@ -259,7 +262,7 @@ function EditModal({
         const { error: upErr } = await supabase.storage
           .from("avatars")
           .upload(path, avatarFile, { upsert: true, cacheControl: "3600" });
-        if (upErr) throw new Error(`Erro ao carregar avatar: ${upErr.message}`);
+        if (upErr) throw new Error(t("pages.profile.edit.avatarError", { message: upErr.message }));
         const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
         newAvatarUrl = `${urlData.publicUrl}?t=${Date.now()}`;
       }
@@ -269,7 +272,7 @@ function EditModal({
         const { error: upErr } = await supabase.storage
           .from("avatars")
           .upload(path, bannerFile, { upsert: true, cacheControl: "3600" });
-        if (upErr) throw new Error(`Erro ao carregar banner: ${upErr.message}`);
+        if (upErr) throw new Error(t("pages.profile.edit.bannerError", { message: upErr.message }));
         const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
         newBannerUrl = `${urlData.publicUrl}?t=${Date.now()}`;
       }
@@ -292,7 +295,7 @@ function EditModal({
       setSuccess(true);
       setTimeout(() => onSave(data as ProfileData), 1500);
     } catch (e: any) {
-      setError(e?.message ?? "Erro desconhecido.");
+      setError(e?.message ?? t("pages.profile.edit.unknownError"));
     } finally {
       setSaving(false);
     }
@@ -309,7 +312,7 @@ function EditModal({
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 flex-shrink-0">
-          <h2 className="text-sm font-bold text-foreground">Editar Perfil</h2>
+          <h2 className="text-sm font-bold text-foreground">{t("pages.profile.edit.title")}</h2>
           <button onClick={onClose}
             className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-foreground/50 hover:text-foreground transition-colors">
             <X size={13} />
@@ -329,7 +332,7 @@ function EditModal({
                     className="w-full h-full object-cover" />
                 : <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 bg-white/3">
                     <ImageIcon size={20} className="text-foreground/20" />
-                    <span className="text-[10px] text-foreground/30">Clicar para adicionar banner</span>
+                    <span className="text-[10px] text-foreground/30">{t("pages.profile.edit.clickBanner")}</span>
                   </div>
               }
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-colors flex items-center justify-center">
@@ -359,8 +362,8 @@ function EditModal({
                 onChange={e => setAvatarFile(e.target.files?.[0] ?? null)} />
             </label>
             <div className="text-xs text-foreground/40">
-              <p className="font-semibold text-foreground/60 mb-0.5">Foto de perfil</p>
-              <p>JPG, PNG ou WebP</p>
+              <p className="font-semibold text-foreground/60 mb-0.5">{t("pages.profile.edit.photoLabel")}</p>
+              <p>{t("pages.profile.edit.photoFormats")}</p>
             </div>
           </div>
 
@@ -368,17 +371,17 @@ function EditModal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-[11px] font-semibold text-foreground/55 mb-1.5 block">
-                Nome completo
+                {t("pages.profile.edit.fullName")}
               </label>
               <input value={fullName} onChange={e => setFullName(e.target.value)}
-                placeholder="O teu nome" className={inp} />
+                placeholder={t("pages.profile.edit.namePlaceholder")} className={inp} />
             </div>
             <div>
               <label className="text-[11px] font-semibold text-foreground/55 mb-1.5 block">
-                Username
+                {t("pages.profile.edit.usernameLabel")}
               </label>
               <input value={username} onChange={e => { setUsername(e.target.value); setUsernameError(null); }}
-                placeholder="@username"
+                placeholder={t("pages.profile.edit.usernamePlaceholder")}
                 className={`${inp} ${usernameError ? "border-red-500/40 bg-red-500/5 focus:border-red-500/50" : ""}`} />
               {usernameError && (
                 <p className="text-[10px] text-red-400 mt-1 flex items-center gap-1">
@@ -391,11 +394,11 @@ function EditModal({
           {/* Bio */}
           <div>
             <label className="text-[11px] font-semibold text-foreground/55 mb-1.5 block">
-              Bio
+              {t("pages.profile.edit.bioLabel")}
             </label>
             <textarea value={bio} onChange={e => setBio(e.target.value)}
               rows={3} maxLength={300}
-              placeholder="Conta algo sobre ti..."
+              placeholder={t("pages.profile.edit.bioPlaceholder")}
               className={`${inp} resize-none`} />
             <p className="text-[10px] text-foreground/25 mt-1 text-right">{bio.length}/300</p>
           </div>
@@ -403,7 +406,7 @@ function EditModal({
           {/* Error / Success */}
           {success ? (
             <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-500/8 border border-emerald-500/20 text-xs text-emerald-400">
-              <CheckCircle2 size={12} className="flex-shrink-0" /> Perfil actualizado com sucesso
+              <CheckCircle2 size={12} className="flex-shrink-0" /> {t("pages.profile.edit.saveSuccess")}
             </div>
           ) : error ? (
             <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-500/8 border border-red-500/20 text-xs text-red-400">
@@ -415,13 +418,13 @@ function EditModal({
           <div className="flex items-center justify-end gap-2 pt-1">
             <button onClick={onClose}
               className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-foreground/60 hover:bg-white/10 transition-all">
-              Cancelar
+              {t("pages.profile.edit.cancel")}
             </button>
             <button onClick={save} disabled={saving}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50">
               {saving
-                ? <><Loader2 size={13} className="animate-spin" />A guardar...</>
-                : <><Save size={13} />Guardar</>
+                ? <><Loader2 size={13} className="animate-spin" />{t("pages.profile.edit.saving")}</>
+                : <><Save size={13} />{t("pages.profile.edit.save")}</>
               }
             </button>
           </div>
@@ -435,6 +438,7 @@ function EditModal({
 // ─── Profile Page ─────────────────────────────────────────────────────────────
 
 export default function Profile() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [loading,     setLoading]     = useState(true);
@@ -573,7 +577,7 @@ export default function Profile() {
       setCreatorJustActive(true);
       setTimeout(() => setCreatorJustActive(false), 5000);
     } catch (e: any) {
-      setCreatorError(e?.message ?? "Erro ao activar. Tenta novamente.");
+      setCreatorError(e?.message ?? t("pages.profile.creator.activateError"));
     } finally {
       setActivatingCreator(false);
     }
@@ -650,11 +654,11 @@ export default function Profile() {
           <div className="hidden sm:flex items-center gap-2 pt-14">
             <button onClick={() => setEditOpen(true)}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/8 border border-white/12 text-sm font-semibold text-foreground/80 hover:bg-white/12 transition-all">
-              <Edit3 size={14} /> Editar Perfil
+              <Edit3 size={14} /> {t("pages.profile.editProfile")}
             </button>
             <button onClick={handleShare}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm font-semibold text-foreground/60 hover:bg-white/8 transition-all">
-              <Share2 size={14} /> Partilhar
+              <Share2 size={14} /> {t("pages.profile.share")}
             </button>
           </div>
         </div>
@@ -673,7 +677,7 @@ export default function Profile() {
           {profile?.created_at && (
             <div className="flex items-center gap-4 mt-3 text-xs text-foreground/35">
               <span className="flex items-center gap-1">
-                <Calendar size={11} />Membro desde {fmtDate(profile.created_at)}
+                <Calendar size={11} />{t("pages.profile.memberSince", { date: fmtDate(profile.created_at) })}
               </span>
             </div>
           )}
@@ -682,7 +686,7 @@ export default function Profile() {
           <div className="flex sm:hidden items-center gap-2 mt-4">
             <button onClick={() => setEditOpen(true)}
               className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white/8 border border-white/12 text-sm font-semibold text-foreground/80 hover:bg-white/12 transition-all flex-1">
-              <Edit3 size={14} /> Editar Perfil
+              <Edit3 size={14} /> {t("pages.profile.editProfile")}
             </button>
             <button onClick={handleShare}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm font-semibold text-foreground/60 hover:bg-white/8 transition-all">
@@ -694,10 +698,10 @@ export default function Profile() {
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {[
-            { label: "Vídeos",     value: fmtNum(stats.videos),    icon: <Film  size={15} className="text-neon-pink"   /> },
-            { label: "Vistas",     value: fmtNum(stats.views),     icon: <Eye   size={15} className="text-neon-purple" /> },
-            { label: "Gostos",     value: fmtNum(stats.likes),     icon: <Heart size={15} className="text-red-400"     /> },
-            { label: "Seguidores", value: fmtNum(stats.followers), icon: <User  size={15} className="text-neon-blue"   /> },
+            { label: t("pages.profile.stats.videos"),    value: fmtNum(stats.videos),    icon: <Film  size={15} className="text-neon-pink"   /> },
+            { label: t("pages.profile.stats.views"),     value: fmtNum(stats.views),     icon: <Eye   size={15} className="text-neon-purple" /> },
+            { label: t("pages.profile.stats.likes"),     value: fmtNum(stats.likes),     icon: <Heart size={15} className="text-red-400"     /> },
+            { label: t("pages.profile.stats.followers"), value: fmtNum(stats.followers), icon: <User  size={15} className="text-neon-blue"   /> },
           ].map(stat => (
             <div key={stat.label}
               className="glass border border-white/10 rounded-2xl p-4 flex flex-col items-center gap-1 text-center">
@@ -711,9 +715,9 @@ export default function Profile() {
         {/* Tabs */}
         <div className="flex border-b border-white/10 mb-6">
           {([
-            ["videos",    "Vídeos",    Film],
-            ["favoritos", "Favoritos", Heart],
-            ["sobre",     "Sobre",     User],
+            ["videos",    t("pages.profile.tabs.videos"),    Film],
+            ["favoritos", t("pages.profile.tabs.favorites"), Heart],
+            ["sobre",     t("pages.profile.tabs.about"),     User],
           ] as ["videos" | "favoritos" | "sobre", string, ElementType][]).map(([tab, label, Icon]) => (
             <button key={tab} onClick={() => setActiveTab(tab)}
               className={`flex items-center gap-1.5 px-4 py-3 text-sm font-semibold border-b-2 -mb-px transition-all ${
@@ -739,12 +743,12 @@ export default function Profile() {
                 <Film size={26} className="text-foreground/18" />
               </div>
               <div className="text-center">
-                <p className="text-foreground/55 font-semibold">Ainda sem vídeos</p>
-                <p className="text-foreground/30 text-sm mt-1">Os teus vídeos aparecerão aqui</p>
+                <p className="text-foreground/55 font-semibold">{t("pages.profile.empty.noVideos")}</p>
+                <p className="text-foreground/30 text-sm mt-1">{t("pages.profile.empty.noVideosMsg")}</p>
               </div>
               <Link to="/studio/upload"
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold hover:opacity-90 transition-all">
-                Enviar primeiro vídeo
+                {t("pages.profile.empty.uploadFirst")}
               </Link>
             </div>
           ) : (
@@ -766,12 +770,12 @@ export default function Profile() {
                 <Heart size={26} className="text-foreground/18" />
               </div>
               <div className="text-center">
-                <p className="text-foreground/55 font-semibold">Sem vídeos favoritos</p>
-                <p className="text-foreground/30 text-sm mt-1">Os vídeos que gostar aparecerão aqui</p>
+                <p className="text-foreground/55 font-semibold">{t("pages.profile.empty.noFavs")}</p>
+                <p className="text-foreground/30 text-sm mt-1">{t("pages.profile.empty.noFavsMsg")}</p>
               </div>
               <Link to="/dashboard"
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm font-semibold text-foreground/60 hover:bg-white/10 transition-all">
-                Descobrir vídeos
+                {t("pages.profile.empty.discoverVideos")}
               </Link>
             </div>
           ) : (
@@ -787,15 +791,15 @@ export default function Profile() {
             <div className="glass border border-white/10 rounded-2xl p-5 space-y-4">
               {profile?.bio ? (
                 <div>
-                  <h3 className="text-[10px] font-bold text-foreground/35 uppercase tracking-widest mb-2">Sobre</h3>
+                  <h3 className="text-[10px] font-bold text-foreground/35 uppercase tracking-widest mb-2">{t("pages.profile.about.title")}</h3>
                   <p className="text-sm text-foreground/70 leading-relaxed">{profile.bio}</p>
                 </div>
               ) : (
                 <div className="text-center py-3">
-                  <p className="text-foreground/35 text-sm">Sem bio</p>
+                  <p className="text-foreground/35 text-sm">{t("pages.profile.about.noBio")}</p>
                   <button onClick={() => setEditOpen(true)}
                     className="text-neon-pink text-sm mt-1 hover:text-neon-pink/80 transition-colors">
-                    Adicionar bio →
+                    {t("pages.profile.about.addBio")}
                   </button>
                 </div>
               )}
@@ -804,7 +808,7 @@ export default function Profile() {
                 <div className="pt-2 border-t border-white/8">
                   <div className="flex items-center gap-2.5 text-sm text-foreground/55">
                     <Calendar size={14} className="text-foreground/30 flex-shrink-0" />
-                    Membro desde {fmtDate(profile.created_at)}
+                    {t("pages.profile.memberSince", { date: fmtDate(profile.created_at) })}
                   </div>
                 </div>
               )}
@@ -819,9 +823,9 @@ export default function Profile() {
                       <Video size={16} className="text-neon-pink" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-foreground">Tornar-me Criador de Conteúdo</h3>
+                      <h3 className="text-sm font-bold text-foreground">{t("pages.profile.creator.becomeCreator")}</h3>
                       <p className="text-[12px] text-foreground/50 mt-0.5 leading-relaxed">
-                        Publica vídeos e constrói a tua audiência na plataforma
+                        {t("pages.profile.creator.subtitle")}
                       </p>
                     </div>
                   </div>
@@ -832,7 +836,7 @@ export default function Profile() {
                   )}
                   {creatorJustActive && (
                     <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-green-500/10 border border-green-500/20 text-xs text-green-400 mb-3">
-                      <CheckCircle2 size={12} className="flex-shrink-0" /> Conta de criador activada! Já podes aceder ao Studio.
+                      <CheckCircle2 size={12} className="flex-shrink-0" /> {t("pages.profile.creator.justActivated")}
                     </div>
                   )}
                   <button
@@ -841,8 +845,8 @@ export default function Profile() {
                     className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50"
                   >
                     {activatingCreator
-                      ? <><Loader2 size={13} className="animate-spin" />A activar...</>
-                      : "Activar criação de conteúdo"
+                      ? <><Loader2 size={13} className="animate-spin" />{t("pages.profile.creator.activating")}</>
+                      : t("pages.profile.creator.activate")
                     }
                   </button>
                 </>
@@ -853,15 +857,15 @@ export default function Profile() {
                       <Video size={16} className="text-green-400" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-green-400">✓ Criador de conteúdo activo</p>
-                      <p className="text-[11px] text-foreground/40 mt-0.5">Podes publicar vídeos e gerir o teu conteúdo</p>
+                      <p className="text-sm font-bold text-green-400">{t("pages.profile.creator.active")}</p>
+                      <p className="text-[11px] text-foreground/40 mt-0.5">{t("pages.profile.creator.activeMsg")}</p>
                     </div>
                   </div>
                   <Link
                     to="/studio"
                     className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm font-semibold text-foreground/70 hover:bg-white/10 hover:text-foreground transition-all flex-shrink-0 whitespace-nowrap"
                   >
-                    Ir para o Studio <ArrowRight size={13} />
+                    {t("pages.profile.creator.goToStudio")} <ArrowRight size={13} />
                   </Link>
                 </div>
               )}

@@ -5,6 +5,7 @@
 // Executar primeiro: add_canais_table.sql no Supabase SQL Editor
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
 import { supabase } from "@/lib/supabaseClient";
@@ -84,6 +85,7 @@ const GRADIENTS = [
 // Auth Popup
 // ─────────────────────────────────────────────
 function AuthPopup({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
       <div className="relative max-w-sm w-full rounded-2xl border border-neon-pink/20 overflow-hidden shadow-[0_0_80px_rgba(236,72,153,0.15)]"
@@ -95,21 +97,21 @@ function AuthPopup({ onClose }: { onClose: () => void }) {
           <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-neon-pink to-neon-purple flex items-center justify-center">
             <Tv size={24} className="text-white" />
           </div>
-          <h3 className="text-lg font-black text-white mb-2">Subscreve este canal</h3>
+          <h3 className="text-lg font-black text-white mb-2">{t("pages.canais.auth.subscribe")}</h3>
           <p className="text-white/42 text-sm mb-6">
-            Cria uma conta grátis para subscrever canais e receber notificações de novos conteúdos.
+            {t("pages.canais.auth.body")}
           </p>
           <div className="space-y-2.5">
             <Link to="/signup" onClick={onClose}
               className="block w-full py-3 bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold rounded-xl hover:shadow-[0_0_20px_rgba(236,72,153,0.35)] transition-all">
-              Criar conta grátis
+              {t("pages.canais.auth.createAccount")}
             </Link>
             <Link to="/login" onClick={onClose}
               className="block w-full py-3 bg-white/6 border border-white/10 text-white text-sm font-semibold rounded-xl hover:bg-white/10 transition-all">
-              Já tenho conta
+              {t("pages.canais.auth.hasAccount")}
             </Link>
             <button onClick={onClose} className="text-xs text-white/22 hover:text-white/50 transition-colors">
-              Continuar a navegar
+              {t("common.continueNavigation")}
             </button>
           </div>
         </div>
@@ -125,6 +127,7 @@ function CanalCard({ canal, index, isSubscribed, onSubscribe, onOpen }: {
   canal: Canal; index: number; isSubscribed: boolean;
   onSubscribe: (id: string) => void; onOpen: (c: Canal) => void;
 }) {
+  const { t } = useTranslation();
   const grad = GRADIENTS[index % GRADIENTS.length];
   return (
     <div className="group relative rounded-2xl overflow-hidden border border-white/8 bg-[#0d0d12] hover:border-white/20 transition-all duration-300 cursor-pointer"
@@ -166,7 +169,7 @@ function CanalCard({ canal, index, isSubscribed, onSubscribe, onOpen }: {
         <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/70 border border-white/15 backdrop-blur-sm">
           <span className={`w-1.5 h-1.5 rounded-full ${canal.video_count > 0 ? "bg-red-500 animate-pulse" : "bg-white/30"}`} />
           <span className="text-white/80 text-[10px] font-black tracking-widest uppercase">
-            {canal.video_count > 0 ? "Activo" : "Em breve"}
+            {canal.video_count > 0 ? t("pages.canais.card.active") : t("pages.canais.card.soon")}
           </span>
         </div>
 
@@ -200,7 +203,7 @@ function CanalCard({ canal, index, isSubscribed, onSubscribe, onOpen }: {
                 ? "bg-white/6 border-white/10 text-white/40 hover:bg-red-500/10 hover:border-red-500/25 hover:text-red-400"
                 : "bg-neon-pink/10 border-neon-pink/30 text-neon-pink hover:bg-neon-pink/18 hover:scale-[1.03]"
             }`}>
-            {isSubscribed ? <><BellOff size={10} />Subscrito</> : <><Bell size={10} />Subscrever</>}
+            {isSubscribed ? <><BellOff size={10} />{t("pages.canais.card.subscribed")}</> : <><Bell size={10} />{t("pages.canais.card.subscribe")}</>}
           </button>
         </div>
 
@@ -216,9 +219,9 @@ function CanalCard({ canal, index, isSubscribed, onSubscribe, onOpen }: {
 
         <div className="grid grid-cols-3 gap-1">
           {[
-            { label: "Vídeos", value: fmtNum(canal.video_count),      icon: Film  },
-            { label: "Views",  value: fmtNum(canal.total_views),      icon: Eye   },
-            { label: "Inscritos", value: fmtNum(canal.subscriber_count), icon: Users },
+            { label: t("pages.canais.card.videos"),      value: fmtNum(canal.video_count),      icon: Film  },
+            { label: t("pages.canais.card.views"),       value: fmtNum(canal.total_views),      icon: Eye   },
+            { label: t("pages.canais.card.subscribers"), value: fmtNum(canal.subscriber_count), icon: Users },
           ].map(({ label, value, icon: Icon }) => (
             <div key={label} className="bg-white/[0.04] border border-white/6 rounded-xl py-2 text-center">
               <Icon size={9} className="text-white/28 mx-auto mb-0.5" />
@@ -243,6 +246,7 @@ function CanalDetalhe({ canal, isSubscribed, onSubscribe, onBack }: {
   canal: Canal; isSubscribed: boolean;
   onSubscribe: (id: string) => void; onBack: () => void;
 }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const grad = GRADIENTS[0];
   const [videos, setVideos]         = useState<CanalVideo[]>([]);
@@ -299,7 +303,7 @@ function CanalDetalhe({ canal, isSubscribed, onSubscribe, onBack }: {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-transparent" />
         <button onClick={onBack}
           className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/60 border border-white/12 text-white/70 text-xs hover:bg-black/80 transition-all backdrop-blur-sm">
-          ← Canais
+          {t("pages.canais.detail.back")}
         </button>
       </div>
 
@@ -331,15 +335,15 @@ function CanalDetalhe({ canal, isSubscribed, onSubscribe, onBack }: {
                 ? "bg-white/8 border border-white/12 text-white/50 hover:bg-white/12"
                 : "bg-gradient-to-r from-neon-pink to-neon-purple text-white hover:shadow-lg hover:shadow-neon-pink/25"
             }`}>
-            {isSubscribed ? <><BellOff size={15} />Subscrito</> : <><Bell size={15} />Subscrever</>}
+            {isSubscribed ? <><BellOff size={15} />{t("pages.canais.card.subscribed")}</> : <><Bell size={15} />{t("pages.canais.card.subscribe")}</>}
           </button>
         </div>
 
         <div className="grid grid-cols-3 gap-3 mb-8">
           {[
-            { label: "Vídeos",    value: fmtNum(canal.video_count),      icon: Film,  color: "text-neon-pink"   },
-            { label: "Views",     value: fmtNum(canal.total_views),      icon: Eye,   color: "text-neon-blue"   },
-            { label: "Inscritos", value: fmtNum(canal.subscriber_count), icon: Users, color: "text-neon-purple" },
+            { label: t("pages.canais.detail.videos"),      value: fmtNum(canal.video_count),      icon: Film,  color: "text-neon-pink"   },
+            { label: t("pages.canais.detail.views"),       value: fmtNum(canal.total_views),      icon: Eye,   color: "text-neon-blue"   },
+            { label: t("pages.canais.detail.subscribers"), value: fmtNum(canal.subscriber_count), icon: Users, color: "text-neon-purple" },
           ].map(({ label, value, icon: Icon, color }) => (
             <div key={label} className="bg-white/[0.04] border border-white/8 rounded-2xl p-4 text-center">
               <Icon size={18} className={`mx-auto mb-1.5 ${color}`} />
@@ -351,7 +355,7 @@ function CanalDetalhe({ canal, isSubscribed, onSubscribe, onBack }: {
 
         <h2 className="text-sm font-black text-white/40 uppercase tracking-widest mb-4 flex items-center gap-2">
           <Film size={13} className="text-neon-pink" />
-          Vídeos do Canal
+          {t("pages.canais.detail.channelVideos")}
           {!loadingVideos && <span className="text-neon-pink">({videos.length})</span>}
         </h2>
 
@@ -387,7 +391,7 @@ function CanalDetalhe({ canal, isSubscribed, onSubscribe, onBack }: {
                   )}
                 </div>
                 <p className="text-xs font-semibold text-white/80 line-clamp-2 group-hover/v:text-neon-pink transition-colors leading-snug">
-                  {v.title || "Sem título"}
+                  {v.title || t("common.noTitle")}
                 </p>
                 <div className="flex items-center gap-2 mt-1 text-[10px] text-white/32">
                   <span className="flex items-center gap-0.5"><Eye size={9} />{fmtNum(v.views)}</span>
@@ -402,11 +406,11 @@ function CanalDetalhe({ canal, isSubscribed, onSubscribe, onBack }: {
             <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center">
               <Film size={24} className="text-white/18" />
             </div>
-            <p className="text-white/38 text-sm">Ainda sem vídeos publicados</p>
+            <p className="text-white/38 text-sm">{t("pages.canais.detail.noVideos.title")}</p>
             {!isSubscribed && (
               <button onClick={() => onSubscribe(canal.id)}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-xs font-bold mt-1 hover:shadow-lg hover:shadow-neon-pink/20 transition-all">
-                <Bell size={12} /> Subscreve para ser notificado
+                <Bell size={12} /> {t("pages.canais.detail.noVideos.subscribeBtn")}
               </button>
             )}
           </div>
@@ -418,6 +422,7 @@ function CanalDetalhe({ canal, isSubscribed, onSubscribe, onBack }: {
 
 
 export default function CanaisAuthenticated() {
+  const { t } = useTranslation();
   const [canais, setCanais]         = useState<Canal[]>([]);
   const [loading, setLoading]       = useState(true);
   const [query, setQuery]           = useState("");
@@ -559,18 +564,18 @@ export default function CanaisAuthenticated() {
                 <Radio size={10} className="animate-pulse" /> TV & Streaming
               </div>
               <h1 className="text-4xl font-black text-white mb-2 leading-tight tracking-tight">
-                Canais{" "}
-                <span className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-blue bg-clip-text text-transparent">Premium</span>
+                {t("pages.canais.hero.title")}{" "}
+                <span className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-blue bg-clip-text text-transparent">{t("pages.canais.hero.titleHighlight")}</span>
               </h1>
               <p className="text-white/42 text-sm max-w-md">
-                Explora canais dedicados com conteúdo exclusivo. Subscreve para receber notificações.
+                {t("pages.canais.hero.subtitle")}
               </p>
             </div>
             <div className="flex gap-3 flex-shrink-0">
               {[
-                { label: "Canais",  value: loading ? "—" : fmtNum(total),                                        icon: Tv,   color: "text-neon-pink" },
-                { label: "Activos", value: loading ? "—" : fmtNum(canais.filter(c => c.video_count > 0).length), icon: Wifi, color: "text-red-400"   },
-                { label: "Subscrito", value: loading ? "—" : fmtNum(subscribedIds.size), icon: Bell, color: "text-neon-purple" },
+                { label: t("pages.canais.hero.stats.channels"),   value: loading ? "—" : fmtNum(total),                                        icon: Tv,   color: "text-neon-pink" },
+                { label: t("pages.canais.hero.stats.active"),     value: loading ? "—" : fmtNum(canais.filter(c => c.video_count > 0).length), icon: Wifi, color: "text-red-400"   },
+                { label: t("pages.canais.hero.stats.subscribed"), value: loading ? "—" : fmtNum(subscribedIds.size), icon: Bell, color: "text-neon-purple" },
               ].map(({ label, value, icon: Icon, color }) => (
                 <div key={label} className="text-center px-5 py-4 rounded-2xl bg-white/5 border border-white/8">
                   <Icon size={16} className={`mx-auto mb-1 ${color}`} />
@@ -589,13 +594,13 @@ export default function CanaisAuthenticated() {
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               tab === "todos" ? "bg-neon-pink text-white shadow-sm" : "text-white/42 hover:text-white/65"
             }`}>
-            <Layers size={12} /> Todos
+            <Layers size={12} /> {t("pages.canais.filters.all")}
           </button>
           <button onClick={() => setTab("meus")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               tab === "meus" ? "bg-neon-purple text-white shadow-sm" : "text-white/42 hover:text-white/65"
             }`}>
-            <Bell size={12} /> Os Meus
+            <Bell size={12} /> {t("pages.canais.filters.myChannels")}
             {subscribedIds.size > 0 && (
               <span className={`text-[9px] px-1.5 rounded-full font-black ${tab === "meus" ? "bg-white/20 text-white" : "bg-neon-purple/20 text-neon-purple"}`}>
                 {subscribedIds.size}
@@ -611,7 +616,7 @@ export default function CanaisAuthenticated() {
               className={`flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all ${
                 !catFiltro ? "bg-neon-pink text-white border-neon-pink" : "bg-white/5 border-white/10 text-white/45 hover:border-white/18"
               }`}>
-              Todos
+              {t("pages.canais.filters.all")}
             </button>
             {categorias.map((cat) => (
               <button key={cat} onClick={() => setCat(catFiltro === cat ? null : cat)}
@@ -629,16 +634,16 @@ export default function CanaisAuthenticated() {
           <div className="flex items-center gap-2 flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 focus-within:border-neon-pink/30 transition-all">
             <Search size={14} className="text-white/30 flex-shrink-0" />
             <input value={query} onChange={(e) => setQuery(e.target.value)}
-              placeholder="Pesquisar canais..."
+              placeholder={t("pages.canais.filters.searchPlaceholder")}
               className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/22" />
             {query && <button onClick={() => setQuery("")} className="text-white/22 hover:text-white/55 transition-colors"><X size={13} /></button>}
           </div>
           <div className="flex items-center gap-1.5">
             {([
-              ["subscribers","Inscritos",Users],
-              ["videos","Vídeos",Film],
-              ["views","Vistos",Eye],
-              ["recentes","Recentes",Sparkles],
+              ["subscribers", t("pages.canais.filters.sort.subscribers"), Users],
+              ["videos",      t("pages.canais.filters.sort.videos"),      Film],
+              ["views",       t("pages.canais.filters.sort.views"),       Eye],
+              ["recentes",    t("pages.canais.filters.sort.recent"),      Sparkles],
             ] as [SortOpt, string, React.ElementType][]).map(([val, label, Icon]) => (
               <button key={val} onClick={() => setSort(val)}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
@@ -671,17 +676,17 @@ export default function CanaisAuthenticated() {
             </div>
             <p className="text-white/45 font-semibold">
               {tab === "meus"
-                ? "Ainda não subscribeste nenhum canal"
-                : dQuery ? `Sem canais para "${dQuery}"` : "Ainda sem canais disponíveis"
+                ? t("pages.canais.empty.myChannels")
+                : dQuery ? t("pages.canais.empty.withQuery", { query: dQuery }) : t("pages.canais.empty.noChannels")
               }
             </p>
             {tab === "meus" ? (
               <button onClick={() => setTab("todos")} className="text-sm text-neon-pink hover:text-neon-pink/80 transition-colors">
-                Explorar todos os canais →
+                {t("pages.canais.empty.exploreAll")}
               </button>
             ) : (
               <p className="text-white/28 text-sm text-center max-w-xs">
-                Os canais são criados pela equipa da plataforma. Em breve terás mais conteúdo.
+                {t("pages.canais.platformNote")}
               </p>
             )}
           </div>
@@ -689,7 +694,7 @@ export default function CanaisAuthenticated() {
           <>
             <section>
               <h2 className="text-sm font-black text-white/40 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <Crown size={13} className="text-amber-400" /> Em Destaque
+                <Crown size={13} className="text-amber-400" /> {t("pages.canais.sections.featured")}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {displayed.slice(0, 3).map((c, i) => (
@@ -701,7 +706,7 @@ export default function CanaisAuthenticated() {
             {displayed.length > 3 && (
               <section>
                 <h2 className="text-sm font-black text-white/40 uppercase tracking-widest mb-4 flex items-center gap-2">
-                  <TrendingUp size={13} className="text-neon-purple" /> Todos os Canais
+                  <TrendingUp size={13} className="text-neon-purple" /> {t("pages.canais.sections.all")}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {displayed.slice(3).map((c, i) => (

@@ -3,6 +3,7 @@
 // Activada via /app/checkout/sucesso (redireccionado de /app/galeria?success=true)
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Crown, Check, Sparkles, Lock, ImageIcon, Zap, Star } from "lucide-react";
 
@@ -58,12 +59,8 @@ function useCounter(target: number, durationMs: number, active: boolean) {
 // ─────────────────────────────────────────────
 // Benefícios
 // ─────────────────────────────────────────────
-const BENEFITS = [
-  { icon: ImageIcon, text: "+1.000 fotos exclusivas desbloqueadas", color: "#ec4899" },
-  { icon: Zap,       text: "Acesso instantâneo a todos os packs",    color: "#9333ea" },
-  { icon: Star,      text: "Novos conteúdos adicionados semanalmente", color: "#fbbf24" },
-  { icon: Lock,      text: "Conteúdo que não encontras em mais lado", color: "#34d399" },
-];
+const BENEFITS_COLORS = ["#ec4899", "#9333ea", "#fbbf24", "#34d399"];
+const BENEFITS_ICONS  = [ImageIcon, Zap, Star, Lock];
 
 const COUNTDOWN_TOTAL = 8;
 
@@ -71,6 +68,7 @@ const COUNTDOWN_TOTAL = 8;
 // Componente principal
 // ─────────────────────────────────────────────
 export default function CheckoutSucesso() {
+  const { t }      = useTranslation();
   const navigate   = useNavigate();
   const [animIn, setAnimIn]       = useState(false);
   const [countdown, setCountdown] = useState(COUNTDOWN_TOTAL);
@@ -219,14 +217,14 @@ export default function CheckoutSucesso() {
               WebkitTextFillColor:  "transparent",
             }}
           >
-            Bem-vindo à<br />Galeria Exclusiva
+            {t("checkout.sucesso.title1")}<br />{t("checkout.sucesso.title2")}
           </h1>
 
           {/* Subtítulo */}
           <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>
-            Juntaste-te a{" "}
-            <strong className="text-white">2.847 membros</strong>{" "}
-            que têm acesso ao que mais ninguém vê
+            {t("checkout.sucesso.subtitlePre")}
+            <strong className="text-white">2.847 {t("checkout.membersActive")}</strong>
+            {t("checkout.sucesso.subtitlePost")}
           </p>
 
           {/* Contador */}
@@ -247,13 +245,13 @@ export default function CheckoutSucesso() {
                 WebkitTextFillColor:  "transparent",
               }}
             >
-              Desbloqueaste +{counter.toLocaleString()} fotos exclusivas
+              {t("checkout.sucesso.unlocked", { count: counter.toLocaleString() })}
             </span>
           </div>
 
           {/* Benefícios */}
           <div className="w-full max-w-md" style={{ display: "flex", flexDirection: "column", gap: "clamp(4px,0.7vh,8px)" }}>
-            {BENEFITS.map(({ icon: Icon, text, color }, i) => (
+            {BENEFITS_ICONS.map((Icon, i) => { const color = BENEFITS_COLORS[i]; return (
               <div
                 key={i}
                 className="flex items-center gap-3 px-3 rounded-xl"
@@ -274,11 +272,11 @@ export default function CheckoutSucesso() {
                   <Icon size={13} />
                 </div>
                 <span className="text-xs font-semibold flex-1" style={{ color: "rgba(255,255,255,0.85)" }}>
-                  {text}
+                  {t(`checkout.sucesso.benefit${i + 1}`)}
                 </span>
                 <Check size={11} style={{ color: "#34d399", flexShrink: 0 }} />
               </div>
-            ))}
+            ); })}
           </div>
 
           {/* CTA */}
@@ -294,13 +292,13 @@ export default function CheckoutSucesso() {
               animation:     "ctaGlow 2.2s ease-in-out infinite",
             }}
           >
-            ENTRAR NA GALERIA AGORA →
+            {t("checkout.sucesso.cta")}
           </button>
 
           {/* Countdown */}
           <div className="w-full max-w-md space-y-1.5">
             <p className="text-xs" style={{ color: "rgba(255,255,255,0.30)" }}>
-              A redirecionar em {countdown} segundo{countdown !== 1 ? "s" : ""}...
+              {t("checkout.sucesso.redirecting", { count: countdown })}
             </p>
             <div
               className="h-1 rounded-full overflow-hidden"

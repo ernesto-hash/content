@@ -13,6 +13,7 @@
 // Realtime: perfil atualiza ao dar like/dislike
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
 import { useRecommendations, getSessionId, RecoTab } from "@/hooks/useRecommendations";
@@ -48,6 +49,7 @@ function VideoGridCardAuth({
   onLike: (id: string) => void;
   onSave: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="group relative overflow-hidden rounded-xl bg-white/[0.03] border border-white/8 hover:border-neon-pink/30 hover:shadow-lg hover:shadow-neon-pink/5 transition-all duration-300">
 
@@ -92,13 +94,13 @@ function VideoGridCardAuth({
               : <div className="w-full h-full flex items-center justify-center"><Users size={10} className="text-white/28" /></div>
             }
           </div>
-          <span className="text-[11px] text-foreground/45 truncate">{video.creator_name ?? "Criador"}</span>
+          <span className="text-[11px] text-foreground/45 truncate">{video.creator_name ?? t("common.creator")}</span>
         </div>
 
         {/* Título */}
         <Link to={`/video/${video.id}`}>
           <h3 className="font-semibold text-sm text-foreground/85 line-clamp-2 hover:text-neon-pink transition-colors leading-snug cursor-pointer">
-            {video.title || "Sem título"}
+            {video.title || t("common.noTitle")}
           </h3>
         </Link>
 
@@ -159,6 +161,7 @@ function VideoListCardAuth({
   onLike: (id: string) => void;
   onSave: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="group flex gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/8 hover:border-neon-pink/20 hover:bg-white/[0.05] transition-all">
       <Link to={`/video/${video.id}`} className="relative w-44 aspect-video flex-shrink-0 rounded-lg overflow-hidden bg-black/20">
@@ -185,7 +188,7 @@ function VideoListCardAuth({
             <Sparkles size={8} />{video.reason}
           </span>
           <Link to={`/video/${video.id}`}>
-            <h3 className="font-semibold text-sm text-foreground/85 line-clamp-2 hover:text-neon-pink transition-colors leading-snug">{video.title || "Sem título"}</h3>
+            <h3 className="font-semibold text-sm text-foreground/85 line-clamp-2 hover:text-neon-pink transition-colors leading-snug">{video.title || t("common.noTitle")}</h3>
           </Link>
           <div className="flex items-center gap-3 text-[11px] text-foreground/35">
             <span className="flex items-center gap-1"><Eye size={10} />{fmtNum(video.views)}</span>
@@ -214,7 +217,7 @@ function VideoListCardAuth({
             }`}
           >
             <Bookmark size={11} className={isSaved ? "fill-neon-purple" : ""} />
-            {isSaved ? "Guardado" : "Guardar"}
+            {isSaved ? t("pages.recomendados.card.saved") : t("pages.recomendados.card.save")}
           </button>
         </div>
       </div>
@@ -248,6 +251,7 @@ function SkeletonGrid() {
 // Componente principal
 // ─────────────────────────────────────────────
 export default function RecomendadosAuthenticatedPage() {
+  const { t } = useTranslation();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // Auth + redirect
@@ -316,10 +320,10 @@ export default function RecomendadosAuthenticatedPage() {
     : videos;
 
   const TABS: { id: RecoTab; label: string; icon: React.ElementType }[] = [
-    { id: "para_voce",    label: "Para si",       icon: Sparkles   },
-    { id: "historico",    label: "Do histórico",  icon: History    },
-    { id: "subscricoes",  label: "Subscricoes",   icon: Bell       },
-    { id: "tendencias",   label: "Tendências",    icon: TrendingUp },
+    { id: "para_voce",    label: t("pages.recomendados.tabs.forYou"),       icon: Sparkles   },
+    { id: "historico",    label: t("pages.recomendados.tabs.fromHistory"),  icon: History    },
+    { id: "subscricoes",  label: t("pages.recomendados.tabs.subscriptions"), icon: Bell      },
+    { id: "tendencias",   label: t("pages.recomendados.tabs.trending"),     icon: TrendingUp },
   ];
 
   // Importar History de lucide dentro do componente (já está importado acima)
@@ -334,17 +338,17 @@ export default function RecomendadosAuthenticatedPage() {
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-5">
             <div className="max-w-lg">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neon-pink/10 border border-neon-pink/20 text-neon-pink text-[11px] font-bold tracking-wider uppercase mb-3">
-                <Zap size={10} /> Personalizado para si
+                <Zap size={10} /> {t("pages.recomendados.hero.badge")}
               </div>
               <h1 className="text-3xl font-black text-white mb-2 leading-tight">
                 <span className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-blue bg-clip-text text-transparent">
-                  Recomendados
-                </span>{" "}para si
+                  {t("pages.recomendados.hero.titleHighlight")}
+                </span>{" "}{t("pages.recomendados.hero.titleSuffix")}
               </h1>
               <p className="text-foreground/48 text-sm leading-relaxed">
                 {hasProfile
-                  ? "Calculado com base nos teus likes, histórico e subscrições."
-                  : "Começa a interagir com vídeos para receberes recomendações mais precisas."}
+                  ? t("pages.recomendados.hero.subtitleAuth")
+                  : t("pages.recomendados.hero.subtitleNoProfileAuth")}
               </p>
             </div>
 
@@ -352,7 +356,7 @@ export default function RecomendadosAuthenticatedPage() {
             {hasProfile && (
               <div className="flex-shrink-0 bg-white/[0.03] border border-white/8 rounded-2xl p-4 min-w-[170px]">
                 <p className="text-[10px] text-foreground/35 uppercase tracking-wider font-bold mb-3 flex items-center gap-1.5">
-                  <Star size={9} className="text-neon-pink" /> Teus interesses
+                  <Star size={9} className="text-neon-pink" /> {t("pages.recomendados.interests")}
                 </p>
                 <div className="space-y-2">
                   {topCats.map(([cat, score]) => (
@@ -377,10 +381,10 @@ export default function RecomendadosAuthenticatedPage() {
         {!loading && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Sugestões",     value: String(videos.length),       icon: Sparkles, color: "text-neon-pink"   },
-              { label: "Gostos dados",  value: fmtNum(likedIds.size),       icon: Heart,    color: "text-rose-400"    },
-              { label: "Guardados",     value: fmtNum(savedIds.size),       icon: Bookmark, color: "text-neon-purple" },
-              { label: "Categorias",    value: String(Object.keys(interestProfile).length), icon: Star, color: "text-neon-blue" },
+              { label: t("pages.recomendados.stats.suggestions"), value: String(videos.length),       icon: Sparkles, color: "text-neon-pink"   },
+              { label: t("pages.recomendados.stats.likes"),        value: fmtNum(likedIds.size),       icon: Heart,    color: "text-rose-400"    },
+              { label: t("pages.recomendados.stats.saved"),        value: fmtNum(savedIds.size),       icon: Bookmark, color: "text-neon-purple" },
+              { label: t("pages.recomendados.stats.categories"),   value: String(Object.keys(interestProfile).length), icon: Star, color: "text-neon-blue" },
             ].map(({ label, value, icon: Icon, color }) => (
               <div key={label} className="bg-white/[0.03] border border-white/7 rounded-2xl p-3.5 text-center">
                 <Icon size={15} className={`mx-auto mb-1 ${color}`} />
@@ -414,7 +418,7 @@ export default function RecomendadosAuthenticatedPage() {
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Pesquisar nos recomendados..."
+              placeholder={t("pages.recomendados.searchPlaceholder")}
               className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/26"
             />
             {searchTerm && (
@@ -449,17 +453,17 @@ export default function RecomendadosAuthenticatedPage() {
             </div>
             <div className="text-center space-y-1">
               <p className="text-foreground/55 font-semibold">
-                {dSearch ? `Sem resultados para "${dSearch}"` : "Ainda sem recomendações"}
+                {dSearch ? t("pages.recomendados.empty.noResultsFor", { query: dSearch }) : t("pages.recomendados.empty.noRecos")}
               </p>
               <p className="text-foreground/28 text-sm max-w-xs">
                 {activeTab === "subscricoes"
-                  ? "Subscreve canais de modelos para ver os seus vídeos aqui."
-                  : "Dá like em vídeos ou navega um pouco para começarmos a personalizar."}
+                  ? t("pages.recomendados.empty.subscriptionHint")
+                  : t("pages.recomendados.empty.generalHint")}
               </p>
             </div>
             {activeTab === "subscricoes" && (
               <Link to="/app/modelos" className="text-sm text-neon-pink hover:text-neon-pink/80 transition-colors">
-                Ver modelos →
+                {t("pages.recomendados.empty.seeModels")}
               </Link>
             )}
           </div>
@@ -491,7 +495,7 @@ export default function RecomendadosAuthenticatedPage() {
               onClick={refresh}
               className="flex items-center gap-2 px-7 py-3 rounded-xl bg-white/5 border border-white/10 text-foreground/60 text-sm font-semibold hover:bg-white/8 hover:border-white/20 hover:text-foreground transition-all"
             >
-              <RefreshCw size={14} /> Ver mais recomendações
+              <RefreshCw size={14} /> {t("pages.recomendados.loadMore")}
             </button>
           </div>
         )}

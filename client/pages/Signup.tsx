@@ -4,6 +4,7 @@ import {
   Mail, Lock, User, Eye, EyeOff, AlertCircle,
   MonitorPlay, Video, ArrowLeft,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { register, loginWithGoogle } from "../services/auth";
 import { createProfile } from "../services/profiles";
 import { checkRateLimit } from "@/lib/rateLimiter";
@@ -12,6 +13,7 @@ type AccountType = "user" | "creator";
 
 export default function Signup() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [step,         setStep]         = useState<"select" | "form">("select");
   const [selectedRole, setSelectedRole] = useState<AccountType | null>(null);
@@ -36,25 +38,25 @@ export default function Signup() {
     setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("As senhas não coincidem.");
+      setError(t("auth.errors.passwordMismatch"));
       return;
     }
     if (!agreedToTerms) {
-      setError("Deve aceitar os termos e condições.");
+      setError(t("auth.errors.mustAcceptTerms"));
       return;
     }
     if (!ageConfirmed) {
-      setError("Deve confirmar que tem 18 anos ou mais.");
+      setError(t("auth.errors.mustConfirmAge"));
       return;
     }
     if (formData.password.length < 8) {
-      setError("A senha deve ter pelo menos 8 caracteres.");
+      setError(t("auth.errors.passwordTooShort"));
       return;
     }
 
     const rl = checkRateLimit("signup");
     if (!rl.allowed) {
-      setError(rl.message ?? "Demasiadas tentativas. Tenta mais tarde.");
+      setError(rl.message ?? t("auth.errors.tooManyAttempts"));
       return;
     }
 
@@ -76,10 +78,10 @@ export default function Signup() {
         });
       }
 
-      alert("Conta criada! Verifica o teu email para confirmar a conta.");
+      alert(t("auth.signup.successAlert"));
       navigate("/login");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Erro ao criar conta.";
+      const msg = err instanceof Error ? err.message : t("auth.errors.generic");
       setError(msg);
     } finally {
       setIsLoading(false);
@@ -120,7 +122,7 @@ export default function Signup() {
           {step === "select" && (
             <>
               <p className="text-center text-foreground/60 text-sm mb-5">
-                Como queres usar a plataforma?
+                {t("auth.signup.howToUse")}
               </p>
 
               <div className="grid grid-cols-2 gap-3 mb-4">
@@ -142,14 +144,14 @@ export default function Signup() {
                     }`}
                   />
                   <p className="font-bold text-sm text-foreground leading-tight">
-                    Quero assistir conteúdo
+                    {t("auth.signup.viewer.title")}
                   </p>
                   <p className="text-[10px] text-foreground/45 mt-1.5 leading-snug">
-                    Acede a conteúdo exclusivo dos teus criadores favoritos
+                    {t("auth.signup.viewer.desc")}
                   </p>
                   {selectedRole === "user" && (
                     <span className="inline-block mt-2 text-[9px] font-bold uppercase tracking-wider text-neon-purple bg-neon-purple/15 px-2 py-0.5 rounded-full">
-                      Selecionado
+                      {t("auth.signup.selected")}
                     </span>
                   )}
                 </button>
@@ -171,14 +173,14 @@ export default function Signup() {
                     }`}
                   />
                   <p className="font-bold text-sm text-foreground leading-tight">
-                    Quero criar conteúdo
+                    {t("auth.signup.creator.title")}
                   </p>
                   <p className="text-[10px] text-foreground/45 mt-1.5 leading-snug">
-                    Publica vídeos e constrói a tua audiência
+                    {t("auth.signup.creator.desc")}
                   </p>
                   {selectedRole === "creator" && (
                     <span className="inline-block mt-2 text-[9px] font-bold uppercase tracking-wider text-neon-pink bg-neon-pink/15 px-2 py-0.5 rounded-full">
-                      Selecionado
+                      {t("auth.signup.selected")}
                     </span>
                   )}
                 </button>
@@ -190,13 +192,13 @@ export default function Signup() {
                 disabled={!selectedRole}
                 className="w-full bg-gradient-to-r from-neon-pink to-neon-purple text-white py-2.5 rounded-lg text-sm font-semibold hover:shadow-[0_0_30px_rgba(236,72,153,0.5)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Continuar →
+                {t("auth.signup.continueBtn")}
               </button>
 
               <div className="relative my-4">
                 <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10" /></div>
                 <div className="relative flex justify-center text-xs">
-                  <span className="px-2 bg-gradient-to-b from-background to-background text-foreground/60">ou</span>
+                  <span className="px-2 bg-gradient-to-b from-background to-background text-foreground/60">{t("auth.divider")}</span>
                 </div>
               </div>
 
@@ -211,12 +213,12 @@ export default function Signup() {
                 <span>Google</span>
               </button>
               <p className="text-center text-foreground/30 text-[10px] mt-1.5">
-                Contas Google são criadas como visualizador
+                {t("auth.signup.googleNote")}
               </p>
 
               <p className="text-center text-foreground/60 text-xs mt-4">
-                Já tem conta?{" "}
-                <Link to="/login" className="text-neon-purple hover:text-neon-pink font-semibold transition-colors">Entrar</Link>
+                {t("auth.signup.hasAccount")}{" "}
+                <Link to="/login" className="text-neon-purple hover:text-neon-pink font-semibold transition-colors">{t("auth.login.submit")}</Link>
               </p>
             </>
           )}
@@ -231,18 +233,18 @@ export default function Signup() {
                   className="flex items-center gap-1 text-xs text-foreground/40 hover:text-foreground/70 transition-colors"
                 >
                   <ArrowLeft className="w-3 h-3" />
-                  Alterar tipo de conta
+                  {t("auth.signup.changeType")}
                 </button>
                 <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                   selectedRole === "creator"
                     ? "text-neon-pink bg-neon-pink/15"
                     : "text-neon-purple bg-neon-purple/15"
                 }`}>
-                  {selectedRole === "creator" ? "Criador" : "Visualizador"}
+                  {selectedRole === "creator" ? t("auth.signup.roleCreator") : t("auth.signup.roleViewer")}
                 </span>
               </div>
 
-              <p className="text-center text-foreground/60 text-sm mb-4">Crie a sua conta</p>
+              <p className="text-center text-foreground/60 text-sm mb-4">{t("auth.signup.formTitle")}</p>
 
               {error && (
                 <div className="mb-4 flex items-start gap-2 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm">
@@ -255,12 +257,12 @@ export default function Signup() {
 
                 {/* Nome */}
                 <div>
-                  <label className="block text-foreground text-xs font-semibold mb-1">Nome Completo</label>
+                  <label className="block text-foreground text-xs font-semibold mb-1">{t("auth.fields.fullName")}</label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 text-neon-purple/50 w-4 h-4" />
                     <input
                       type="text" name="name" value={formData.name} onChange={handleChange}
-                      placeholder="Seu nome"
+                      placeholder={t("auth.fields.namePlaceholder")}
                       className="w-full pl-9 pr-3 py-2 text-sm rounded-lg glass border border-white/20 text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-neon-purple/50 transition-all"
                       required disabled={isLoading} autoComplete="name"
                     />
@@ -283,13 +285,13 @@ export default function Signup() {
 
                 {/* Senha */}
                 <div>
-                  <label className="block text-foreground text-xs font-semibold mb-1">Senha</label>
+                  <label className="block text-foreground text-xs font-semibold mb-1">{t("auth.fields.password")}</label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-neon-purple/50 w-4 h-4" />
                     <input
                       type={showPassword ? "text" : "password"} name="password"
                       value={formData.password} onChange={handleChange}
-                      placeholder="Mínimo 8 caracteres"
+                      placeholder={t("auth.fields.passwordMinPlaceholder")}
                       className="w-full pl-9 pr-8 py-2 text-sm rounded-lg glass border border-white/20 text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-neon-purple/50 transition-all"
                       required disabled={isLoading} autoComplete="new-password" minLength={8}
                     />
@@ -300,13 +302,19 @@ export default function Signup() {
                     </button>
                   </div>
                   {passwordStrength && (
-                    <p className={`text-[10px] mt-1 ${strengthColor}`}>Força: {passwordStrength}</p>
+                    <p className={`text-[10px] mt-1 ${strengthColor}`}>
+                      {t("auth.password.strength", {
+                        level: passwordStrength === "Forte" ? t("auth.password.strong")
+                          : passwordStrength === "Médio" ? t("auth.password.medium")
+                          : t("auth.password.weak"),
+                      })}
+                    </p>
                   )}
                 </div>
 
                 {/* Confirmar senha */}
                 <div>
-                  <label className="block text-foreground text-xs font-semibold mb-1">Confirmar Senha</label>
+                  <label className="block text-foreground text-xs font-semibold mb-1">{t("auth.fields.confirmPassword")}</label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-neon-purple/50 w-4 h-4" />
                     <input
@@ -331,10 +339,10 @@ export default function Signup() {
                     className="w-3.5 h-3.5 mt-0.5 rounded bg-white/10 border border-white/20 cursor-pointer accent-neon-purple flex-shrink-0"
                     disabled={isLoading} />
                   <label htmlFor="terms" className="text-foreground/60 text-[11px] cursor-pointer leading-tight">
-                    Concordo com os{" "}
-                    <Link to="/terms" className="text-neon-purple hover:text-neon-pink transition-colors">Termos</Link>
-                    {" "}e{" "}
-                    <Link to="/privacycookies" className="text-neon-purple hover:text-neon-pink transition-colors">Privacidade</Link>
+                    {t("auth.signup.agreeTermsPrefix")}{" "}
+                    <Link to="/terms" className="text-neon-purple hover:text-neon-pink transition-colors">{t("auth.signup.termsLink")}</Link>
+                    {" "}{t("auth.signup.andText")}{" "}
+                    <Link to="/privacycookies" className="text-neon-purple hover:text-neon-pink transition-colors">{t("auth.signup.privacyLink")}</Link>
                   </label>
                 </div>
 
@@ -345,7 +353,7 @@ export default function Signup() {
                     className="w-3.5 h-3.5 mt-0.5 rounded bg-white/10 border border-white/20 cursor-pointer accent-neon-purple flex-shrink-0"
                     disabled={isLoading} />
                   <label htmlFor="age" className="text-foreground/60 text-[11px] cursor-pointer leading-tight">
-                    Tenho 18 anos ou mais
+                    {t("auth.signup.ageConfirm")}
                   </label>
                 </div>
 
@@ -359,15 +367,15 @@ export default function Signup() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
-                      A criar conta...
+                      {t("auth.signup.loading")}
                     </span>
-                  ) : "Criar Conta"}
+                  ) : t("auth.signup.submit")}
                 </button>
               </form>
 
               <p className="text-center text-foreground/60 text-xs mt-4">
-                Já tem conta?{" "}
-                <Link to="/login" className="text-neon-purple hover:text-neon-pink font-semibold transition-colors">Entrar</Link>
+                {t("auth.signup.hasAccount")}{" "}
+                <Link to="/login" className="text-neon-purple hover:text-neon-pink font-semibold transition-colors">{t("auth.login.submit")}</Link>
               </p>
             </>
           )}

@@ -11,6 +11,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
 import { supabase } from "@/lib/supabaseClient";
 import {
@@ -36,6 +37,7 @@ function CreatorCard({
   onSubscribe: (id: string) => void;
   onOpenChannel: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   const grad   = GRADIENTS[index % GRADIENTS.length];
   const accent = ACCENT_COLORS[index % ACCENT_COLORS.length];
 
@@ -78,7 +80,7 @@ function CreatorCard({
         {/* Badge "A seguir" — só aparece se já subscreve */}
         {isSubscribed && (
           <div className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-neon-pink/20 border border-neon-pink/30 text-neon-pink text-[9px] font-bold">
-            <Bell size={8} fill="currentColor" /> A seguir
+            <Bell size={8} fill="currentColor" /> {t("models.stats.following")}
           </div>
         )}
 
@@ -122,8 +124,8 @@ function CreatorCard({
             }`}
           >
             {isSubscribed
-              ? <><BellOff size={10} />Subscrito</>
-              : <><Bell size={10} />Subscrever</>
+              ? <><BellOff size={10} />{t("common.subscribed")}</>
+              : <><Bell size={10} />{t("common.subscribe")}</>
             }
           </button>
         </div>
@@ -142,9 +144,9 @@ function CreatorCard({
         {/* Stats */}
         <div className="grid grid-cols-3 gap-1.5 mb-3">
           {[
-            { label: "Vídeos", value: fmtNum(creator.video_count),      icon: Film  },
-            { label: "Views",  value: fmtNum(creator.total_views),      icon: Eye   },
-            { label: "Fãs",    value: fmtNum(creator.subscriber_count), icon: Users },
+            { label: t("models.stats.videos"), value: fmtNum(creator.video_count),      icon: Film  },
+            { label: t("models.stats.views"),  value: fmtNum(creator.total_views),      icon: Eye   },
+            { label: t("models.stats.fans"),   value: fmtNum(creator.subscriber_count), icon: Users },
           ].map(({ label, value, icon: Icon }) => (
             <div key={label} className="bg-white/[0.03] border border-white/6 rounded-xl py-2 text-center">
               <Icon size={9} className="text-foreground/28 mx-auto mb-0.5" />
@@ -159,7 +161,7 @@ function CreatorCard({
           onClick={() => onOpenChannel(creator.id)}
           className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 border border-white/8 text-[11px] text-foreground/40 hover:bg-white/10 hover:text-neon-pink hover:border-neon-pink/25 transition-all"
         >
-          Ver canal completo <ChevronRight size={11} />
+          {t("models.card.viewChannelFull")} <ChevronRight size={11} />
         </button>
       </div>
     </div>
@@ -172,6 +174,7 @@ function CreatorCard({
 type SortOpt = "subscribers" | "videos" | "views" | "recentes";
 
 export default function ModelosAuthenticated() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [creators, setCreators]           = useState<Creator[]>([]);
@@ -316,25 +319,25 @@ export default function ModelosAuthenticated() {
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-5">
             <div className="max-w-lg">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neon-pink/10 border border-neon-pink/20 text-neon-pink text-[11px] font-bold tracking-wider uppercase mb-3">
-                <Crown size={10} /> Criadores exclusivos
+                <Crown size={10} /> {t("models.hero.badge")}
               </div>
               <h1 className="text-3xl font-black text-white mb-2 leading-tight">
-                Descobre os{" "}
+                {t("models.hero.title")}{" "}
                 <span className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-blue bg-clip-text text-transparent">
-                  melhores modelos
+                  {t("models.hero.titleHighlight")}
                 </span>
               </h1>
               <p className="text-foreground/48 text-sm leading-relaxed">
-                Subscreve os teus favoritos, acompanha os seus canais e sê o primeiro a ver novos conteúdos.
+                {t("models.hero.subtitle")}
               </p>
             </div>
 
             {/* Stats — incluindo "Os teus subscritos" */}
             <div className="flex gap-3 flex-shrink-0">
               {[
-                { label: "Criadores",      value: loading ? "—" : fmtNum(total),                                              icon: Users, color: "text-neon-pink"   },
-                { label: "Com vídeos",     value: loading ? "—" : fmtNum(creators.filter(c => c.video_count > 0).length),     icon: Film,  color: "text-neon-blue"   },
-                { label: "A seguir",       value: loading ? "—" : fmtNum(followingCount),                                     icon: Bell,  color: "text-neon-purple" },
+                { label: t("models.stats.creators"),  value: loading ? "—" : fmtNum(total),                                              icon: Users, color: "text-neon-pink"   },
+                { label: t("models.stats.withVideos"), value: loading ? "—" : fmtNum(creators.filter(c => c.video_count > 0).length),    icon: Film,  color: "text-neon-blue"   },
+                { label: t("models.stats.following"),  value: loading ? "—" : fmtNum(followingCount),                                    icon: Bell,  color: "text-neon-purple" },
               ].map(({ label, value, icon: Icon, color }) => (
                 <div key={label} className="text-center px-4 py-4 rounded-xl bg-white/5 border border-white/8">
                   <Icon size={15} className={`mx-auto mb-1 ${color}`} />
@@ -353,7 +356,7 @@ export default function ModelosAuthenticated() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Pesquisar modelos por nome ou username..."
+              placeholder={t("models.search.placeholderAuth")}
               className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/26"
             />
             {query && (
@@ -365,10 +368,10 @@ export default function ModelosAuthenticated() {
 
           <div className="flex items-center gap-1.5 flex-wrap">
             {([
-              ["subscribers", "Mais Fãs",    Users],
-              ["videos",      "Mais Vídeos", Film],
-              ["views",       "Mais Vistos", Eye],
-              ["recentes",    "Recentes",    Sparkles],
+              ["subscribers", t("models.sort.mostFans"),    Users],
+              ["videos",      t("models.sort.mostVideos"),  Film],
+              ["views",       t("models.sort.mostViewed"),  Eye],
+              ["recentes",    t("models.sort.recent"),      Sparkles],
             ] as [SortOpt, string, React.ElementType][]).map(([val, label, Icon]) => (
               <button
                 key={val}
@@ -390,8 +393,8 @@ export default function ModelosAuthenticated() {
           <p className="text-sm text-foreground/38 flex items-center gap-1.5">
             <Search size={12} />
             {displayed.length > 0
-              ? <>{displayed.length} modelo{displayed.length !== 1 ? "s" : ""} para "{dQuery}"</>
-              : <>Sem resultados para "{dQuery}"</>
+              ? <>{t("models.results.count", { count: displayed.length, query: dQuery })}</>
+              : <>{t("models.results.empty", { query: dQuery })}</>
             }
           </p>
         )}
@@ -424,9 +427,9 @@ export default function ModelosAuthenticated() {
             <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center">
               <Users size={28} className="text-foreground/18" />
             </div>
-            <p className="text-foreground/50 font-medium">Nenhum modelo encontrado</p>
+            <p className="text-foreground/50 font-medium">{t("models.empty.title")}</p>
             <p className="text-foreground/28 text-sm">
-              {dQuery ? "Tenta uma pesquisa diferente." : "Ainda não há criadores ativos."}
+              {dQuery ? t("models.empty.trySearch") : t("models.empty.noCreatorsActive")}
             </p>
           </div>
         ) : (

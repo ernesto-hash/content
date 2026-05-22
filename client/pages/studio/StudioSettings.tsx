@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Save, Settings } from "lucide-react";
 import StudioLayout from "@/components/studio/StudioLayout";
 import { supabase } from "@/lib/supabaseClient";
@@ -13,6 +14,7 @@ type Profile = {
 };
 
 export default function StudioSettings() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -80,25 +82,25 @@ export default function StudioSettings() {
       .eq("id", profile.id);
 
     if (error) {
-      setMessage(error.message || "Erro ao salvar.");
+      setMessage(error.message || t("studio.settings.saveError"));
     } else {
-      setMessage("Configurações salvas com sucesso.");
+      setMessage(t("studio.settings.saved"));
     }
 
     setSaving(false);
   };
 
   return (
-    <StudioLayout subtitle="Personalize seu canal e preferências">
+    <StudioLayout subtitle={t("studio.settings.subtitle")}>
       <div className="space-y-6">
         <div>
-          <h1 className="text-xl font-black text-foreground">Configurações</h1>
-          <p className="text-sm text-foreground/50 mt-1">Ajuste identidade e apresentação do canal.</p>
+          <h1 className="text-xl font-black text-foreground">{t("studio.settings.title")}</h1>
+          <p className="text-sm text-foreground/50 mt-1">{t("studio.settings.desc")}</p>
         </div>
 
         <div className="glass border border-white/10 rounded-2xl p-5">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <Settings size={16} className="text-neon-pink" /> Perfil do canal
+            <Settings size={16} className="text-neon-pink" /> {t("studio.settings.channelProfile")}
           </div>
 
           {loading ? (
@@ -110,7 +112,7 @@ export default function StudioSettings() {
           ) : (
             <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs text-foreground/60">Username</label>
+                <label className="text-xs text-foreground/60">{t("studio.settings.usernameLabel")}</label>
                 <input
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -119,7 +121,7 @@ export default function StudioSettings() {
               </div>
 
               <div>
-                <label className="text-xs text-foreground/60">Nome completo</label>
+                <label className="text-xs text-foreground/60">{t("studio.settings.fullNameLabel")}</label>
                 <input
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
@@ -128,18 +130,18 @@ export default function StudioSettings() {
               </div>
 
               <div className="lg:col-span-2">
-                <label className="text-xs text-foreground/60">Bio</label>
+                <label className="text-xs text-foreground/60">{t("studio.settings.bioLabel")}</label>
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   className="mt-1 w-full min-h-[120px] bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-foreground outline-none focus:border-neon-purple/50 focus:bg-white/10 transition-all"
-                  placeholder="Escreva uma descrição do seu canal..."
+                  placeholder={t("studio.settings.bioPlaceholder")}
                 />
               </div>
 
               <div className="lg:col-span-2 flex items-center justify-between gap-3">
                 <div className="text-xs text-foreground/40">
-                  {message ? <span className="text-foreground/70">{message}</span> : "Dica: mantenha sua bio curta e clara."}
+                  {message ? <span className="text-foreground/70">{message}</span> : t("studio.settings.tip")}
                 </div>
 
                 <button
@@ -147,7 +149,7 @@ export default function StudioSettings() {
                   disabled={saving}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-semibold hover:opacity-90 transition-all disabled:opacity-50"
                 >
-                  <Save size={16} /> {saving ? "Salvando..." : "Salvar"}
+                  <Save size={16} /> {saving ? t("studio.settings.saving") : t("studio.settings.save")}
                 </button>
               </div>
             </div>

@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
 import { supabase } from "@/lib/supabaseClient";
 import {
@@ -48,16 +49,16 @@ function fmtDuration(s: number | null) {
   if (m >= 60) return `${Math.floor(m / 60)}h${String(m % 60).padStart(2, "0")}`;
   return `${m}:${sec}`;
 }
-function fmtRelative(iso: string) {
+function fmtRelative(iso: string, t: (key: string, opts?: object) => string) {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `há ${Math.max(1, mins)} min`;
+  if (mins < 60) return t("pages.videos.time.minutesAgo", { count: Math.max(1, mins) });
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `há ${hrs}h`;
+  if (hrs < 24) return t("pages.videos.time.hoursAgo", { count: hrs });
   const days = Math.floor(hrs / 24);
-  if (days < 30) return `há ${days}d`;
+  if (days < 30) return t("pages.videos.time.daysAgo", { count: days });
   const months = Math.floor(days / 30);
-  return `há ${months} mes${months > 1 ? "es" : ""}`;
+  return t("pages.videos.time.monthsAgo", { count: months });
 }
 
 // ─────────────────────────────────────────────
@@ -100,6 +101,7 @@ const getCategoryMeta = (cat: string | null) => {
 // Card de vídeo — modo Grid
 // ─────────────────────────────────────────────
 function VideoGridCard({ video }: { video: Video }) {
+  const { t } = useTranslation();
   const catMeta = getCategoryMeta(video.category);
   return (
     <Link to={`/video/${video.id}`} className="group block">
@@ -148,7 +150,7 @@ function VideoGridCard({ video }: { video: Video }) {
       {/* Info */}
       <div className="space-y-1.5 px-0.5">
         <h3 className="text-sm font-semibold text-foreground/85 line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug">
-          {video.title || "Sem título"}
+          {video.title || t("common.noTitle")}
         </h3>
         <div className="flex items-center gap-3 text-xs text-foreground/40">
           <span className="flex items-center gap-1">
@@ -157,7 +159,7 @@ function VideoGridCard({ video }: { video: Video }) {
           <span className="flex items-center gap-1">
             <Heart size={11} className="text-neon-pink" /> {fmtNum(video.likes_count)}
           </span>
-          <span>{fmtRelative(video.created_at)}</span>
+          <span>{fmtRelative(video.created_at, t)}</span>
         </div>
       </div>
     </Link>
@@ -168,6 +170,7 @@ function VideoGridCard({ video }: { video: Video }) {
 // Card de vídeo — modo List
 // ─────────────────────────────────────────────
 function VideoListCard({ video }: { video: Video }) {
+  const { t } = useTranslation();
   const catMeta = getCategoryMeta(video.category);
   return (
     <Link to={`/video/${video.id}`} className="group flex gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/8 hover:bg-white/[0.06] hover:border-white/15 transition-all">
@@ -201,7 +204,7 @@ function VideoListCard({ video }: { video: Video }) {
       <div className="flex-1 min-w-0 py-0.5 flex flex-col justify-between">
         <div>
           <h3 className="text-sm font-semibold text-foreground/85 line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug mb-2">
-            {video.title || "Sem título"}
+            {video.title || t("common.noTitle")}
           </h3>
           {catMeta && (
             <span className={`text-xs px-2 py-0.5 rounded-full bg-white/5 font-medium ${catMeta.color}`}>
@@ -210,10 +213,10 @@ function VideoListCard({ video }: { video: Video }) {
           )}
         </div>
         <div className="flex items-center gap-4 text-xs text-foreground/40 mt-2">
-          <span className="flex items-center gap-1"><Eye size={11} /> {fmtNum(video.views)} views</span>
+          <span className="flex items-center gap-1"><Eye size={11} /> {fmtNum(video.views)} {t("pages.videos.card.views")}</span>
           <span className="flex items-center gap-1"><Heart size={11} className="text-neon-pink" /> {fmtNum(video.likes_count)}</span>
           {video.duration && <span className="flex items-center gap-1"><Clock size={11} /> {fmtDuration(video.duration)}</span>}
-          <span>{fmtRelative(video.created_at)}</span>
+          <span>{fmtRelative(video.created_at, t)}</span>
         </div>
       </div>
     </Link>
@@ -229,6 +232,7 @@ type SortOption = "recentes" | "views" | "likes" | "antigos";
 type DurationFilter = "todos" | "curto" | "medio" | "longo";
 
 export default function VideosAuthenticatedPage() {
+  const { t } = useTranslation();
 
   // ── Auth guard — redirect se sem sessão ─────
   useEffect(() => {
@@ -395,16 +399,16 @@ export default function VideosAuthenticatedPage() {
             <div>
               <h1 className="text-3xl font-black mb-1.5">
                 <span className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-blue bg-clip-text text-transparent">
-                  Vídeos
+                  {t("pages.videos.hero.title")}
                 </span>
               </h1>
               <p className="text-foreground/50 text-sm">
-                Explore o catálogo completo da plataforma
+                {t("pages.videos.hero.subtitle")}
               </p>
             </div>
             <div className="text-center px-5 py-3 rounded-xl bg-white/5 border border-white/8">
               <p className="text-2xl font-black text-foreground">{loading ? "—" : fmtNum(totalCount)}</p>
-              <p className="text-xs text-foreground/40 mt-0.5">vídeos publicados</p>
+              <p className="text-xs text-foreground/40 mt-0.5">{t("pages.videos.published")}</p>
             </div>
           </div>
         </div>
@@ -417,7 +421,7 @@ export default function VideosAuthenticatedPage() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Pesquisar vídeos..."
+              placeholder={t("pages.videos.searchPlaceholder")}
               className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/30"
             />
             {query && (
@@ -429,10 +433,10 @@ export default function VideosAuthenticatedPage() {
 
           {/* Ordenação rápida */}
           <div className="flex items-center gap-1.5 flex-wrap">
-            {([ 
-              ["recentes", "Recentes",  Sparkles],
-              ["views",    "Mais Vistos", Eye],
-              ["likes",    "Mais Curtidos", Heart],
+            {([
+              ["recentes", t("pages.videos.sort.recent"),     Sparkles],
+              ["views",    t("pages.videos.sort.mostViewed"), Eye],
+              ["likes",    t("pages.videos.sort.mostLiked"),  Heart],
             ] as [SortOption, string, React.ElementType][]).map(([val, label, Icon]) => (
               <button
                 key={val}
@@ -460,7 +464,7 @@ export default function VideosAuthenticatedPage() {
               }`}
             >
               <SlidersHorizontal size={13} />
-              Filtros
+              {t("pages.videos.filters.label")}
               {activeFiltersCount > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-neon-pink text-white text-[9px] flex items-center justify-center font-bold">
                   {activeFiltersCount}
@@ -493,7 +497,7 @@ export default function VideosAuthenticatedPage() {
             <div>
               <p className="text-xs font-semibold text-foreground/40 uppercase tracking-wider mb-3 flex items-center gap-2">
                 <span className="w-1 h-3 bg-neon-pink rounded-full" />
-                Categoria
+                {t("pages.videos.filters.category")}
               </p>
               <div className="flex flex-wrap gap-2">
                 <button
@@ -504,7 +508,7 @@ export default function VideosAuthenticatedPage() {
                       : "bg-white/5 border-white/10 text-foreground/50 hover:border-white/20"
                   }`}
                 >
-                  Todas
+                  {t("pages.videos.filters.allCategories")}
                 </button>
                 {availableCategories.map((cat) => {
                   const meta = getCategoryMeta(cat);
@@ -531,14 +535,14 @@ export default function VideosAuthenticatedPage() {
             <div>
               <p className="text-xs font-semibold text-foreground/40 uppercase tracking-wider mb-3 flex items-center gap-2">
                 <span className="w-1 h-3 bg-neon-blue rounded-full" />
-                Duração
+                {t("pages.videos.filters.duration")}
               </p>
               <div className="flex flex-wrap gap-2">
                 {([
-                  ["todos",  "Qualquer duração"],
-                  ["curto",  "Até 5 min"],
-                  ["medio",  "5 – 20 min"],
-                  ["longo",  "Mais de 20 min"],
+                  ["todos",  t("pages.videos.filters.duration_any")],
+                  ["curto",  t("pages.videos.filters.duration_short")],
+                  ["medio",  t("pages.videos.filters.duration_medium")],
+                  ["longo",  t("pages.videos.filters.duration_long")],
                 ] as [DurationFilter, string][]).map(([val, label]) => (
                   <button
                     key={val}
@@ -568,7 +572,7 @@ export default function VideosAuthenticatedPage() {
                   className="flex items-center gap-1.5 text-xs text-foreground/40 hover:text-neon-pink transition-colors"
                 >
                   <X size={12} />
-                  Limpar filtros
+                  {t("pages.videos.filters.clearFilters")}
                 </button>
               </div>
             )}
@@ -582,7 +586,7 @@ export default function VideosAuthenticatedPage() {
             <span>
               {totalCount > 0
                 ? <>{fmtNum(totalCount)} resultado{totalCount !== 1 ? "s" : ""}{debouncedQuery ? ` para "${debouncedQuery}"` : ""}{selectedCategory !== "todas" ? ` em ${getCategoryMeta(selectedCategory)?.label ?? selectedCategory}` : ""}</>
-                : <>Sem resultados{debouncedQuery ? ` para "${debouncedQuery}"` : ""}</>
+                : <>{t("pages.videos.results.noResults")}{debouncedQuery ? ` para "${debouncedQuery}"` : ""}</>
               }
             </span>
           </div>
@@ -592,7 +596,7 @@ export default function VideosAuthenticatedPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 size={32} className="animate-spin text-neon-pink/50" />
-            <p className="text-foreground/35 text-sm">A carregar vídeos...</p>
+            <p className="text-foreground/35 text-sm">{t("pages.videos.loading")}</p>
           </div>
         ) : videos.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
@@ -600,9 +604,9 @@ export default function VideosAuthenticatedPage() {
               <Film size={28} className="text-foreground/20" />
             </div>
             <div className="text-center space-y-1">
-              <p className="text-foreground/60 font-medium">Nenhum vídeo encontrado</p>
+              <p className="text-foreground/60 font-medium">{t("pages.videos.empty.title")}</p>
               <p className="text-foreground/30 text-sm">
-                {debouncedQuery ? "Tenta uma pesquisa diferente." : "Ainda não há vídeos publicados nesta categoria."}
+                {debouncedQuery ? t("pages.videos.empty.withSearch") : t("pages.videos.empty.noVideos")}
               </p>
             </div>
             {(debouncedQuery || selectedCategory !== "todas" || selectedDuration !== "todos") && (
@@ -610,7 +614,7 @@ export default function VideosAuthenticatedPage() {
                 onClick={() => { setQuery(""); setSelectedCategory("todas"); setSelectedDuration("todos"); }}
                 className="text-sm text-neon-pink hover:text-neon-pink/80 transition-colors"
               >
-                Limpar filtros
+                {t("pages.videos.filters.clearFilters")}
               </button>
             )}
           </div>
@@ -633,9 +637,9 @@ export default function VideosAuthenticatedPage() {
               className="flex items-center gap-2 px-7 py-3 bg-white/5 border border-white/10 text-foreground/70 rounded-xl text-sm font-semibold hover:bg-white/8 hover:border-white/20 hover:text-foreground transition-all disabled:opacity-50"
             >
               {loadingMore ? (
-                <><Loader2 size={15} className="animate-spin" /> A carregar...</>
+                <><Loader2 size={15} className="animate-spin" /> {t("pages.videos.loadingMore")}</>
               ) : (
-                <><ChevronDown size={15} /> Carregar mais vídeos</>
+                <><ChevronDown size={15} /> {t("pages.videos.loadMore")}</>
               )}
             </button>
           </div>
@@ -644,7 +648,7 @@ export default function VideosAuthenticatedPage() {
         {/* ── Rodapé informativo ── */}
         {!loading && videos.length > 0 && (
           <p className="text-center text-xs text-foreground/25 pb-4">
-            A mostrar {videos.length} de {fmtNum(totalCount)} vídeo{totalCount !== 1 ? "s" : ""}
+            {t("pages.videos.results.showing", { shown: videos.length, total: fmtNum(totalCount) })}
           </p>
         )}
 
