@@ -137,6 +137,7 @@ const RtaLabel       = lazy(() => import("./pages/RtaLabel"));
 const Anunciar          = lazy(() => import("./pages/Anunciar"));
 const AnunciarPagamento = lazy(() => import("./pages/AnunciarPagamento"));
 const AnunciarSucesso   = lazy(() => import("./pages/AnunciarSucesso"));
+const TagPage               = lazy(() => import("./pages/TagPage"));
 const GaleriaAdmin          = lazy(() => import("./pages/admin/GaleriaAdmin"));
 const RegenerarThumbnails   = lazy(() => import("./pages/admin/RegenerarThumbnails"));
 const UploadModelVideos     = lazy(() => import("./pages/admin/UploadModelVideos"));
@@ -193,7 +194,7 @@ const App = () => (
             <Route path="/modelos" element={<Modelos />} />
             <Route path="/canais" element={<Canais />} />
             <Route path="/videos" element={<Videos />} />
-            <Route path="/video/:id" element={<Video />} />
+            <Route path="/video/:slug" element={<Video />} />
             <Route path="/fotos-gifs" element={<FotosGifs />} />
             <Route path="/populares" element={<Populares />} />
             <Route path="/recomendados" element={<Recomendados />} />
@@ -201,8 +202,9 @@ const App = () => (
             <Route path="/anunciar"          element={<Anunciar />} />
             <Route path="/anunciar/pagamento" element={<AnunciarPagamento />} />
             <Route path="/anunciar/sucesso"   element={<AnunciarSucesso />} />
+            <Route path="/tag/:tag" element={<TagPage />} />
             <Route path="/perfil/:username" element={<Canais />} />
-            <Route path="/modelo/:id" element={<CanalPage />} />
+            <Route path="/modelo/:slug" element={<CanalPage />} />
             <Route path="/modelos/modelospage" element={<ModelosPage />} />
 
             {/* ── Categorias Públicas ─────────────────────────────────────────── */}
@@ -280,8 +282,8 @@ const App = () => (
             <Route path="/app/galeria/:id"        element={<Auth><GaleriaPackAuthenticated /></Auth>} />
 
             {/* Rotas dinâmicas autenticadas */}
-            <Route path="/app/video/:id"  element={<Auth><VideoAuthenticated /></Auth>} />
-            <Route path="/app/modelo/:id" element={<Auth><CanalPage authenticated /></Auth>} />
+            <Route path="/app/video/:slug"  element={<Auth><VideoAuthenticated /></Auth>} />
+            <Route path="/app/modelo/:slug" element={<Auth><CanalPage authenticated /></Auth>} />
             <Route path="/app/modelos"    element={<Auth><ModeloAuthenticated /></Auth>} />
 
             {/* /app/categoria/* — autenticadas */}

@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
 import { supabase } from "@/lib/supabaseClient";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import AuthPopup from "./AuthPopup";
 import {
   VideoItem, fmtNum, fmtDuration, fmtRelative, fmtDate,
@@ -35,6 +36,7 @@ import {
 // ─────────────────────────────────────────────
 type FullCreator = {
   id: string;
+  slug: string | null;
   username: string;
   full_name: string | null;
   avatar_url: string | null;
@@ -43,7 +45,7 @@ type FullCreator = {
   total_views: number;
   total_likes: number;
   subscriber_count: number;
-  cover_thumbs: string[];          // até 4 imagens para o banner
+  cover_thumbs: string[];
 };
 
 type TabId = "videos" | "populares" | "sobre";
@@ -60,7 +62,8 @@ const isTouchDevice = () =>
 // ─────────────────────────────────────────────
 function VideoGridCard({ video, featured = false, authenticated = false }: { video: VideoItem; featured?: boolean; authenticated?: boolean }) {
   const { t } = useTranslation();
-  const videoPath = authenticated ? `/app/video/${video.id}` : `/video/${video.id}`;
+  const videoSlugOrId = video.slug || video.id;
+  const videoPath = authenticated ? `/app/video/${videoSlugOrId}` : `/video/${videoSlugOrId}`;
   const videoRef        = useRef<HTMLVideoElement>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -188,7 +191,8 @@ function VideoGridCard({ video, featured = false, authenticated = false }: { vid
 
 function VideoListCard({ video, authenticated = false }: { video: VideoItem; authenticated?: boolean }) {
   const { t } = useTranslation();
-  const videoPath = authenticated ? `/app/video/${video.id}` : `/video/${video.id}`;
+  const videoSlugOrId = video.slug || video.id;
+  const videoPath = authenticated ? `/app/video/${videoSlugOrId}` : `/video/${videoSlugOrId}`;
   const videoRef        = useRef<HTMLVideoElement>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -303,8 +307,9 @@ function VideoListCard({ video, authenticated = false }: { video: VideoItem; aut
 // ─────────────────────────────────────────────
 export default function CanalPage({ authenticated = false }: { authenticated?: boolean }) {
   const { t } = useTranslation();
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}/i.test(slug ?? "");
   const LayoutWrapper = authenticated ? LayoutAuthenticated : Layout;
   const backPath = authenticated ? "/app/modelos" : "/modelos";
 
@@ -316,6 +321,7 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
   const [viewMode, setViewMode]           = useState<"grid" | "list">("grid");
 
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [creatorId, setCreatorId]         = useState<string | null>(null);
   const [isSubscribed, setIsSubscribed]   = useState(false);
   const [subCount, setSubCount]           = useState(0);
   const [showAuth, setShowAuth]           = useState(false);
@@ -331,22 +337,30 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
 
   // ── Fetch criador ─────────────────────────────
   useEffect(() => {
-    if (!id) return;
+    if (!slug) return;
     setLoading(true);
 
-    Promise.all([
-      supabase.from("profiles_public").select("id, username, full_name, avatar_url, created_at").eq("id", id).single(),
-      supabase.from("videos").select("*", { count: "exact", head: true }).eq("user_id", id).eq("status", "published").eq("visibility", "public"),
-      supabase.from("videos").select("views").eq("user_id", id).eq("status", "published").eq("visibility", "public"),
-      supabase.from("subscriptions").select("*", { count: "exact", head: true }).eq("creator_id", id),
-      supabase.from("interacoes").select("*", { count: "exact", head: true }).eq("tipo", true),
-      supabase.from("videos").select("thumbnail_url").eq("user_id", id).eq("status", "published").eq("visibility", "public").order("views", { ascending: false }).limit(4),
-    ]).then(([prof, vcRes, vrRes, scRes, lkRes, thRes]) => {
-      if (!prof.data) { setLoading(false); return; }
+    const profileQ = isUUID
+      ? supabase.from("profiles_public").select("id, slug, username, full_name, avatar_url, created_at").eq("id", slug).single()
+      : supabase.from("profiles_public").select("id, slug, username, full_name, avatar_url, created_at").eq("slug", slug).single();
+
+    profileQ.then(async (profRes) => {
+      if (!profRes.data) { setLoading(false); return; }
+      const cid = (profRes.data as any).id as string;
+      setCreatorId(cid);
+
+      const [vcRes, vrRes, scRes, lkRes, thRes] = await Promise.all([
+        supabase.from("videos").select("*", { count: "exact", head: true }).eq("user_id", cid).eq("status", "published").eq("visibility", "public"),
+        supabase.from("videos").select("views").eq("user_id", cid).eq("status", "published").eq("visibility", "public"),
+        supabase.from("subscriptions").select("*", { count: "exact", head: true }).eq("creator_id", cid),
+        supabase.from("interacoes").select("*", { count: "exact", head: true }).eq("tipo", true),
+        supabase.from("videos").select("thumbnail_url").eq("user_id", cid).eq("status", "published").eq("visibility", "public").order("views", { ascending: false }).limit(4),
+      ]);
+
       const totalViews = ((vrRes.data ?? []) as any[]).reduce((a: number, v: any) => a + (v.views ?? 0), 0);
       const thumbs = ((thRes.data ?? []) as any[]).map((v: any) => v.thumbnail_url).filter(Boolean) as string[];
       setCreator({
-        ...(prof.data as any),
+        ...(profRes.data as any),
         video_count:      vcRes.count ?? 0,
         total_views:      totalViews,
         total_likes:      lkRes.count ?? 0,
@@ -356,23 +370,23 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
       setSubCount(scRes.count ?? 0);
       setLoading(false);
     });
-  }, [id]);
+  }, [slug, isUUID]);
 
   // ── Subscrição do utilizador ──────────────────
   useEffect(() => {
-    if (!currentUserId || !id) return;
-    supabase.from("subscriptions").select("id").eq("creator_id", id).eq("subscriber_id", currentUserId).maybeSingle()
+    if (!currentUserId || !creatorId) return;
+    supabase.from("subscriptions").select("id").eq("creator_id", creatorId).eq("subscriber_id", currentUserId).maybeSingle()
       .then(({ data }) => setIsSubscribed(!!data));
-  }, [currentUserId, id]);
+  }, [currentUserId, creatorId]);
 
   // ── Fetch vídeos ──────────────────────────────
   const fetchVideos = useCallback(async () => {
-    if (!id) return;
+    if (!creatorId) return;
     setLoadingVideos(true);
     const { data } = await supabase
       .from("videos")
-      .select("id, title, thumbnail_url, video_url, views, duration, created_at, category")
-      .eq("user_id", id).eq("status", "published").eq("visibility", "public")
+      .select("id, slug, title, thumbnail_url, video_url, views, duration, created_at, category")
+      .eq("user_id", creatorId).eq("status", "published").eq("visibility", "public")
       .order("created_at", { ascending: false })
       .limit(80);
 
@@ -386,19 +400,19 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
     );
     setAllVideos(withLikes);
     setLoadingVideos(false);
-  }, [id]);
+  }, [creatorId]);
 
   useEffect(() => { fetchVideos(); }, [fetchVideos]);
 
   // ── Realtime ──────────────────────────────────
   useEffect(() => {
-    if (!id) return;
-    const ch = supabase.channel(`canal-page-${id}`)
+    if (!creatorId) return;
+    const ch = supabase.channel(`canal-page-${creatorId}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "videos" },
-        (payload) => { if ((payload.new as any)?.user_id === id) fetchVideos(); }
+        (payload) => { if ((payload.new as any)?.user_id === creatorId) fetchVideos(); }
       ).subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [id, fetchVideos]);
+  }, [creatorId, fetchVideos]);
 
   // ── Ações ─────────────────────────────────────
   const requireAuth = (action: string) => {
@@ -408,32 +422,68 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
 
   const handleSubscribe = async () => {
     if (!currentUserId) { requireAuth("subscribe"); return; }
-    if (!id) return;
+    if (!creatorId) return;
     if (isSubscribed) {
-      await supabase.from("subscriptions").delete().eq("creator_id", id).eq("subscriber_id", currentUserId);
+      await supabase.from("subscriptions").delete().eq("creator_id", creatorId).eq("subscriber_id", currentUserId);
       setIsSubscribed(false);
       setSubCount((n) => Math.max(0, n - 1));
     } else {
-      await supabase.from("subscriptions").insert({ creator_id: id, subscriber_id: currentUserId });
+      await supabase.from("subscriptions").insert({ creator_id: creatorId, subscriber_id: currentUserId });
       setIsSubscribed(true);
       setSubCount((n) => n + 1);
     }
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/modelo/${id}`;
+    const canonicalSlug = creator?.slug || creatorId;
+    const url = `${window.location.origin}/modelo/${canonicalSlug}`;
     await navigator.clipboard.writeText(url);
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2200);
-    if (id) {
-      await supabase.from("partilhas").insert({ video_id: id, user_id: currentUserId ?? null, plataforma: "canal_clipboard" });
+    if (creatorId) {
+      await supabase.from("partilhas").insert({ video_id: creatorId, user_id: currentUserId ?? null, plataforma: "canal_clipboard" });
     }
   };
 
   // Derivados dos vídeos
   const pinnedVideo   = allVideos.length > 0 ? [...allVideos].sort((a, b) => b.views - a.views)[0] : null;
   const popularVideos = [...allVideos].sort((a, b) => b.likes_count - a.likes_count);
-  const recentVideos  = allVideos; // já ordenados por data do fetch
+  const recentVideos  = allVideos;
+
+  // ── SEO ───────────────────────────────────────
+  const creatorNameForSEO = creator ? (creator.full_name || creator.username) : "";
+  useDocumentTitle(
+    creator
+      ? {
+          title: `${creatorNameForSEO} - Vídeos Grátis | SuckOrSex`,
+          description: `Assiste a todos os vídeos de ${creatorNameForSEO} grátis. ${creator.video_count} vídeos publicados no SuckOrSex.`,
+          image: creator.avatar_url,
+        }
+      : { title: "SuckOrSex - Vídeos Porno Grátis & Conteúdo XXX HD" }
+  );
+
+  useEffect(() => {
+    if (!creator) return;
+    const canonicalSlug = creator.slug || creator.id;
+    const name = creator.full_name || creator.username;
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.id = "profile-schema";
+    script.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      "name": name,
+      "url": `https://suckorsex.com/modelo/${canonicalSlug}`,
+      "mainEntity": {
+        "@type": "Person",
+        "name": name,
+        "image": creator.avatar_url,
+        "description": `Vídeos de ${name} no SuckOrSex`,
+      },
+    });
+    document.head.appendChild(script);
+    return () => { document.getElementById("profile-schema")?.remove(); };
+  }, [creator]);
 
   // ─────────────────────────────────────────────
   // Loading / Not found
@@ -681,7 +731,7 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
                       <h3 className="text-sm font-bold text-foreground/50 uppercase tracking-wider mb-3 flex items-center gap-2">
                         <Pin size={12} className="text-amber-400" fill="currentColor" /> {t("models.channel.featured")}
                       </h3>
-                      <Link to={authenticated ? `/app/video/${pinnedVideo.id}` : `/video/${pinnedVideo.id}`} className="group relative block rounded-2xl overflow-hidden bg-white/5 border border-white/8 hover:border-white/15 transition-all">
+                      <Link to={authenticated ? `/app/video/${pinnedVideo.slug || pinnedVideo.id}` : `/video/${pinnedVideo.slug || pinnedVideo.id}`} className="group relative block rounded-2xl overflow-hidden bg-white/5 border border-white/8 hover:border-white/15 transition-all">
                         <div className="relative aspect-video sm:aspect-[21/8]">
                           {pinnedVideo.thumbnail_url ? (
                             <img src={pinnedVideo.thumbnail_url} alt="" className="w-full h-full object-cover opacity-75 group-hover:opacity-90 group-hover:scale-[1.02] transition-all duration-500" />

@@ -3,6 +3,7 @@
 
 export type Creator = {
   id: string;
+  slug: string | null;
   username: string;
   full_name: string | null;
   avatar_url: string | null;
@@ -15,6 +16,7 @@ export type Creator = {
 
 export type VideoItem = {
   id: string;
+  slug: string | null;
   title: string | null;
   thumbnail_url: string | null;
   video_url: string | null;

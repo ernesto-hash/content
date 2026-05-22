@@ -25,6 +25,7 @@ import { useTranslation } from "react-i18next";
 // ─────────────────────────────────────────────
 type Creator = {
   id: string;
+  slug: string | null;
   username: string;
   full_name: string | null;
   avatar_url: string | null;
@@ -156,7 +157,7 @@ function CreatorCard({
   return (
     <div
       className="group relative bg-white/[0.03] border border-white/8 rounded-2xl overflow-hidden hover:border-white/18 hover:bg-white/[0.05] transition-all duration-300 cursor-pointer"
-      onClick={() => navigate(`/modelo/${creator.id}`)}
+      onClick={() => navigate(`/modelo/${creator.slug || creator.id}`)}
     >
       {/* Faixa de preview */}
       <div className="relative h-28 flex gap-0.5 overflow-hidden">
@@ -282,7 +283,7 @@ export function ModelosPage() {
     setLoading(true);
     const { data: profs } = await supabase
       .from("profiles_public")
-      .select("id, username, full_name, avatar_url, created_at")
+      .select("id, slug, username, full_name, avatar_url, created_at")
       .order("created_at", { ascending: false })
       .limit(120);
 
@@ -512,7 +513,7 @@ export function ModeloCanal() {
     if (!id) return;
     setLoading(true);
     Promise.all([
-      supabase.from("profiles_public").select("id, username, full_name, avatar_url, created_at").eq("id", id).single(),
+      supabase.from("profiles_public").select("id, slug, username, full_name, avatar_url, created_at").eq("id", id).single(),
       supabase.from("videos").select("*", { count: "exact", head: true }).eq("user_id", id).eq("status", "published").eq("visibility", "public"),
       supabase.from("videos").select("views").eq("user_id", id).eq("status", "published").eq("visibility", "public"),
       supabase.from("subscriptions").select("*", { count: "exact", head: true }).eq("creator_id", id),

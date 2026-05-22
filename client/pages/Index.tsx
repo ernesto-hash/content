@@ -29,16 +29,17 @@ import { useTranslation } from "react-i18next";
 
 
 type Video = {
-  id: string; title: string | null; thumbnail_url: string | null;
+  id: string; slug: string | null; title: string | null; thumbnail_url: string | null;
   video_url: string | null;
   views: number; duration: number | null; created_at: string;
   category: string | null; likes_count: number;
   user_id: string; creator_name: string | null; creator_avatar: string | null;
+  creator_slug: string | null;
 };
 type FilterTab    = "todos" | "alta" | "recentes" | "vistos";
 type AgeStep      = "gate" | "blocked";
 type CookieChoice = "all" | "essential" | null;
-type Profile      = { id: string; username: string | null; full_name: string | null; avatar_url: string | null };
+type Profile      = { id: string; slug: string | null; username: string | null; full_name: string | null; avatar_url: string | null };
 
 const SESSION_AGE_KEY    = "age_verified_session";
 const SESSION_COOKIE_KEY = "cookie_consent_session";
@@ -337,7 +338,7 @@ function VideoCard({ video, onLike, onSave, isLiked, isSaved, className = "" }: 
       onTouchEnd={handleTouchEnd}
       style={isPreviewing ? { borderRadius: "0.75rem", boxShadow: "0 0 0 2px rgba(236,72,153,0.6)" } : undefined}
     >
-      <Link to={`/video/${video.id}`} className="block relative aspect-video rounded-xl overflow-hidden bg-black/30 mb-2" onClick={handleLinkClick}>
+      <Link to={`/video/${video.slug || video.id}`} className="block relative aspect-video rounded-xl overflow-hidden bg-black/30 mb-2" onClick={handleLinkClick}>
         {/* Thumbnail */}
         {video.thumbnail_url
           ? <img src={video.thumbnail_url} alt={video.title ?? ""} loading="lazy"
@@ -387,7 +388,7 @@ function VideoCard({ video, onLike, onSave, isLiked, isSaved, className = "" }: 
       </Link>
       <div className="space-y-0.5 px-0.5">
         <Link
-          to={`/app/modelo/${video.user_id}`}
+          to={`/modelo/${video.creator_slug || video.user_id}`}
           className="flex items-center gap-1.5 mb-1 group/creator w-fit max-w-full"
           onClick={e => e.stopPropagation()}
         >
@@ -401,7 +402,7 @@ function VideoCard({ video, onLike, onSave, isLiked, isSaved, className = "" }: 
             {video.creator_name ?? t("common.creator")}
           </span>
         </Link>
-        <Link to={`/video/${video.id}`} onClick={handleLinkClick}>
+        <Link to={`/video/${video.slug || video.id}`} onClick={handleLinkClick}>
           <h3 className="text-sm font-semibold text-foreground/80 line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug">{video.title || t("common.noTitle")}</h3>
         </Link>
         <div className="flex items-center gap-2 text-[10px] text-foreground/32 pt-0.5">
@@ -626,7 +627,7 @@ export default function Index() {
 
     // 1. Vídeos — SEM filtro de status
     let q = supabase.from("videos")
-      .select("id,title,thumbnail_url,video_url,views,duration,created_at,category,user_id", { count: "exact" })
+      .select("id,slug,title,thumbnail_url,video_url,views,duration,created_at,category,user_id", { count: "exact" })
       .range(offset, offset + batchSize - 1);
 
     if (activeFilter === "vistos" || activeFilter === "alta")
@@ -653,7 +654,7 @@ export default function Index() {
     const [profilesRes, likesRes] = await Promise.all([
       uniqueIds.length > 0
         ? supabase.from("profiles_public")
-            .select("id,username,full_name,avatar_url")
+            .select("id,slug,username,full_name,avatar_url")
             .in("id", uniqueIds)
         : Promise.resolve({ data: [] as Profile[] }),
       videoIds.length > 0
@@ -676,6 +677,7 @@ export default function Index() {
       const p = profileMap.get(v.user_id);
       return {
         id:             v.id,
+        slug:           v.slug ?? null,
         title:          v.title,
         thumbnail_url:  v.thumbnail_url,
         video_url:      v.video_url ?? null,
@@ -687,6 +689,7 @@ export default function Index() {
         user_id:        v.user_id,
         creator_name:   p?.full_name ?? p?.username ?? null,
         creator_avatar: p?.avatar_url ?? null,
+        creator_slug:   p?.slug ?? null,
       };
     });
 

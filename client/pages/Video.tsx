@@ -217,12 +217,14 @@ function CreatorLink({
 
 export default function Video() {
   const { t } = useTranslation();
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}/i.test(slug ?? "");
   const navigate = useNavigate();
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
 
+  const [videoId, setVideoId] = useState<string | null>(null);
   const [video, setVideo] = useState<VideoData | null>(null);
   const [creator, setCreator] = useState<Profile | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -415,20 +417,20 @@ export default function Video() {
   const goToPreviousVideo = useCallback((e?: React.MouseEvent | React.TouchEvent) => {
     e?.stopPropagation();
     e?.preventDefault();
-    if (!id || allPlatformVideos.length === 0) return;
-    const idx = allPlatformVideos.findIndex((item) => item.id === id);
+    if (!videoId || allPlatformVideos.length === 0) return;
+    const idx = allPlatformVideos.findIndex((item) => item.id === videoId);
     if (idx === -1) return;
     navigate(`/video/${allPlatformVideos[idx > 0 ? idx - 1 : allPlatformVideos.length - 1].id}`);
-  }, [allPlatformVideos, id, navigate]);
+  }, [allPlatformVideos, videoId, navigate]);
 
   const goToNextVideo = useCallback((e?: React.MouseEvent | React.TouchEvent) => {
     e?.stopPropagation();
     e?.preventDefault();
-    if (!id || allPlatformVideos.length === 0) return;
-    const idx = allPlatformVideos.findIndex((item) => item.id === id);
+    if (!videoId || allPlatformVideos.length === 0) return;
+    const idx = allPlatformVideos.findIndex((item) => item.id === videoId);
     if (idx === -1) return;
     navigate(`/video/${allPlatformVideos[idx < allPlatformVideos.length - 1 ? idx + 1 : 0].id}`);
-  }, [allPlatformVideos, id, navigate]);
+  }, [allPlatformVideos, videoId, navigate]);
 
   const handleVideoTouchEnd = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
@@ -487,22 +489,23 @@ export default function Video() {
   }, []);
 
   const fetchVideo = useCallback(async () => {
-    if (!id) return;
+    if (!slug) return;
     setLoading(true);
-    const { data: vid } = await supabase
-      .from("videos")
-      .select("id, title, description, video_url, thumbnail_url, views, created_at, category, duration, user_id")
-      .eq("id", id).single();
+    const videoQ = isUUID
+      ? supabase.from("videos").select("id, title, description, video_url, thumbnail_url, views, created_at, category, duration, user_id").eq("id", slug).single()
+      : supabase.from("videos").select("id, title, description, video_url, thumbnail_url, views, created_at, category, duration, user_id").eq("slug", slug).single();
+    const { data: vid } = await videoQ;
     if (!vid) { setLoading(false); return; }
     setVideo(vid as VideoData);
-    if (!jaViuNestaSession(id)) {
-      supabase.from("videos").update({ views: (vid.views ?? 0) + 1 }).eq("id", id).then(() => {});
+    setVideoId(vid.id);
+    if (!jaViuNestaSession(vid.id)) {
+      supabase.from("videos").update({ views: (vid.views ?? 0) + 1 }).eq("id", vid.id).then(() => {});
     }
     const [profRes, subCountRes, lCountRes, dCountRes, allVideosRes] = await Promise.all([
       supabase.from("profiles_public").select("id, username, full_name, avatar_url").eq("id", vid.user_id).single(),
       supabase.from("subscriptions").select("*", { count: "exact", head: true }).eq("creator_id", vid.user_id),
-      supabase.from("interacoes").select("*", { count: "exact", head: true }).eq("video_id", id).eq("tipo", true),
-      supabase.from("interacoes").select("*", { count: "exact", head: true }).eq("video_id", id).eq("tipo", false),
+      supabase.from("interacoes").select("*", { count: "exact", head: true }).eq("video_id", vid.id).eq("tipo", true),
+      supabase.from("interacoes").select("*", { count: "exact", head: true }).eq("video_id", vid.id).eq("tipo", false),
       supabase.from("videos").select("id, title, thumbnail_url, views, duration, created_at")
         .eq("status", "published").eq("visibility", "public").order("created_at", { ascending: false }),
     ]);
@@ -512,31 +515,31 @@ export default function Video() {
     setDislikesCount(dCountRes.count ?? 0);
     const platformVideos = (allVideosRes.data ?? []) as RecommendedVideo[];
     setAllPlatformVideos(platformVideos);
-    setRecommended(shuffleArray(platformVideos.filter((item) => item.id !== id)).slice(0, 20));
+    setRecommended(shuffleArray(platformVideos.filter((item) => item.id !== vid.id)).slice(0, 20));
     setLoading(false);
-  }, [id]);
+  }, [slug, isUUID]);
 
   const fetchComments = useCallback(async () => {
-    if (!id) return;
+    if (!videoId) return;
     const { data, count } = await supabase
       .from("comentarios")
       .select("id, conteudo, created_at, user_id, profiles(username, full_name, avatar_url)", { count: "exact" })
-      .eq("video_id", id).order("created_at", { ascending: false }).limit(50);
+      .eq("video_id", videoId).order("created_at", { ascending: false }).limit(50);
     setComments((data ?? []) as unknown as Comment[]);
     setCommentsCount(count ?? 0);
-  }, [id]);
+  }, [videoId]);
 
   const fetchUserState = useCallback(async () => {
-    if (!id || !currentUserId) return;
+    if (!videoId || !currentUserId) return;
     const [likeRes, dislikeRes, subRes] = await Promise.all([
-      supabase.from("interacoes").select("id").eq("video_id", id).eq("user_id", currentUserId).eq("tipo", true).maybeSingle(),
-      supabase.from("interacoes").select("id").eq("video_id", id).eq("user_id", currentUserId).eq("tipo", false).maybeSingle(),
+      supabase.from("interacoes").select("id").eq("video_id", videoId).eq("user_id", currentUserId).eq("tipo", true).maybeSingle(),
+      supabase.from("interacoes").select("id").eq("video_id", videoId).eq("user_id", currentUserId).eq("tipo", false).maybeSingle(),
       supabase.from("subscriptions").select("id").eq("creator_id", video?.user_id ?? "").eq("subscriber_id", currentUserId).maybeSingle(),
     ]);
     setIsLiked(!!likeRes.data);
     setIsDisliked(!!dislikeRes.data);
     setIsSubscribed(!!subRes.data);
-  }, [id, currentUserId, video?.user_id]);
+  }, [videoId, currentUserId, video?.user_id]);
 
   useEffect(() => { fetchVideo(); }, [fetchVideo]);
   useEffect(() => { fetchComments(); }, [fetchComments]);
@@ -548,50 +551,50 @@ export default function Video() {
   }, []);
 
   useEffect(() => {
-    if (!id) return;
-    const ch1 = supabase.channel(`video-${id}-interacoes`)
+    if (!videoId) return;
+    const ch1 = supabase.channel(`video-${videoId}-interacoes`)
       .on("postgres_changes", { event: "*", schema: "public", table: "interacoes" }, () => {
-        supabase.from("interacoes").select("*", { count: "exact", head: true }).eq("video_id", id).eq("tipo", true)
+        supabase.from("interacoes").select("*", { count: "exact", head: true }).eq("video_id", videoId).eq("tipo", true)
           .then(({ count }) => setLikesCount(count ?? 0));
-        supabase.from("interacoes").select("*", { count: "exact", head: true }).eq("video_id", id).eq("tipo", false)
+        supabase.from("interacoes").select("*", { count: "exact", head: true }).eq("video_id", videoId).eq("tipo", false)
           .then(({ count }) => setDislikesCount(count ?? 0));
       }).subscribe();
-    const ch2 = supabase.channel(`video-${id}-comentarios`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "comentarios", filter: `video_id=eq.${id}` },
+    const ch2 = supabase.channel(`video-${videoId}-comentarios`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "comentarios", filter: `video_id=eq.${videoId}` },
         () => fetchComments()).subscribe();
     return () => { supabase.removeChannel(ch1); supabase.removeChannel(ch2); };
-  }, [id, fetchComments]);
+  }, [videoId, fetchComments]);
 
   const requireAuth = (action: string) => { setPendingAction(action); setShowAuthPopup(true); };
 
   const handleLike = async () => {
     if (!currentUserId) { requireAuth("like"); return; }
-    if (!id) return;
+    if (!videoId) return;
     if (isLiked) {
-      await supabase.from("interacoes").delete().eq("video_id", id).eq("user_id", currentUserId).eq("tipo", true);
+      await supabase.from("interacoes").delete().eq("video_id", videoId).eq("user_id", currentUserId).eq("tipo", true);
       setIsLiked(false); setLikesCount((n) => Math.max(0, n - 1));
     } else {
       if (isDisliked) {
-        await supabase.from("interacoes").delete().eq("video_id", id).eq("user_id", currentUserId).eq("tipo", false);
+        await supabase.from("interacoes").delete().eq("video_id", videoId).eq("user_id", currentUserId).eq("tipo", false);
         setIsDisliked(false); setDislikesCount((n) => Math.max(0, n - 1));
       }
-      await supabase.from("interacoes").insert({ video_id: id, user_id: currentUserId, tipo: true });
+      await supabase.from("interacoes").insert({ video_id: videoId, user_id: currentUserId, tipo: true });
       setIsLiked(true); setLikesCount((n) => n + 1);
     }
   };
 
   const handleDislike = async () => {
     if (!currentUserId) { requireAuth("dislike"); return; }
-    if (!id) return;
+    if (!videoId) return;
     if (isDisliked) {
-      await supabase.from("interacoes").delete().eq("video_id", id).eq("user_id", currentUserId).eq("tipo", false);
+      await supabase.from("interacoes").delete().eq("video_id", videoId).eq("user_id", currentUserId).eq("tipo", false);
       setIsDisliked(false); setDislikesCount((n) => Math.max(0, n - 1));
     } else {
       if (isLiked) {
-        await supabase.from("interacoes").delete().eq("video_id", id).eq("user_id", currentUserId).eq("tipo", true);
+        await supabase.from("interacoes").delete().eq("video_id", videoId).eq("user_id", currentUserId).eq("tipo", true);
         setIsLiked(false); setLikesCount((n) => Math.max(0, n - 1));
       }
-      await supabase.from("interacoes").insert({ video_id: id, user_id: currentUserId, tipo: false });
+      await supabase.from("interacoes").insert({ video_id: videoId, user_id: currentUserId, tipo: false });
       setIsDisliked(true); setDislikesCount((n) => n + 1);
     }
   };
@@ -610,19 +613,19 @@ export default function Video() {
 
   const handleShare = async () => {
     try {
-      await navigator.clipboard.writeText(`${window.location.origin}/video/${id}`);
+      await navigator.clipboard.writeText(`${window.location.origin}/video/${slug}`);
       setShareCopied(true);
       setTimeout(() => setShareCopied(false), 2500);
     } catch (err) { console.warn("Clipboard error:", err); }
-    await supabase.from("partilhas").insert({ video_id: id, user_id: currentUserId, plataforma: "clipboard" });
+    await supabase.from("partilhas").insert({ video_id: videoId, user_id: currentUserId, plataforma: "clipboard" });
   };
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUserId) { requireAuth("comment"); return; }
-    if (!newComment.trim() || !id) return;
+    if (!newComment.trim() || !videoId) return;
     setSubmittingComment(true);
-    await supabase.from("comentarios").insert({ video_id: id, user_id: currentUserId, conteudo: newComment.trim() });
+    await supabase.from("comentarios").insert({ video_id: videoId, user_id: currentUserId, conteudo: newComment.trim() });
     setNewComment("");
     setSubmittingComment(false);
   };
