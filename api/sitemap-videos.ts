@@ -14,6 +14,14 @@ function toYMD(iso: string): string {
   return iso.slice(0, 10);
 }
 
+function isValidHttpsUrl(url: string | null | undefined): url is string {
+  return typeof url === "string" && url.startsWith("https://");
+}
+
+function isValidThumbnail(url: string | null | undefined): url is string {
+  return isValidHttpsUrl(url) && !url.includes("?token=");
+}
+
 export default async function handler(_req: VercelRequest, res: VercelResponse) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -32,19 +40,26 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
   const [videosRes, profilesRes] = await Promise.all([
     supabase
       .from("videos")
-      .select("id, slug, title, thumbnail_url, created_at")
+      .select("id, slug, title, thumbnail_url, video_url, duration, created_at")
       .eq("status", "published")
       .eq("visibility", "public")
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .limit(50000),
     supabase
       .from("profiles")
       .select("id, slug, updated_at")
       .not("username", "is", null)
-      .not("full_name", "is", null),
+      .not("full_name", "is", null)
+      .limit(1000),
   ]);
 
   if (videosRes.error) {
     res.status(500).send(`Supabase videos query failed: ${videosRes.error.message}`);
+    return;
+  }
+
+  if (profilesRes.error) {
+    res.status(500).send(`Supabase profiles query failed: ${profilesRes.error.message}`);
     return;
   }
 
@@ -53,19 +68,35 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       const slugOrId = v.slug || v.id;
       const loc = `https://suckorsex.com/video/${escapeXml(slugOrId)}`;
       const lastmod = toYMD(v.created_at);
-      const title = escapeXml(v.title ?? "");
-      const thumbnailLine = v.thumbnail_url
-        ? `\n      <video:thumbnail_loc>${escapeXml(v.thumbnail_url)}</video:thumbnail_loc>`
-        : "";
-      return `  <url>
+      const hasValidVideo = isValidHttpsUrl(v.video_url);
+
+      if (hasValidVideo) {
+        const title = escapeXml((v.title ?? "").trim());
+        const description = escapeXml(`${(v.title ?? "").trim()} - SuckOrSex`);
+        const thumbnailLine = isValidThumbnail(v.thumbnail_url)
+          ? `\n      <video:thumbnail_loc>${escapeXml(v.thumbnail_url)}</video:thumbnail_loc>`
+          : "";
+        const durationLine = v.duration
+          ? `\n      <video:duration>${v.duration}</video:duration>`
+          : "";
+        return `  <url>
     <loc>${loc}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <video:video>${thumbnailLine}
       <video:title>${title}</video:title>
-      <video:content_loc>${loc}</video:content_loc>
+      <video:description>${description}</video:description>
+      <video:content_loc>${escapeXml(v.video_url)}</video:content_loc>${durationLine}
     </video:video>
+  </url>`;
+      }
+
+      return `  <url>
+    <loc>${loc}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>`;
     })
     .join("\n");
@@ -93,5 +124,6 @@ ${allEntries}
 </urlset>`;
 
   res.setHeader("Content-Type", "application/xml; charset=utf-8");
+  res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=3600");
   res.status(200).send(xml);
 }
