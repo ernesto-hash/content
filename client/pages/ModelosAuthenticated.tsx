@@ -94,7 +94,7 @@ function CreatorCard({
       </div>
 
       {/* ── Corpo do card ── */}
-      <div className="px-4 pb-4">
+      <div className="relative px-4 pb-4">
         {/* Avatar + botão subscrever */}
         <div className="-mt-5 sm:-mt-7 mb-3 flex items-end justify-between">
           <div
