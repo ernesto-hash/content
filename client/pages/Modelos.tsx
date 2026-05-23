@@ -194,7 +194,7 @@ function CreatorCard({
 
       {/* Corpo */}
       <div className="relative px-4 pb-4">
-        <div className="-mt-7 mb-3 flex items-end justify-between">
+        <div className="-mt-5 sm:-mt-7 mb-3 flex items-end justify-between">
           <div className={`w-14 h-14 rounded-2xl border-2 border-[#0d0d0d] bg-gradient-to-br ${grad} flex items-center justify-center overflow-hidden shadow-lg flex-shrink-0`}>
             {creator.avatar_url
               ? <img src={creator.avatar_url} alt={creator.full_name ?? creator.username} className="w-full h-full object-cover" />

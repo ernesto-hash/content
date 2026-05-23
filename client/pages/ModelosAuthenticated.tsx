@@ -96,7 +96,7 @@ function CreatorCard({
       {/* ── Corpo do card ── */}
       <div className="px-4 pb-4">
         {/* Avatar + botão subscrever */}
-        <div className="-mt-7 mb-3 flex items-end justify-between">
+        <div className="-mt-5 sm:-mt-7 mb-3 flex items-end justify-between">
           <div
             className="w-14 h-14 rounded-2xl border-2 border-[#0d0d0d] bg-gradient-to-br from-neon-pink/20 to-neon-purple/10 flex items-center justify-center overflow-hidden shadow-lg flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-neon-pink/40 transition-all"
             onClick={() => onOpenChannel(creator.id)}
