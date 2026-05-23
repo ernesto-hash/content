@@ -46,7 +46,7 @@ function CreatorCard({
 
       {/* ── Faixa de preview ── */}
       <div
-        className="relative h-32 cursor-pointer overflow-hidden"
+        className="relative h-20 sm:h-28 cursor-pointer overflow-hidden"
         onClick={() => onOpenChannel(creator.id)}
       >
         {creator.preview_thumbs.length > 0 ? (
@@ -117,15 +117,15 @@ function CreatorCard({
           {/* Subscrever — sem popup, direto */}
           <button
             onClick={(e) => { e.stopPropagation(); onSubscribe(creator.id); }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all ${
+            className={`flex items-center gap-1.5 px-2 sm:px-3.5 py-1.5 rounded-xl text-[11px] font-bold border transition-all ${
               isSubscribed
                 ? "bg-white/6 border-white/10 text-white/40 hover:bg-red-500/10 hover:border-red-500/25 hover:text-red-400"
                 : `${accent} hover:scale-[1.03] shadow-sm`
             }`}
           >
             {isSubscribed
-              ? <><BellOff size={10} />{t("common.subscribed")}</>
-              : <><Bell size={10} />{t("common.subscribe")}</>
+              ? <><BellOff size={10} /><span className="hidden sm:inline"> {t("common.subscribed")}</span></>
+              : <><Bell size={10} /><span className="hidden sm:inline"> {t("common.subscribe")}</span></>
             }
           </button>
         </div>
@@ -135,23 +135,23 @@ function CreatorCard({
           className="text-left w-full mb-3"
           onClick={() => onOpenChannel(creator.id)}
         >
-          <h3 className="font-bold text-foreground/90 text-sm group-hover:text-white transition-colors truncate">
+          <h3 className="font-bold text-foreground/90 text-xs sm:text-sm group-hover:text-white transition-colors truncate">
             {creator.full_name || creator.username}
           </h3>
-          <p className="text-[11px] text-foreground/35 truncate">@{creator.username}</p>
+          <p className="text-[10px] text-foreground/35 truncate">@{creator.username}</p>
         </button>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-1.5 mb-3">
+        <div className="grid grid-cols-3 gap-1 mb-3">
           {[
             { label: t("models.stats.videos"), value: fmtNum(creator.video_count),      icon: Film  },
             { label: t("models.stats.views"),  value: fmtNum(creator.total_views),      icon: Eye   },
             { label: t("models.stats.fans"),   value: fmtNum(creator.subscriber_count), icon: Users },
           ].map(({ label, value, icon: Icon }) => (
-            <div key={label} className="bg-white/[0.03] border border-white/6 rounded-xl py-2 text-center">
+            <div key={label} className="bg-white/[0.03] border border-white/6 rounded-xl py-1 px-0.5 sm:py-1.5 sm:px-1 text-center">
               <Icon size={9} className="text-foreground/28 mx-auto mb-0.5" />
               <p className="text-xs font-bold text-foreground/75">{value}</p>
-              <p className="text-[9px] text-foreground/28">{label}</p>
+              <p className="text-[8px] sm:text-[9px] text-foreground/28">{label}</p>
             </div>
           ))}
         </div>
@@ -159,7 +159,7 @@ function CreatorCard({
         {/* CTA */}
         <button
           onClick={() => onOpenChannel(creator.id)}
-          className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 border border-white/8 text-[11px] text-foreground/40 hover:bg-white/10 hover:text-neon-pink hover:border-neon-pink/25 transition-all"
+          className="hidden sm:flex w-full items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 border border-white/8 text-[11px] text-foreground/40 hover:bg-white/10 hover:text-neon-pink hover:border-neon-pink/25 transition-all"
         >
           {t("models.card.viewChannelFull")} <ChevronRight size={11} />
         </button>
