@@ -487,6 +487,72 @@ function CategoryRow({ category, videos, onLike, onSave, likedIds, savedIds }: {
 }
 
 // ─────────────────────────────────────────────
+// Banner de Shorts
+// ─────────────────────────────────────────────
+function ShortsBanner({ shortsPath }: { shortsPath: string }) {
+  const { t } = useTranslation();
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem("shorts_banner_seen")) return;
+    const timer = setTimeout(() => setVisible(true), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!visible) return;
+    const timer = setTimeout(() => {
+      setVisible(false);
+      localStorage.setItem("shorts_banner_seen", "1");
+    }, 10000);
+    return () => clearTimeout(timer);
+  }, [visible]);
+
+  const close = () => {
+    setVisible(false);
+    localStorage.setItem("shorts_banner_seen", "1");
+  };
+
+  if (!visible) return null;
+
+  return (
+    <>
+      <style>{`@keyframes shortsCountdown{from{width:100%}to{width:0%}}`}</style>
+      <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-[100] bg-[#0e0e14] border border-neon-pink/40 rounded-2xl shadow-[0_0_30px_rgba(236,72,153,0.2)] overflow-hidden">
+        <button
+          onClick={close}
+          className="absolute top-3 right-3 text-white/40 hover:text-white/80 transition-colors z-10"
+        >
+          <X size={16} />
+        </button>
+        <div className="p-4 pr-10">
+          <div className="flex items-center gap-2 mb-2">
+            <Zap size={16} className="text-neon-pink flex-shrink-0" fill="currentColor" />
+            <span className="font-bold text-white text-sm">Shorts chegaram! ⚡</span>
+          </div>
+          <p className="text-foreground/55 text-xs leading-relaxed mb-3">
+            {t("shorts.banner.text", "Descobre vídeos curtos no estilo TikTok. Scroll infinito, conteúdo exclusivo das tuas modelos favoritas.")}
+          </p>
+          <Link
+            to={shortsPath}
+            onClick={close}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white text-xs font-bold hover:shadow-[0_0_15px_rgba(236,72,153,0.4)] transition-all"
+          >
+            {t("shorts.banner.cta", "Ver Shorts")} →
+          </Link>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-white/10">
+          <div
+            className="h-full bg-neon-pink"
+            style={{ animation: "shortsCountdown 10s linear forwards" }}
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────
 // Componente principal
 // ─────────────────────────────────────────────
 export default function Index() {
@@ -957,6 +1023,7 @@ export default function Index() {
           </div>
         )}
       </Layout>
+      <ShortsBanner shortsPath="/shorts" />
     </>
   );
 }

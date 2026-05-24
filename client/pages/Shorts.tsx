@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "@/lib/supabaseClient";
 import {
   Heart, Share2, Play, VolumeX, Volume2,
-  ArrowLeft, Loader2, User, Eye, Zap,
+  ArrowLeft, Loader2, User, Eye, Zap, X,
 } from "lucide-react";
 
 type ShortVideo = {
@@ -36,20 +36,18 @@ function ShortItem({
   short,
   videoBasePath,
   modelBasePath,
-  onLike,
 }: {
   short: ShortVideo;
   videoBasePath: string;
   modelBasePath: string;
-  onLike?: (id: string, liked: boolean) => void;
 }) {
   const { t } = useTranslation();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef     = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [muted,     setMuted]     = useState(true);
-  const [liked,     setLiked]     = useState(false);
-  const [progress,  setProgress]  = useState(0);
+  const containerRef    = useRef<HTMLDivElement>(null);
+  const videoRef        = useRef<HTMLVideoElement>(null);
+  const [isPlaying,     setIsPlaying]     = useState(false);
+  const [muted,         setMuted]         = useState(true);
+  const [progress,      setProgress]      = useState(0);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const videoPath = `${videoBasePath}/${short.slug || short.id}`;
   const modelPath = `${modelBasePath}/${short.profile?.id || short.user_id}`;
@@ -107,9 +105,7 @@ function ShortItem({
 
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const next = !liked;
-    setLiked(next);
-    onLike?.(short.id, next);
+    setShowAuthModal(true);
   };
 
   return (
@@ -222,12 +218,8 @@ function ShortItem({
         {/* Direita — acções */}
         <div className="absolute bottom-24 right-4 z-10 flex flex-col items-center gap-5">
           <button onClick={handleLike} className="flex flex-col items-center gap-1">
-            <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${liked ? "bg-neon-pink/30" : "bg-black/60"}`}>
-              <Heart
-                size={22}
-                className={liked ? "text-neon-pink" : "text-white"}
-                fill={liked ? "currentColor" : "none"}
-              />
+            <div className="w-11 h-11 rounded-full bg-black/60 flex items-center justify-center">
+              <Heart size={22} className="text-white" fill="none" />
             </div>
           </button>
 
@@ -252,6 +244,32 @@ function ShortItem({
             <span className="text-[10px] text-white/60">{t("shorts.watch", "Ver")}</span>
           </Link>
         </div>
+        {showAuthModal && (
+          <div
+            className="absolute inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm"
+            onClick={(e) => { e.stopPropagation(); setShowAuthModal(false); }}
+          >
+            <div
+              className="relative mx-4 bg-[#0e0e14] border border-neon-pink/30 rounded-2xl p-6 text-center max-w-xs w-full"
+              onClick={e => e.stopPropagation()}
+            >
+              <button onClick={() => setShowAuthModal(false)} className="absolute top-3 right-3 text-white/40 hover:text-white/80 transition-colors">
+                <X size={16} />
+              </button>
+              <Heart size={32} className="text-neon-pink mx-auto mb-3" />
+              <p className="text-white font-bold mb-1">{t("shorts.authModal.title", "Cria uma conta gratuita")}</p>
+              <p className="text-white/60 text-sm mb-4">{t("shorts.authModal.text", "Para curtir precisas de uma conta gratuita.")}</p>
+              <div className="flex flex-col gap-2">
+                <Link to="/signup" className="block w-full py-2.5 bg-gradient-to-r from-neon-pink to-neon-purple text-white text-sm font-bold rounded-xl">
+                  {t("shorts.authModal.signup", "Criar conta")}
+                </Link>
+                <Link to="/login" className="block w-full py-2.5 bg-white/8 border border-white/12 text-white text-sm font-semibold rounded-xl">
+                  {t("shorts.authModal.login", "Entrar")}
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
