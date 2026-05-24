@@ -551,6 +551,9 @@ export default function LayoutAuthenticated({ children, hideHeader = false }: La
               <Link to="/modelosauthenticated" className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${location.pathname === "/modelosauthenticated" ? "text-foreground bg-gradient-to-r from-neon-pink/20 to-neon-purple/20 border border-neon-pink/30" : "text-foreground/80 hover:text-neon-pink hover:bg-white/5"}`}>
                 {t("nav.links.models")}
               </Link>
+              <Link to="/app/shorts" className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all flex items-center gap-1 ${location.pathname === "/app/shorts" ? "text-foreground bg-gradient-to-r from-neon-pink/20 to-neon-purple/20 border border-neon-pink/30" : "text-foreground/80 hover:text-neon-pink hover:bg-white/5"}`}>
+                <Zap size={13} /> Shorts
+              </Link>
             </div>
           </div>
         </nav>

@@ -313,6 +313,7 @@ export default function HomeAuthenticated() {
   const subscriptionsRef                 = useRef<string[]>([]);
   const [myLikesCount,  setMyLikesCount]  = useState(0);
   const [mySubsCount,   setMySubsCount]   = useState(0);
+  const [shortsPreview, setShortsPreview] = useState<{ id: string; slug: string | null; thumbnail_url: string | null; title: string | null }[]>([]);
 
   // Em destaque: top-4 por views de criadores distintos (só se ≥2 criadores)
   const featuredVideos = useMemo((): Video[] => {
@@ -443,6 +444,18 @@ export default function HomeAuthenticated() {
   useEffect(() => { if (currentUserId !== null) fetchAll(); }, [fetchAll, currentUserId]);
 
   useEffect(() => {
+    supabase
+      .from("videos")
+      .select("id, slug, title, thumbnail_url")
+      .eq("is_short", true)
+      .eq("status", "published")
+      .eq("visibility", "public")
+      .order("views", { ascending: false })
+      .limit(6)
+      .then(({ data }) => setShortsPreview((data ?? []) as any[]));
+  }, []);
+
+  useEffect(() => {
     const ch = supabase.channel("home-auth-rt")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "videos" }, () => fetchAll())
       .subscribe();
@@ -552,6 +565,56 @@ export default function HomeAuthenticated() {
             onLike={handleLike} onDislike={handleDislike} onSave={handleSave}
             likedIds={likedIds} dislikedIds={dislikedIds} savedIds={savedIds} />
         ))}
+
+        {/* Shorts em Destaque */}
+        {shortsPreview.length > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Zap size={15} className="text-neon-pink" fill="currentColor" />
+                <h2 className="text-sm font-black text-white/80 uppercase tracking-wider">
+                  {t("home.sections.shorts", "Shorts")}
+                </h2>
+              </div>
+              <Link
+                to="/app/shorts"
+                className="flex items-center gap-1 text-xs text-foreground/45 hover:text-neon-pink transition-colors"
+              >
+                {t("home.sections.viewAll", "Ver todos")} <ChevronRight size={11} />
+              </Link>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              {shortsPreview.map(s => (
+                <Link
+                  key={s.id}
+                  to="/app/shorts"
+                  className="flex-shrink-0 relative w-[90px] h-48 rounded-xl overflow-hidden bg-white/5 border border-white/8 hover:border-neon-pink/30 transition-colors group"
+                >
+                  {s.thumbnail_url ? (
+                    <img
+                      src={s.thumbnail_url}
+                      alt={s.title ?? ""}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Play size={20} className="text-white/20" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  <div className="absolute bottom-2 left-0 right-0 px-1.5">
+                    <p className="text-[10px] text-white/80 line-clamp-2 leading-tight">{s.title}</p>
+                  </div>
+                  <div className="absolute top-2 right-2">
+                    <div className="w-5 h-5 rounded-full bg-neon-pink/80 flex items-center justify-center">
+                      <Play size={8} fill="white" className="text-white ml-px" />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Grelha */}
         {loading ? (

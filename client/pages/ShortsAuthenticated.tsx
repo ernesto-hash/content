@@ -32,29 +32,30 @@ function fmtViews(n: number) {
   return String(n);
 }
 
-function ShortItem({
+function ShortItemAuth({
   short,
-  videoBasePath,
-  modelBasePath,
-  onLike,
+  currentUserId,
+  initialLiked,
 }: {
   short: ShortVideo;
-  videoBasePath: string;
-  modelBasePath: string;
-  onLike?: (id: string, liked: boolean) => void;
+  currentUserId: string | null;
+  initialLiked: boolean;
 }) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef     = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [muted,     setMuted]     = useState(true);
-  const [liked,     setLiked]     = useState(false);
+  const [liked,     setLiked]     = useState(initialLiked);
   const [progress,  setProgress]  = useState(0);
+  const [saving,    setSaving]    = useState(false);
 
-  const videoPath = `${videoBasePath}/${short.slug || short.id}`;
-  const modelPath = `${modelBasePath}/${short.profile?.id || short.user_id}`;
+  const videoPath = `/app/video/${short.slug || short.id}`;
+  const modelPath = `/app/modelo/${short.profile?.id || short.user_id}`;
 
-  // IntersectionObserver — só reproduz quando visível
+  useEffect(() => { setLiked(initialLiked); }, [initialLiked]);
+
+  // IntersectionObserver
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -105,11 +106,26 @@ function ShortItem({
     } catch { /* cancelled */ }
   };
 
-  const handleLike = (e: React.MouseEvent) => {
+  const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!currentUserId || saving) return;
+    setSaving(true);
     const next = !liked;
     setLiked(next);
-    onLike?.(short.id, next);
+    if (next) {
+      await supabase.from("interacoes").upsert({
+        video_id: short.id,
+        user_id:  currentUserId,
+        tipo:     true,
+      }, { onConflict: "video_id,user_id" });
+    } else {
+      await supabase.from("interacoes")
+        .delete()
+        .eq("video_id", short.id)
+        .eq("user_id",  currentUserId)
+        .eq("tipo",     true);
+    }
+    setSaving(false);
   };
 
   return (
@@ -119,7 +135,6 @@ function ShortItem({
     >
       <div className="relative h-full w-full max-w-[420px] mx-auto overflow-hidden">
 
-        {/* Vídeo */}
         {short.video_url ? (
           <video
             ref={videoRef}
@@ -152,10 +167,8 @@ function ShortItem({
           />
         </div>
 
-        {/* Gradiente */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/30 pointer-events-none" />
 
-        {/* Indicador pause */}
         {!isPlaying && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="w-16 h-16 rounded-full bg-black/50 flex items-center justify-center">
@@ -164,7 +177,6 @@ function ShortItem({
           </div>
         )}
 
-        {/* Mute */}
         <button
           onClick={(e) => { e.stopPropagation(); setMuted(m => !m); }}
           className="absolute top-16 right-4 z-30 w-9 h-9 rounded-full bg-black/60 flex items-center justify-center text-white"
@@ -199,13 +211,9 @@ function ShortItem({
                 )}
               </div>
             </div>
-
             {short.title && (
-              <p className="text-[13px] text-white/90 line-clamp-2 mb-2 leading-snug">
-                {short.title}
-              </p>
+              <p className="text-[13px] text-white/90 line-clamp-2 mb-2 leading-snug">{short.title}</p>
             )}
-
             <div className="flex items-center gap-2 flex-wrap">
               {short.category && (
                 <span className="px-2 py-0.5 rounded-full bg-neon-pink/20 border border-neon-pink/30 text-neon-pink text-[10px] font-semibold">
@@ -221,7 +229,7 @@ function ShortItem({
 
         {/* Direita — acções */}
         <div className="absolute bottom-24 right-4 z-10 flex flex-col items-center gap-5">
-          <button onClick={handleLike} className="flex flex-col items-center gap-1">
+          <button onClick={handleLike} disabled={saving} className="flex flex-col items-center gap-1">
             <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${liked ? "bg-neon-pink/30" : "bg-black/60"}`}>
               <Heart
                 size={22}
@@ -257,12 +265,28 @@ function ShortItem({
   );
 }
 
-export default function ShortsPage() {
-  const { t } = useTranslation();
-  const navigate  = useNavigate();
-  const [shorts,  setShorts]  = useState<ShortVideo[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function ShortsAuthenticated() {
+  const { t }    = useTranslation();
+  const navigate = useNavigate();
+  const [shorts,        setShorts]        = useState<ShortVideo[]>([]);
+  const [loading,       setLoading]       = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [likedIds,      setLikedIds]      = useState<Set<string>>(new Set());
 
+  // Auth check
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) { window.location.href = "/login"; return; }
+      setCurrentUserId(data.session.user.id);
+    });
+    const { data: l } = supabase.auth.onAuthStateChange((_e, s) => {
+      if (!s) { window.location.href = "/login"; return; }
+      setCurrentUserId(s.user.id);
+    });
+    return () => l.subscription.unsubscribe();
+  }, []);
+
+  // Fetch shorts
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -299,11 +323,26 @@ export default function ShortsPage() {
     })();
   }, []);
 
+  // Fetch likes do utilizador
+  useEffect(() => {
+    if (!currentUserId || shorts.length === 0) return;
+    const videoIds = shorts.map(s => s.id);
+    supabase
+      .from("interacoes")
+      .select("video_id")
+      .eq("user_id", currentUserId)
+      .eq("tipo", true)
+      .in("video_id", videoIds)
+      .then(({ data }) => {
+        setLikedIds(new Set((data ?? []).map((r: any) => r.video_id)));
+      });
+  }, [currentUserId, shorts]);
+
   return (
     <div className="fixed inset-0 bg-black z-50 overflow-hidden">
 
       {/* Barra superior */}
-      <div className="absolute top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 pt-safe-top py-3 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
+      <div className="absolute top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 py-3 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center justify-center w-9 h-9 rounded-full bg-black/50 text-white/80 hover:text-white transition-colors pointer-events-auto"
@@ -316,33 +355,30 @@ export default function ShortsPage() {
         </div>
       </div>
 
-      {/* Loading */}
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center">
           <Loader2 size={36} className="text-neon-pink animate-spin" />
         </div>
       )}
 
-      {/* Empty */}
       {!loading && shorts.length === 0 && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-8">
           <Zap size={48} className="text-white/15" />
           <p className="text-white/50">{t("shorts.empty", "Sem Shorts disponíveis de momento.")}</p>
-          <Link to="/videos" className="text-neon-pink text-sm hover:underline">
+          <Link to="/videosauthenticated" className="text-neon-pink text-sm hover:underline">
             {t("shorts.browseVideos", "Ver todos os vídeos")}
           </Link>
         </div>
       )}
 
-      {/* Scroll TikTok */}
       {!loading && shorts.length > 0 && (
         <div className="h-full w-full overflow-y-scroll snap-y snap-mandatory">
           {shorts.map(short => (
-            <ShortItem
+            <ShortItemAuth
               key={short.id}
               short={short}
-              videoBasePath="/video"
-              modelBasePath="/modelo"
+              currentUserId={currentUserId}
+              initialLiked={likedIds.has(short.id)}
             />
           ))}
         </div>

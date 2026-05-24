@@ -137,6 +137,8 @@ const RtaLabel       = lazy(() => import("./pages/RtaLabel"));
 const Anunciar          = lazy(() => import("./pages/Anunciar"));
 const AnunciarPagamento = lazy(() => import("./pages/AnunciarPagamento"));
 const AnunciarSucesso   = lazy(() => import("./pages/AnunciarSucesso"));
+const Shorts                = lazy(() => import("./pages/Shorts"));
+const ShortsAuthenticated   = lazy(() => import("./pages/ShortsAuthenticated"));
 const TagPage               = lazy(() => import("./pages/TagPage"));
 const GaleriaAdmin          = lazy(() => import("./pages/admin/GaleriaAdmin"));
 const RegenerarThumbnails   = lazy(() => import("./pages/admin/RegenerarThumbnails"));
@@ -202,6 +204,7 @@ const App = () => (
             <Route path="/anunciar"          element={<Anunciar />} />
             <Route path="/anunciar/pagamento" element={<AnunciarPagamento />} />
             <Route path="/anunciar/sucesso"   element={<AnunciarSucesso />} />
+            <Route path="/shorts" element={<Shorts />} />
             <Route path="/tag/:tag" element={<TagPage />} />
             <Route path="/perfil/:username" element={<Canais />} />
             <Route path="/modelo/:slug" element={<CanalPage />} />
@@ -259,6 +262,7 @@ const App = () => (
             <Route path="/popularesauthenticated"   element={<Auth><PopularesAuthenticated /></Auth>} />
             <Route path="/recomendadosauthenticated" element={<Auth><RecomendadosAuthenticated /></Auth>} />
             <Route path="/modelosauthenticated"     element={<Auth><ModelosAuthenticated /></Auth>} />
+            <Route path="/app/shorts"              element={<Auth><ShortsAuthenticated /></Auth>} />
 
             {/* Studio — requer role "creator" ou "admin" */}
             <Route path="/studio"            element={<CreatorRoute><StudioDashboard /></CreatorRoute>} />
