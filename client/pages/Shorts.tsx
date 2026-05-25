@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/lib/supabaseClient";
@@ -36,10 +36,14 @@ function ShortItem({
   short,
   videoBasePath,
   modelBasePath,
+  isFirst = false,
+  onNearEnd,
 }: {
   short: ShortVideo;
   videoBasePath: string;
   modelBasePath: string;
+  isFirst?: boolean;
+  onNearEnd?: () => void;
 }) {
   const { t } = useTranslation();
   const containerRef    = useRef<HTMLDivElement>(null);
@@ -52,16 +56,23 @@ function ShortItem({
   const videoPath = `${videoBasePath}/${short.slug || short.id}`;
   const modelPath = `${modelBasePath}/${short.profile?.id || short.user_id}`;
 
+  const onNearEndRef = useRef(onNearEnd);
+  useEffect(() => { onNearEndRef.current = onNearEnd; });
+
   // IntersectionObserver — só reproduz quando visível
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+    if (isFirst) {
+      videoRef.current?.play().then(() => setIsPlaying(true)).catch(() => {});
+    }
     const observer = new IntersectionObserver(
       ([entry]) => {
         const vid = videoRef.current;
         if (!vid) return;
         if (entry.isIntersecting) {
           vid.play().then(() => setIsPlaying(true)).catch(() => {});
+          onNearEndRef.current?.();
         } else {
           vid.pause();
           vid.currentTime = 0;
@@ -73,7 +84,7 @@ function ShortItem({
     );
     observer.observe(container);
     return () => observer.disconnect();
-  }, []);
+  }, [isFirst]);
 
   const togglePlay = () => {
     const vid = videoRef.current;
@@ -125,6 +136,7 @@ function ShortItem({
             loop
             muted={muted}
             playsInline
+            preload={isFirst ? "auto" : "metadata"}
             onTimeUpdate={handleTimeUpdate}
             onClick={togglePlay}
           />
@@ -280,6 +292,7 @@ export default function ShortsPage() {
   const navigate  = useNavigate();
   const [shorts,  setShorts]  = useState<ShortVideo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -292,7 +305,7 @@ export default function ShortsPage() {
         .eq("status", "published")
         .eq("visibility", "public")
         .order("views", { ascending: false })
-        .limit(50);
+        .limit(20);
 
       if (!videos || videos.length === 0) {
         setShorts([]);
@@ -300,14 +313,15 @@ export default function ShortsPage() {
         return;
       }
 
-      const userIds = [...new Set((videos as any[]).map((v: any) => v.user_id))];
+      const shuffled = [...(videos as any[])].sort(() => Math.random() - 0.5);
+      const userIds = [...new Set(shuffled.map((v: any) => v.user_id))];
       const { data: profiles } = await supabase
         .from("profiles_public")
         .select("id, username, full_name, avatar_url")
         .in("id", userIds);
 
       const profileMap = new Map((profiles ?? []).map((p: any) => [p.id, p]));
-      const enriched: ShortVideo[] = (videos as any[]).map((v: any) => ({
+      const enriched: ShortVideo[] = shuffled.map((v: any) => ({
         ...v,
         profile: profileMap.get(v.user_id),
       }));
@@ -316,6 +330,37 @@ export default function ShortsPage() {
       setLoading(false);
     })();
   }, []);
+
+  const loadMore = useCallback(async () => {
+    if (!hasMore) return;
+    const { data } = await supabase
+      .from("videos")
+      .select("id, slug, title, thumbnail_url, video_url, views, duration, created_at, user_id, category")
+      .eq("is_short", true)
+      .eq("status", "published")
+      .eq("visibility", "public")
+      .order("views", { ascending: false })
+      .range(shorts.length, shorts.length + 9);
+
+    if (!data || data.length === 0) {
+      setHasMore(false);
+      return;
+    }
+
+    const shuffledNew = [...data].sort(() => Math.random() - 0.5);
+    const userIds = [...new Set(shuffledNew.map((v: any) => v.user_id))];
+    const { data: profiles } = await supabase
+      .from("profiles_public")
+      .select("id, username, full_name, avatar_url")
+      .in("id", userIds);
+    const profileMap = new Map((profiles ?? []).map((p: any) => [p.id, p]));
+    const enriched: ShortVideo[] = shuffledNew.map((v: any) => ({
+      ...v,
+      profile: profileMap.get(v.user_id),
+    }));
+
+    setShorts(prev => [...prev, ...enriched]);
+  }, [shorts.length, hasMore]);
 
   return (
     <div className="fixed inset-0 bg-black z-50 overflow-hidden">
@@ -355,12 +400,14 @@ export default function ShortsPage() {
       {/* Scroll TikTok */}
       {!loading && shorts.length > 0 && (
         <div className="h-full w-full overflow-y-scroll snap-y snap-mandatory">
-          {shorts.map(short => (
+          {shorts.map((short, index) => (
             <ShortItem
               key={short.id}
               short={short}
               videoBasePath="/video"
               modelBasePath="/modelo"
+              isFirst={index === 0}
+              onNearEnd={index === shorts.length - 2 ? loadMore : undefined}
             />
           ))}
         </div>
