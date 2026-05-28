@@ -121,7 +121,7 @@ export default function GaleriaPlano({
     setPacksLoading(true);
     const { data } = await supabase
       .from("galeria_packs")
-      .select("*")
+      .select("id,name,price,description,features,is_active")
       .eq("etiqueta", etiquetaFiltro)
       .order("created_at", { ascending: false });
     setPacks((data ?? []) as Pack[]);

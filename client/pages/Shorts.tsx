@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/lib/supabaseClient";
@@ -32,7 +32,7 @@ function fmtViews(n: number) {
   return String(n);
 }
 
-function ShortItem({
+const ShortItem = memo(function ShortItem({
   short,
   videoBasePath,
   modelBasePath,
@@ -285,7 +285,7 @@ function ShortItem({
       </div>
     </div>
   );
-}
+});
 
 export default function ShortsPage() {
   const { t } = useTranslation();

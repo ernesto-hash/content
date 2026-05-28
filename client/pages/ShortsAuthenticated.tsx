@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/lib/supabaseClient";
@@ -32,7 +32,7 @@ function fmtViews(n: number) {
   return String(n);
 }
 
-function ShortItemAuth({
+const ShortItemAuth = memo(function ShortItemAuth({
   short,
   currentUserId,
   initialLiked,
@@ -275,7 +275,7 @@ function ShortItemAuth({
       </div>
     </div>
   );
-}
+});
 
 export default function ShortsAuthenticated() {
   const { t }    = useTranslation();

@@ -139,6 +139,8 @@ const AnunciarPagamento = lazy(() => import("./pages/AnunciarPagamento"));
 const AnunciarSucesso   = lazy(() => import("./pages/AnunciarSucesso"));
 const Shorts                = lazy(() => import("./pages/Shorts"));
 const ShortsAuthenticated   = lazy(() => import("./pages/ShortsAuthenticated"));
+const Search                = lazy(() => import("./pages/Search"));
+const SearchAuthenticated   = lazy(() => import("./pages/SearchAuthenticated"));
 const TagPage               = lazy(() => import("./pages/TagPage"));
 const GaleriaAdmin          = lazy(() => import("./pages/admin/GaleriaAdmin"));
 const RegenerarThumbnails   = lazy(() => import("./pages/admin/RegenerarThumbnails"));
@@ -205,6 +207,7 @@ const App = () => (
             <Route path="/anunciar/pagamento" element={<AnunciarPagamento />} />
             <Route path="/anunciar/sucesso"   element={<AnunciarSucesso />} />
             <Route path="/shorts" element={<Shorts />} />
+            <Route path="/search" element={<Search />} />
             <Route path="/tag/:tag" element={<TagPage />} />
             <Route path="/perfil/:username" element={<Canais />} />
             <Route path="/modelo/:slug" element={<CanalPage />} />
@@ -317,6 +320,9 @@ const App = () => (
             <Route path="/app/categoria/italia"       element={<Auth><ItaliaAuthenticatedPage /></Auth>} />
             <Route path="/app/categoria/alemanha"     element={<Auth><AlemanhaAuthenticatedPage /></Auth>} />
             <Route path="/app/categoria/japao"        element={<Auth><JapaoAuthenticatedPage /></Auth>} />
+
+            {/* Pesquisa autenticada — antes do catch-all */}
+            <Route path="/app/search" element={<Auth><SearchAuthenticated /></Auth>} />
 
             {/* /app sem subpath e rotas /app/* desconhecidas → galeria (catch-all no final para não engolir rotas específicas) */}
             <Route path="/app" element={<Navigate to="/app/galeria" replace />} />

@@ -33,7 +33,7 @@ export default function StudioSettings() {
       const user = auth?.session?.user;
       if (!user) return;
 
-      const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+      const { data, error } = await supabase.from("profiles").select("id,username,full_name,avatar_url,bio,website,location").eq("id", user.id).single();
 
       if (!isMounted) return;
 

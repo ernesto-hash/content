@@ -12,7 +12,7 @@
 //   - Linhas por categoria: top-3 categorias, scroll horizontal
 //   - Grid principal com diversidade de modelos
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import AdBanner, { type Ad as BannerAd } from "@/components/AdBanner";
@@ -280,7 +280,7 @@ const isTouchDevice = () =>
   typeof window !== "undefined" &&
   window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 
-function VideoCard({ video, onLike, onSave, isLiked, isSaved, className = "" }: {
+const VideoCard = memo(function VideoCard({ video, onLike, onSave, isLiked, isSaved, className = "" }: {
   video: Video;
   onLike: (id: string, e: React.MouseEvent) => void;
   onSave: (id: string, e: React.MouseEvent) => void;
@@ -341,7 +341,7 @@ function VideoCard({ video, onLike, onSave, isLiked, isSaved, className = "" }: 
       <Link to={`/video/${video.slug || video.id}`} className="block relative aspect-video rounded-xl overflow-hidden bg-black/30 mb-2" onClick={handleLinkClick}>
         {/* Thumbnail */}
         {video.thumbnail_url
-          ? <img src={video.thumbnail_url} alt={video.title ?? ""} loading="lazy"
+          ? <img src={video.thumbnail_url} alt={video.title ?? ""} loading="lazy" width={320} height={180}
               className="w-full h-full object-cover"
               style={{ opacity: isPreviewing ? 0 : 1, transition: "opacity 300ms" }} />
           : <div className="w-full h-full flex items-center justify-center bg-white/5"
@@ -394,7 +394,7 @@ function VideoCard({ video, onLike, onSave, isLiked, isSaved, className = "" }: 
         >
           <div className="w-4 h-4 rounded-full bg-white/10 overflow-hidden flex-shrink-0">
             {video.creator_avatar
-              ? <img src={video.creator_avatar} alt="" className="w-full h-full object-cover" />
+              ? <img src={video.creator_avatar} alt="" loading="lazy" width={16} height={16} className="w-full h-full object-cover" />
               : <User size={8} className="text-white/30 m-auto" />
             }
           </div>
@@ -413,7 +413,7 @@ function VideoCard({ video, onLike, onSave, isLiked, isSaved, className = "" }: 
       </div>
     </div>
   );
-}
+});
 
 function Skeleton() {
   return (
@@ -901,6 +901,8 @@ export default function Index() {
                       <img
                         src={s.thumbnail_url}
                         alt={s.title ?? ""}
+                        loading="lazy"
+                        width={90} height={192}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (

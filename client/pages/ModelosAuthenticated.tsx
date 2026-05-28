@@ -9,7 +9,7 @@
 //   • Stats extra no hero: "Os teus subscritos" — quantos canais o utilizador segue
 //   • Badge "A seguir" nos cards que o utilizador já subscreve
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
@@ -28,7 +28,7 @@ import {
 // Card de modelo (autenticado)
 // — igual ao público mas sem necessidade de AuthPopup
 // ─────────────────────────────────────────────
-function CreatorCard({
+const CreatorCard = memo(function CreatorCard({
   creator, index, isSubscribed, onSubscribe, onOpenChannel,
 }: {
   creator: Creator;
@@ -60,6 +60,7 @@ function CreatorCard({
                 <img
                   src={url}
                   alt=""
+                  loading="lazy"
                   className="w-full h-full object-cover opacity-60 group-hover:opacity-85 group-hover:scale-105 transition-all duration-500"
                 />
               </div>
@@ -105,6 +106,8 @@ function CreatorCard({
               <img
                 src={creator.avatar_url}
                 alt={creator.full_name ?? creator.username}
+                loading="lazy"
+                width={56} height={56}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -166,7 +169,7 @@ function CreatorCard({
       </div>
     </div>
   );
-}
+});
 
 // ─────────────────────────────────────────────
 // Componente principal

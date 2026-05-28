@@ -784,7 +784,7 @@ export default function GaleriaAuthenticated() {
     setPacksLoading(true);
     const { data } = await supabase
       .from("galeria_packs")
-      .select("*")
+      .select("id,name,price,description,features,is_active,created_at")
       .order(sort === "populares" ? "views" : "created_at", { ascending: false });
     setPacks((data ?? []) as Pack[]);
     setPacksLoading(false);

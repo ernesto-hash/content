@@ -7,7 +7,7 @@
 //   ✅ Badge "Novo" para modelos sem vídeos publicados
 //   ✅ AuthPopup definido no mesmo ficheiro
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
@@ -141,7 +141,7 @@ function AuthPopup({ action, onClose }: { action: string; onClose: () => void })
 // ─────────────────────────────────────────────
 // Card de modelo
 // ─────────────────────────────────────────────
-function CreatorCard({
+const CreatorCard = memo(function CreatorCard({
   creator, index, isSubscribed, onSubscribe,
 }: {
   creator: Creator;
@@ -166,13 +166,14 @@ function CreatorCard({
             <div key={i} className="relative flex-1 bg-black/40 overflow-hidden"
               style={{ flex: i === 0 ? "2 1 0%" : "1 1 0%" }}>
               <img src={url} alt=""
+                loading="lazy"
                 className="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500" />
             </div>
           ))
         ) : (
           <div className={`w-full h-full bg-gradient-to-br ${grad} flex items-center justify-center relative overflow-hidden`}>
             {creator.avatar_url
-              ? <img src={creator.avatar_url} alt="" className="w-full h-full object-cover opacity-25" />
+              ? <img src={creator.avatar_url} alt="" loading="lazy" className="w-full h-full object-cover opacity-25" />
               : <Film size={28} className="text-white/15" />
             }
           </div>
@@ -197,7 +198,7 @@ function CreatorCard({
         <div className="-mt-5 sm:-mt-7 mb-3 flex items-end justify-between">
           <div className={`w-14 h-14 rounded-2xl border-2 border-[#0d0d0d] bg-gradient-to-br ${grad} flex items-center justify-center overflow-hidden shadow-lg flex-shrink-0`}>
             {creator.avatar_url
-              ? <img src={creator.avatar_url} alt={creator.full_name ?? creator.username} className="w-full h-full object-cover" />
+              ? <img src={creator.avatar_url} alt={creator.full_name ?? creator.username} loading="lazy" width={56} height={56} className="w-full h-full object-cover" />
               : <User size={22} className="text-white/40" />
             }
           </div>
@@ -241,7 +242,7 @@ function CreatorCard({
       </div>
     </div>
   );
-}
+});
 
 // ─────────────────────────────────────────────
 // PÁGINA PRINCIPAL — Lista de modelos
@@ -729,7 +730,7 @@ export function ModeloCanal() {
                 <Link key={v.id} to={`/video/${v.id}`} className="group block">
                   <div className="relative aspect-video rounded-xl overflow-hidden bg-white/5 mb-2">
                     {v.thumbnail_url
-                      ? <img src={v.thumbnail_url} alt={v.title ?? ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      ? <img src={v.thumbnail_url} alt={v.title ?? ""} loading="lazy" width={320} height={180} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       : <div className="w-full h-full flex items-center justify-center"><Film size={22} className="text-white/15" /></div>
                     }
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
@@ -759,7 +760,7 @@ export function ModeloCanal() {
                   className="group flex gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/8 hover:bg-white/[0.05] hover:border-white/14 transition-all">
                   <div className="relative w-36 aspect-video flex-shrink-0 rounded-lg overflow-hidden bg-white/5">
                     {v.thumbnail_url
-                      ? <img src={v.thumbnail_url} alt="" className="w-full h-full object-cover" />
+                      ? <img src={v.thumbnail_url} alt="" loading="lazy" width={144} height={81} className="w-full h-full object-cover" />
                       : <div className="w-full h-full flex items-center justify-center"><Film size={16} className="text-white/15" /></div>
                     }
                     {v.duration && (

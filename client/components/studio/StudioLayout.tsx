@@ -74,7 +74,7 @@ export default function StudioLayout({ children, title = "Creator Studio", subti
 
       const { data: prof, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id,username,full_name,avatar_url,role")
         .eq("id", user.id)
         .single();
 

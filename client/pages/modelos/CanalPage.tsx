@@ -11,7 +11,7 @@
 //   • Auth gate em todas as interações directas
 //   • Realtime: novo vídeo aparece sem refresh
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
@@ -60,7 +60,7 @@ const isTouchDevice = () =>
 // ─────────────────────────────────────────────
 // Mini card de vídeo reutilizável
 // ─────────────────────────────────────────────
-function VideoGridCard({ video, featured = false, authenticated = false }: { video: VideoItem; featured?: boolean; authenticated?: boolean }) {
+const VideoGridCard = memo(function VideoGridCard({ video, featured = false, authenticated = false }: { video: VideoItem; featured?: boolean; authenticated?: boolean }) {
   const { t } = useTranslation();
   const videoSlugOrId = video.slug || video.id;
   const videoPath = authenticated ? `/app/video/${videoSlugOrId}` : `/video/${videoSlugOrId}`;
@@ -122,6 +122,8 @@ function VideoGridCard({ video, featured = false, authenticated = false }: { vid
           <img
             src={video.thumbnail_url}
             alt={video.title ?? ""}
+            loading="lazy"
+            width={320} height={180}
             className="w-full h-full object-cover"
             style={{ opacity: isPreviewing ? 0 : 1, transition: "opacity 300ms" }}
           />
@@ -187,9 +189,9 @@ function VideoGridCard({ video, featured = false, authenticated = false }: { vid
       </div>
     </Link>
   );
-}
+});
 
-function VideoListCard({ video, authenticated = false }: { video: VideoItem; authenticated?: boolean }) {
+const VideoListCard = memo(function VideoListCard({ video, authenticated = false }: { video: VideoItem; authenticated?: boolean }) {
   const { t } = useTranslation();
   const videoSlugOrId = video.slug || video.id;
   const videoPath = authenticated ? `/app/video/${videoSlugOrId}` : `/video/${videoSlugOrId}`;
@@ -249,6 +251,7 @@ function VideoListCard({ video, authenticated = false }: { video: VideoItem; aut
       <div className="relative w-40 aspect-video flex-shrink-0 rounded-lg overflow-hidden bg-white/5">
         {video.thumbnail_url ? (
           <img src={video.thumbnail_url} alt=""
+            loading="lazy" width={160} height={90}
             className="w-full h-full object-cover"
             style={{ opacity: isPreviewing ? 0 : 1, transition: "opacity 300ms" }} />
         ) : (
@@ -300,7 +303,7 @@ function VideoListCard({ video, authenticated = false }: { video: VideoItem; aut
       </div>
     </Link>
   );
-}
+});
 
 // ─────────────────────────────────────────────
 // Componente principal
@@ -828,7 +831,7 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/5 flex-shrink-0">
                     {creator.avatar_url ? (
-                      <img src={creator.avatar_url} alt="" className="w-full h-full object-cover" />
+                      <img src={creator.avatar_url} alt="" loading="lazy" width={64} height={64} className="w-full h-full object-cover" />
                     ) : (
                       <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
                         <User size={22} className="text-white/30" />

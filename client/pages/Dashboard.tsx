@@ -4,7 +4,7 @@
 // ✅ PUBLICIDADE REAL: AdBanner usa Supabase Realtime — actualiza após pagamento
 // ✅ SEM ANÚNCIOS: mostra espaço vazio com link "Anunciar aqui"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const isTouchDeviceDash = () =>
@@ -85,7 +85,7 @@ function distribuirPorModelo<T extends { user_id: string }>(videos: T[]): T[] {
 // ─────────────────────────────────────────────
 // VideoCard
 // ─────────────────────────────────────────────
-function VideoCard({ video, isLiked, isDisliked, isSaved, onLike, onDislike, onSave, index = 0, className = "" }: {
+const VideoCard = memo(function VideoCard({ video, isLiked, isDisliked, isSaved, onLike, onDislike, onSave, index = 0, className = "" }: {
   video: Video; isLiked: boolean; isDisliked: boolean; isSaved: boolean;
   onLike: (id: string, e: React.MouseEvent) => void;
   onDislike: (id: string, e: React.MouseEvent) => void;
@@ -147,7 +147,7 @@ function VideoCard({ video, isLiked, isDisliked, isSaved, onLike, onDislike, onS
       <Link to={`/video/${video.id}`} className="block relative aspect-video rounded-xl overflow-hidden bg-black/30 mb-2" onClick={handleLinkClick}>
         {/* Thumbnail */}
         {video.thumbnail_url
-          ? <img src={video.thumbnail_url} alt={video.title ?? ""} loading={index < 6 ? "eager" : "lazy"}
+          ? <img src={video.thumbnail_url} alt={video.title ?? ""} loading={index < 6 ? "eager" : "lazy"} width={320} height={180}
               className="w-full h-full object-cover"
               style={{ opacity: isPreviewing ? 0 : 1, transition: "opacity 300ms" }} />
           : <div className="w-full h-full flex items-center justify-center bg-white/5"
@@ -199,7 +199,7 @@ function VideoCard({ video, isLiked, isDisliked, isSaved, onLike, onDislike, onS
           onClick={e => e.stopPropagation()}
         >
           <div className="w-4 h-4 rounded-full bg-white/10 overflow-hidden flex-shrink-0">
-            {video.creator_avatar ? <img src={video.creator_avatar} alt="" className="w-full h-full object-cover" /> : <User size={8} className="text-white/30 m-auto" />}
+            {video.creator_avatar ? <img src={video.creator_avatar} alt="" loading="lazy" width={16} height={16} className="w-full h-full object-cover" /> : <User size={8} className="text-white/30 m-auto" />}
           </div>
           <span className="text-[10px] text-foreground/35 truncate group-hover/creator:text-foreground/65 transition-colors">{video.creator_name ?? t("common.creator")}</span>
         </Link>
@@ -214,7 +214,7 @@ function VideoCard({ video, isLiked, isDisliked, isSaved, onLike, onDislike, onS
       </div>
     </div>
   );
-}
+});
 
 function Skeleton() {
   return (
@@ -660,6 +660,8 @@ export default function HomeAuthenticated() {
                     <img
                       src={s.thumbnail_url}
                       alt={s.title ?? ""}
+                      loading="lazy"
+                      width={90} height={192}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
