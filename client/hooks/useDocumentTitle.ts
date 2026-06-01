@@ -22,6 +22,10 @@ function setMeta(attr: string, value: string, content: string) {
   el.setAttribute("content", content);
 }
 
+function removeMeta(attr: string, value: string) {
+  document.querySelector(`meta[${attr}="${value}"]`)?.remove();
+}
+
 function setCanonical(href: string) {
   let el = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
   if (!el) {
@@ -54,13 +58,21 @@ export function useDocumentTitle({
     setMeta("property", "og:url", pageUrl);
     setMeta("property", "og:type", type);
     setMeta("property", "og:site_name", "SuckOrSex");
-    if (image) setMeta("property", "og:image", image);
+    if (image) {
+      setMeta("property", "og:image", image);
+    } else {
+      removeMeta("property", "og:image");
+    }
 
     // Twitter Cards
     setMeta("name", "twitter:card", image ? "summary_large_image" : "summary");
     setMeta("name", "twitter:title", title);
     setMeta("name", "twitter:description", desc);
-    if (image) setMeta("name", "twitter:image", image);
+    if (image) {
+      setMeta("name", "twitter:image", image);
+    } else {
+      removeMeta("name", "twitter:image");
+    }
 
     // Canonical
     setCanonical(pageUrl);

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import LayoutAuthenticated from "@/components/LayoutAuthenticated";
 import { supabase } from "@/lib/supabaseClient";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 type VideoData = {
   id: string;
@@ -215,7 +216,7 @@ function CreatorLink({
 
 export default function VideoAuthenticated() {
   const { t } = useTranslation();
-  const { id } = useParams<{ id: string }>();
+  const { slug: id } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -258,6 +259,15 @@ export default function VideoAuthenticated() {
 
   const isIOS = useMemo(() => isIOSDevice(), []);
   const isMobile = useMemo(() => isMobileDevice(), []);
+
+  // ── SEO dinâmico — igual ao Video.tsx público ──────────────────────────────
+  useDocumentTitle({
+    title: video ? `${video.title} - SuckOrSex` : "SuckOrSex - Vídeos Porno Grátis & Conteúdo XXX HD",
+    description: video?.description ?? undefined,
+    image: video?.thumbnail_url ?? null,
+    type: "video.other",
+    url: video ? `https://suckorsex.com/video/${video.id}` : undefined,
+  });
 
   const clearControlsTimer = useCallback(() => {
     if (controlsTimer.current) clearTimeout(controlsTimer.current);

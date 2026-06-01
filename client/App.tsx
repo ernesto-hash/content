@@ -180,165 +180,165 @@ const App = () => (
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Suspense fallback={<div />}>
           <Routes>
-            {/* ── Rotas Públicas ──────────────────────────────────────────────── */}
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/escolher-conta" element={<EscolherConta />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacycookies" element={<PrivacyCookies />} />
-            <Route path="/termos"         element={<Termos />} />
-            <Route path="/privacidade"    element={<Privacidade />} />
-            <Route path="/rta"            element={<RtaLabel />} />
+              {/* ── Rotas Públicas ──────────────────────────────────────────────── */}
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/escolher-conta" element={<EscolherConta />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacycookies" element={<PrivacyCookies />} />
+              <Route path="/termos"         element={<Termos />} />
+              <Route path="/privacidade"    element={<Privacidade />} />
+              <Route path="/rta"            element={<RtaLabel />} />
 
-            {/* ── Conteúdo Público ────────────────────────────────────────────── */}
-            <Route path="/categorias" element={<Categorias />} />
-            <Route path="/modelos" element={<Modelos />} />
-            <Route path="/canais" element={<Canais />} />
-            <Route path="/videos" element={<Videos />} />
-            <Route path="/video/:slug" element={<Video />} />
-            <Route path="/fotos-gifs" element={<FotosGifs />} />
-            <Route path="/populares" element={<Populares />} />
-            <Route path="/recomendados" element={<Recomendados />} />
-            <Route path="/galeria" element={<Galeria />} />
-            <Route path="/anunciar"          element={<Anunciar />} />
-            <Route path="/anunciar/pagamento" element={<AnunciarPagamento />} />
-            <Route path="/anunciar/sucesso"   element={<AnunciarSucesso />} />
-            <Route path="/shorts" element={<Shorts />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/tag/:tag" element={<TagPage />} />
-            <Route path="/perfil/:username" element={<Canais />} />
-            <Route path="/modelo/:slug" element={<CanalPage />} />
-            <Route path="/modelos/modelospage" element={<ModelosPage />} />
+              {/* ── Conteúdo Público ────────────────────────────────────────────── */}
+              <Route path="/categorias" element={<Categorias />} />
+              <Route path="/modelos" element={<Modelos />} />
+              <Route path="/canais" element={<Canais />} />
+              <Route path="/videos" element={<Videos />} />
+              <Route path="/video/:slug" element={<Video />} />
+              <Route path="/fotos-gifs" element={<FotosGifs />} />
+              <Route path="/populares" element={<Populares />} />
+              <Route path="/recomendados" element={<Recomendados />} />
+              <Route path="/galeria" element={<Galeria />} />
+              <Route path="/anunciar"          element={<Anunciar />} />
+              <Route path="/anunciar/pagamento" element={<AnunciarPagamento />} />
+              <Route path="/anunciar/sucesso"   element={<AnunciarSucesso />} />
+              <Route path="/shorts" element={<Shorts />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/tag/:tag" element={<TagPage />} />
+              <Route path="/perfil/:username" element={<Canais />} />
+              <Route path="/modelo/:slug" element={<CanalPage />} />
+              <Route path="/modelos/modelospage" element={<ModelosPage />} />
 
-            {/* ── Categorias Públicas ─────────────────────────────────────────── */}
-            <Route path="/categoria/populares"        element={<PopularesPage />} />
-            <Route path="/categoria/recentes"         element={<RecentesPage />} />
-            <Route path="/categoria/tendencias"       element={<TendenciasPage />} />
-            <Route path="/categoria/melhoresavaliados" element={<MelhoresAvaliadosPage />} />
-            <Route path="/categoria/mais-vistos"      element={<MaisVistosPage />} />
-            <Route path="/categoria/recomendados"     element={<RecomendadosPage />} />
-            <Route path="/categoria/casal"            element={<CasalPage />} />
-            <Route path="/categoria/amador"           element={<AmadorPage />} />
-            <Route path="/categoria/profissional"     element={<ProfissionalPage />} />
-            <Route path="/categoria/solo"             element={<SoloPage />} />
-            <Route path="/categoria/grupo"            element={<GrupoPage />} />
-            <Route path="/categoria/trans"            element={<TransPage />} />
-            <Route path="/categoria/gay"              element={<GayPage />} />
-            <Route path="/categoria/lesbica"          element={<LesbicaPage />} />
-            <Route path="/categoria/fetiche"          element={<FetichePage />} />
-            <Route path="/categoria/bdsm"             element={<BDSMPage />} />
-            <Route path="/categoria/vintage"          element={<VintagePage />} />
-            <Route path="/categoria/animacao"         element={<AnimacaoPage />} />
-            <Route path="/categoria/curto"            element={<CurtoPage />} />
-            <Route path="/categoria/medio"            element={<MedioPage />} />
-            <Route path="/categoria/longo"            element={<LongoPage />} />
-            <Route path="/categoria/compilacao"       element={<CompilacaoPage />} />
-            <Route path="/categoria/pov"              element={<POVPage />} />
-            <Route path="/categoria/interativo"       element={<InterativoPage />} />
-            <Route path="/categoria/portugal"         element={<PortugalPage />} />
-            <Route path="/categoria/brasil"           element={<BrasilPage />} />
-            <Route path="/categoria/eua"              element={<EUAPage />} />
-            <Route path="/categoria/espanha"          element={<EspanhaPage />} />
-            <Route path="/categoria/franca"           element={<FrancaPage />} />
-            <Route path="/categoria/italia"           element={<ItaliaPage />} />
-            <Route path="/categoria/alemanha"         element={<AlemanhaPage />} />
-            <Route path="/categoria/japao"            element={<JapaoPage />} />
+              {/* ── Categorias Públicas ─────────────────────────────────────────── */}
+              <Route path="/categoria/populares"        element={<PopularesPage />} />
+              <Route path="/categoria/recentes"         element={<RecentesPage />} />
+              <Route path="/categoria/tendencias"       element={<TendenciasPage />} />
+              <Route path="/categoria/melhoresavaliados" element={<MelhoresAvaliadosPage />} />
+              <Route path="/categoria/mais-vistos"      element={<MaisVistosPage />} />
+              <Route path="/categoria/recomendados"     element={<RecomendadosPage />} />
+              <Route path="/categoria/casal"            element={<CasalPage />} />
+              <Route path="/categoria/amador"           element={<AmadorPage />} />
+              <Route path="/categoria/profissional"     element={<ProfissionalPage />} />
+              <Route path="/categoria/solo"             element={<SoloPage />} />
+              <Route path="/categoria/grupo"            element={<GrupoPage />} />
+              <Route path="/categoria/trans"            element={<TransPage />} />
+              <Route path="/categoria/gay"              element={<GayPage />} />
+              <Route path="/categoria/lesbica"          element={<LesbicaPage />} />
+              <Route path="/categoria/fetiche"          element={<FetichePage />} />
+              <Route path="/categoria/bdsm"             element={<BDSMPage />} />
+              <Route path="/categoria/vintage"          element={<VintagePage />} />
+              <Route path="/categoria/animacao"         element={<AnimacaoPage />} />
+              <Route path="/categoria/curto"            element={<CurtoPage />} />
+              <Route path="/categoria/medio"            element={<MedioPage />} />
+              <Route path="/categoria/longo"            element={<LongoPage />} />
+              <Route path="/categoria/compilacao"       element={<CompilacaoPage />} />
+              <Route path="/categoria/pov"              element={<POVPage />} />
+              <Route path="/categoria/interativo"       element={<InterativoPage />} />
+              <Route path="/categoria/portugal"         element={<PortugalPage />} />
+              <Route path="/categoria/brasil"           element={<BrasilPage />} />
+              <Route path="/categoria/eua"              element={<EUAPage />} />
+              <Route path="/categoria/espanha"          element={<EspanhaPage />} />
+              <Route path="/categoria/franca"           element={<FrancaPage />} />
+              <Route path="/categoria/italia"           element={<ItaliaPage />} />
+              <Route path="/categoria/alemanha"         element={<AlemanhaPage />} />
+              <Route path="/categoria/japao"            element={<JapaoPage />} />
 
-            {/* ── ROTAS AUTENTICADAS — todas protegidas por ProtectedRoute ────── */}
+              {/* ── ROTAS AUTENTICADAS — todas protegidas por ProtectedRoute ────── */}
 
-            {/* Perfil do utilizador autenticado */}
-            <Route path="/profile" element={<Auth><Profile /></Auth>} />
+              {/* Perfil do utilizador autenticado */}
+              <Route path="/profile" element={<Auth><Profile /></Auth>} />
 
-            {/* Dashboard */}
-            <Route path="/dashboard"   element={<Auth><Dashboard /></Auth>} />
-            <Route path="/dashboard/*" element={<Auth><Dashboard /></Auth>} />
+              {/* Dashboard */}
+              <Route path="/dashboard"   element={<Auth><Dashboard /></Auth>} />
+              <Route path="/dashboard/*" element={<Auth><Dashboard /></Auth>} />
 
-            {/* Versões autenticadas de páginas de conteúdo */}
-            <Route path="/canaisauthenticated"      element={<Auth><CanaisAuthenticated /></Auth>} />
-            <Route path="/videosauthenticated"      element={<Auth><VideosAuthenticated /></Auth>} />
-            <Route path="/videoauthenticated"       element={<Auth><VideoAuthenticated /></Auth>} />
-            <Route path="/categoriasauthenticated"  element={<Auth><CategoriasAuthenticated /></Auth>} />
-            <Route path="/fotosgifauthenticated"    element={<Auth><FotosGifAuthenticated /></Auth>} />
-            <Route path="/popularesauthenticated"   element={<Auth><PopularesAuthenticated /></Auth>} />
-            <Route path="/recomendadosauthenticated" element={<Auth><RecomendadosAuthenticated /></Auth>} />
-            <Route path="/modelosauthenticated"     element={<Auth><ModelosAuthenticated /></Auth>} />
-            <Route path="/app/shorts"              element={<Auth><ShortsAuthenticated /></Auth>} />
+              {/* Versões autenticadas de páginas de conteúdo */}
+              <Route path="/canaisauthenticated"      element={<Auth><CanaisAuthenticated /></Auth>} />
+              <Route path="/videosauthenticated"      element={<Auth><VideosAuthenticated /></Auth>} />
+              <Route path="/videoauthenticated"       element={<Auth><VideoAuthenticated /></Auth>} />
+              <Route path="/categoriasauthenticated"  element={<Auth><CategoriasAuthenticated /></Auth>} />
+              <Route path="/fotosgifauthenticated"    element={<Auth><FotosGifAuthenticated /></Auth>} />
+              <Route path="/popularesauthenticated"   element={<Auth><PopularesAuthenticated /></Auth>} />
+              <Route path="/recomendadosauthenticated" element={<Auth><RecomendadosAuthenticated /></Auth>} />
+              <Route path="/modelosauthenticated"     element={<Auth><ModelosAuthenticated /></Auth>} />
+              <Route path="/app/shorts"              element={<Auth><ShortsAuthenticated /></Auth>} />
 
-            {/* Studio — requer role "creator" ou "admin" */}
-            <Route path="/studio"            element={<CreatorRoute><StudioDashboard /></CreatorRoute>} />
-            <Route path="/studio/upload"     element={<CreatorRoute><StudioUpload /></CreatorRoute>} />
-            <Route path="/studio/videos"     element={<CreatorRoute><StudioVideos /></CreatorRoute>} />
-            <Route path="/studio/analytics"  element={<CreatorRoute><StudioAnalytics /></CreatorRoute>} />
-            <Route path="/studio/comments"   element={<CreatorRoute><StudioComments /></CreatorRoute>} />
-            <Route path="/studio/settings"   element={<CreatorRoute><StudioSettings /></CreatorRoute>} />
+              {/* Studio — requer role "creator" ou "admin" */}
+              <Route path="/studio"            element={<CreatorRoute><StudioDashboard /></CreatorRoute>} />
+              <Route path="/studio/upload"     element={<CreatorRoute><StudioUpload /></CreatorRoute>} />
+              <Route path="/studio/videos"     element={<CreatorRoute><StudioVideos /></CreatorRoute>} />
+              <Route path="/studio/analytics"  element={<CreatorRoute><StudioAnalytics /></CreatorRoute>} />
+              <Route path="/studio/comments"   element={<CreatorRoute><StudioComments /></CreatorRoute>} />
+              <Route path="/studio/settings"   element={<CreatorRoute><StudioSettings /></CreatorRoute>} />
 
-            {/* Modelo autenticado */}
-            <Route path="/modelos/modeloauthenticated" element={<Auth><ModeloAuthenticated /></Auth>} />
+              {/* Modelo autenticado */}
+              <Route path="/modelos/modeloauthenticated" element={<Auth><ModeloAuthenticated /></Auth>} />
 
-            {/* /app/* — todas protegidas */}
-            <Route path="/app/checkout/sucesso"   element={<Auth><CheckoutSucesso /></Auth>} />
-            <Route path="/app/checkout/pagamento" element={<Auth><CheckoutPagamento /></Auth>} />
-            <Route path="/app/checkout"           element={<Auth><Checkout /></Auth>} />
-            <Route path="/app/galeria/normal"     element={<Auth><GaleriaNormal /></Auth>} />
-            <Route path="/app/galeria/exclusivo"  element={<Auth><GaleriaExclusivo /></Auth>} />
-            <Route path="/app/galeria/raro"       element={<Auth><GaleriaRaro /></Auth>} />
-            <Route path="/app/galeria"            element={<Auth><GaleriaAuthenticated /></Auth>} />
-            <Route path="/app/galeria/:id"        element={<Auth><GaleriaPackAuthenticated /></Auth>} />
+              {/* /app/* — todas protegidas */}
+              <Route path="/app/checkout/sucesso"   element={<Auth><CheckoutSucesso /></Auth>} />
+              <Route path="/app/checkout/pagamento" element={<Auth><CheckoutPagamento /></Auth>} />
+              <Route path="/app/checkout"           element={<Auth><Checkout /></Auth>} />
+              <Route path="/app/galeria/normal"     element={<Auth><GaleriaNormal /></Auth>} />
+              <Route path="/app/galeria/exclusivo"  element={<Auth><GaleriaExclusivo /></Auth>} />
+              <Route path="/app/galeria/raro"       element={<Auth><GaleriaRaro /></Auth>} />
+              <Route path="/app/galeria"            element={<Auth><GaleriaAuthenticated /></Auth>} />
+              <Route path="/app/galeria/:id"        element={<Auth><GaleriaPackAuthenticated /></Auth>} />
 
-            {/* Rotas dinâmicas autenticadas */}
-            <Route path="/app/video/:slug"  element={<Auth><VideoAuthenticated /></Auth>} />
-            <Route path="/app/modelo/:slug" element={<Auth><CanalPage authenticated /></Auth>} />
-            <Route path="/app/modelos"    element={<Auth><ModeloAuthenticated /></Auth>} />
+              {/* Rotas dinâmicas autenticadas */}
+              <Route path="/app/video/:slug"  element={<Auth><VideoAuthenticated /></Auth>} />
+              <Route path="/app/modelo/:slug" element={<Auth><CanalPage authenticated /></Auth>} />
+              <Route path="/app/modelos"    element={<Auth><ModeloAuthenticated /></Auth>} />
 
-            {/* /app/categoria/* — autenticadas */}
-            <Route path="/app/categoria/casal"        element={<Auth><CasalAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/amador"       element={<Auth><AmadorAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/profissional" element={<Auth><ProfissionalAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/solo"         element={<Auth><SoloAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/grupo"        element={<Auth><GrupoAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/trans"        element={<Auth><TransAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/gay"          element={<Auth><GayAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/lesbica"      element={<Auth><LesbicaAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/fetiche"      element={<Auth><FeticheAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/bdsm"         element={<Auth><BDSMAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/vintage"      element={<Auth><VintageAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/animacao"     element={<Auth><AnimacaoAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/curto"        element={<Auth><CurtoAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/medio"        element={<Auth><MedioAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/longo"        element={<Auth><LongoAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/compilacao"   element={<Auth><CompilacaoAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/pov"          element={<Auth><POVAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/interativo"   element={<Auth><InterativoAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/portugal"     element={<Auth><PortugalAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/brasil"       element={<Auth><BrasilAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/eua"          element={<Auth><EUAAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/espanha"      element={<Auth><EspanhaAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/franca"       element={<Auth><FrancaAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/italia"       element={<Auth><ItaliaAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/alemanha"     element={<Auth><AlemanhaAuthenticatedPage /></Auth>} />
-            <Route path="/app/categoria/japao"        element={<Auth><JapaoAuthenticatedPage /></Auth>} />
+              {/* /app/categoria/* — autenticadas */}
+              <Route path="/app/categoria/casal"        element={<Auth><CasalAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/amador"       element={<Auth><AmadorAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/profissional" element={<Auth><ProfissionalAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/solo"         element={<Auth><SoloAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/grupo"        element={<Auth><GrupoAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/trans"        element={<Auth><TransAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/gay"          element={<Auth><GayAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/lesbica"      element={<Auth><LesbicaAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/fetiche"      element={<Auth><FeticheAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/bdsm"         element={<Auth><BDSMAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/vintage"      element={<Auth><VintageAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/animacao"     element={<Auth><AnimacaoAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/curto"        element={<Auth><CurtoAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/medio"        element={<Auth><MedioAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/longo"        element={<Auth><LongoAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/compilacao"   element={<Auth><CompilacaoAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/pov"          element={<Auth><POVAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/interativo"   element={<Auth><InterativoAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/portugal"     element={<Auth><PortugalAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/brasil"       element={<Auth><BrasilAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/eua"          element={<Auth><EUAAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/espanha"      element={<Auth><EspanhaAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/franca"       element={<Auth><FrancaAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/italia"       element={<Auth><ItaliaAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/alemanha"     element={<Auth><AlemanhaAuthenticatedPage /></Auth>} />
+              <Route path="/app/categoria/japao"        element={<Auth><JapaoAuthenticatedPage /></Auth>} />
 
-            {/* Pesquisa autenticada — antes do catch-all */}
-            <Route path="/app/search" element={<Auth><SearchAuthenticated /></Auth>} />
+              {/* Pesquisa autenticada — antes do catch-all */}
+              <Route path="/app/search" element={<Auth><SearchAuthenticated /></Auth>} />
 
-            {/* /app sem subpath e rotas /app/* desconhecidas → galeria (catch-all no final para não engolir rotas específicas) */}
-            <Route path="/app" element={<Navigate to="/app/galeria" replace />} />
-            <Route path="/app/*" element={<Navigate to="/app/galeria" replace />} />
+              {/* /app sem subpath e rotas /app/* desconhecidas → galeria (catch-all no final para não engolir rotas específicas) */}
+              <Route path="/app" element={<Navigate to="/app/galeria" replace />} />
+              <Route path="/app/*" element={<Navigate to="/app/galeria" replace />} />
 
-            {/* Admin */}
-            <Route path="/admin/galeria"                element={<AdminRoute><GaleriaAdmin /></AdminRoute>} />
-            <Route path="/admin/regenerar-thumbnails"   element={<AdminRoute><RegenerarThumbnails /></AdminRoute>} />
-            <Route path="/admin/upload-videos"          element={<AdminRoute><UploadModelVideos /></AdminRoute>} />
+              {/* Admin */}
+              <Route path="/admin/galeria"                element={<AdminRoute><GaleriaAdmin /></AdminRoute>} />
+              <Route path="/admin/regenerar-thumbnails"   element={<AdminRoute><RegenerarThumbnails /></AdminRoute>} />
+              <Route path="/admin/upload-videos"          element={<AdminRoute><UploadModelVideos /></AdminRoute>} />
 
-            {/* 404 — sempre no final */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
-    </TooltipProvider>
+              {/* 404 — sempre no final */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+      </TooltipProvider>
   </QueryClientProvider>
 );
 
