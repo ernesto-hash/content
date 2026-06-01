@@ -225,7 +225,7 @@ export function useRecommendations(userId: string | null) {
       if (creatorIds.length > 0) {
         const { data } = await supabase
           .from("videos")
-          .select("id, title, thumbnail_url, views, duration, created_at, category, user_id")
+          .select("id, slug, title, thumbnail_url, views, duration, created_at, category, user_id")
           .eq("status", "published").eq("visibility", "public")
           .in("user_id", creatorIds)
           .order("created_at", { ascending: false })
@@ -237,7 +237,7 @@ export function useRecommendations(userId: string | null) {
     } else if (tab === "tendencias") {
       const { data } = await supabase
         .from("videos")
-        .select("id, title, thumbnail_url, views, duration, created_at, category, user_id")
+        .select("id, slug, title, thumbnail_url, views, duration, created_at, category, user_id")
         .eq("status", "published").eq("visibility", "public")
         .order("views", { ascending: false })
         .limit(40);
@@ -250,7 +250,7 @@ export function useRecommendations(userId: string | null) {
         const results = await Promise.all(
           topCats.slice(0, 3).map((cat) =>
             supabase.from("videos")
-              .select("id, title, thumbnail_url, views, duration, created_at, category, user_id")
+              .select("id, slug, title, thumbnail_url, views, duration, created_at, category, user_id")
               .eq("status", "published").eq("visibility", "public")
               .ilike("category", cat)
               .order("views", { ascending: false })
@@ -262,7 +262,7 @@ export function useRecommendations(userId: string | null) {
         // Sem histórico — usar mais vistos como fallback
         const { data } = await supabase
           .from("videos")
-          .select("id, title, thumbnail_url, views, duration, created_at, category, user_id")
+          .select("id, slug, title, thumbnail_url, views, duration, created_at, category, user_id")
           .eq("status", "published").eq("visibility", "public")
           .order("views", { ascending: false })
           .limit(40);
@@ -276,7 +276,7 @@ export function useRecommendations(userId: string | null) {
         const results = await Promise.all(
           topCats.slice(0, 3).map((cat) =>
             supabase.from("videos")
-              .select("id, title, thumbnail_url, views, duration, created_at, category, user_id")
+              .select("id, slug, title, thumbnail_url, views, duration, created_at, category, user_id")
               .eq("status", "published").eq("visibility", "public")
               .ilike("category", cat)
               .order("views", { ascending: false })
@@ -289,7 +289,7 @@ export function useRecommendations(userId: string | null) {
           const existingIds = new Set(rawVideos.map((v) => v.id));
           const { data: extra } = await supabase
             .from("videos")
-            .select("id, title, thumbnail_url, views, duration, created_at, category, user_id")
+            .select("id, slug, title, thumbnail_url, views, duration, created_at, category, user_id")
             .eq("status", "published").eq("visibility", "public")
             .order("views", { ascending: false })
             .limit(20);
@@ -299,7 +299,7 @@ export function useRecommendations(userId: string | null) {
         // Novo utilizador — mais vistos
         const { data } = await supabase
           .from("videos")
-          .select("id, title, thumbnail_url, views, duration, created_at, category, user_id")
+          .select("id, slug, title, thumbnail_url, views, duration, created_at, category, user_id")
           .eq("status", "published").eq("visibility", "public")
           .order("views", { ascending: false })
           .limit(40);

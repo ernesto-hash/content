@@ -38,6 +38,7 @@ type Canal = {
 
 type CanalVideo = {
   id: string;
+  slug?: string | null;
   title: string | null;
   thumbnail_url: string | null;
   views: number;
@@ -256,7 +257,7 @@ function CanalDetalhe({ canal, isSubscribed, onSubscribe, onBack }: {
     setLoading(true);
     const { data } = await supabase
       .from("videos")
-      .select("id, title, thumbnail_url, views, duration, created_at")
+      .select("id, slug, title, thumbnail_url, views, duration, created_at")
       .eq("canal_id", canal.id)
       .eq("status", "published")
       .eq("visibility", "public")
@@ -372,7 +373,7 @@ function CanalDetalhe({ canal, isSubscribed, onSubscribe, onBack }: {
         ) : videos.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {videos.map((v) => (
-              <Link key={v.id} to={`/app/video/${v.id}`} className="group/v block">
+              <Link key={v.id} to={`/app/video/${v.slug || v.id}`} className="group/v block">
                 <div className="relative aspect-video rounded-xl overflow-hidden bg-white/5 mb-2">
                   {v.thumbnail_url
                     ? <img src={v.thumbnail_url} alt={v.title ?? ""} loading="lazy"

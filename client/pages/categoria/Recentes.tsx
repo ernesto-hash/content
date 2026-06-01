@@ -1,7 +1,7 @@
-// src/pages/Recentes.tsx
-// Condição: publicados nos últimos 7 dias
-// Realtime: re-fetch automático
-// Sem skeleton cards — só mostra vídeos reais ou estado vazio
+﻿// src/pages/Recentes.tsx
+// CondiÃ§Ã£o: publicados nos Ãºltimos 7 dias
+// Realtime: re-fetch automÃ¡tico
+// Sem skeleton cards â€” sÃ³ mostra vÃ­deos reais ou estado vazio
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -34,16 +34,16 @@ function fmtNum(n: number) {
   return String(n);
 }
 function fmtDuration(s: number | null) {
-  if (!s) return "—";
+  if (!s) return "â€”";
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
   const h = Math.floor(diff / 3_600_000);
-  if (h < 1)  return "há menos de 1h";
-  if (h < 24) return `há ${h}h`;
+  if (h < 1)  return "hÃ¡ menos de 1h";
+  if (h < 24) return `hÃ¡ ${h}h`;
   const d = Math.floor(h / 24);
-  return `há ${d} dia${d > 1 ? "s" : ""}`;
+  return `hÃ¡ ${d} dia${d > 1 ? "s" : ""}`;
 }
 
 const isTouchDevice = () =>
@@ -172,7 +172,7 @@ function VideoCard({ video }: { video: Video }) {
 
 export default function RecentesPage() {
   const { t } = useTranslation();
-  useDocumentTitle({ title: "Vídeos Recentes - SuckOrSex" });
+  useDocumentTitle({ title: "VÃ­deos Recentes - SuckOrSex" });
   const [videos, setVideos]   = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery]     = useState("");
@@ -182,7 +182,7 @@ export default function RecentesPage() {
     const since = new Date(Date.now() - DAYS_WINDOW * 86_400_000).toISOString();
     const { data: vids } = await supabase
       .from("videos")
-      .select("id, title, thumbnail_url, video_url, views, duration, category, created_at")
+      .select("id, slug, title, thumbnail_url, video_url, views, duration, category, created_at")
       .eq("status", "published")
       .eq("visibility", "public")
       .gte("created_at", since)
@@ -260,11 +260,11 @@ export default function RecentesPage() {
             </div>
             <div className="flex items-center gap-4">
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
-                <p className="text-2xl font-black text-neon-purple">{loading ? "—" : videos.length}</p>
+                <p className="text-2xl font-black text-neon-purple">{loading ? "â€”" : videos.length}</p>
                 <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.recentes.thisWeek")}</p>
               </div>
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
-                <p className="text-2xl font-black text-neon-blue">{loading ? "—" : todayCount}</p>
+                <p className="text-2xl font-black text-neon-blue">{loading ? "â€”" : todayCount}</p>
                 <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.recentes.today")}</p>
               </div>
             </div>
@@ -291,7 +291,7 @@ export default function RecentesPage() {
           </div>
         </div>
 
-        {/* Conteúdo */}
+        {/* ConteÃºdo */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 size={32} className="animate-spin text-neon-purple" />

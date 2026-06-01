@@ -1,7 +1,7 @@
-// src/pages/MaisVistos.tsx
-// Condição: views >= 500.000
-// Realtime: re-fetch automático
-// Sem skeleton cards — só mostra vídeos reais ou estado vazio
+﻿// src/pages/MaisVistos.tsx
+// CondiÃ§Ã£o: views >= 500.000
+// Realtime: re-fetch automÃ¡tico
+// Sem skeleton cards â€” sÃ³ mostra vÃ­deos reais ou estado vazio
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -34,7 +34,7 @@ function fmtNum(n: number) {
   return String(n);
 }
 function fmtDuration(s: number | null) {
-  if (!s) return "—";
+  if (!s) return "â€”";
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
@@ -174,7 +174,7 @@ function VideoCard({ video, rank, maxViews }: { video: Video; rank: number; maxV
 
 export default function MaisVistosPage() {
   const { t } = useTranslation();
-  useDocumentTitle({ title: "Vídeos Mais Vistos - SuckOrSex" });
+  useDocumentTitle({ title: "VÃ­deos Mais Vistos - SuckOrSex" });
   const [videos, setVideos]   = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery]     = useState("");
@@ -182,7 +182,7 @@ export default function MaisVistosPage() {
   const fetchData = useCallback(async () => {
     const { data: vids } = await supabase
       .from("videos")
-      .select("id, title, thumbnail_url, video_url, views, duration, category, created_at")
+      .select("id, slug, title, thumbnail_url, video_url, views, duration, category, created_at")
       .eq("status", "published")
       .eq("visibility", "public")
       .gte("views", MIN_VIEWS)
@@ -254,11 +254,11 @@ export default function MaisVistosPage() {
             </div>
             <div className="flex items-center gap-4">
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
-                <p className="text-2xl font-black text-emerald-400">{loading ? "—" : displayed.length}</p>
+                <p className="text-2xl font-black text-emerald-400">{loading ? "â€”" : displayed.length}</p>
                 <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.maisvistos.champions")}</p>
               </div>
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
-                <p className="text-2xl font-black text-green-400">{loading ? "—" : fmtNum(totalViews)}</p>
+                <p className="text-2xl font-black text-green-400">{loading ? "â€”" : fmtNum(totalViews)}</p>
                 <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.maisvistos.totalViews")}</p>
               </div>
             </div>
@@ -273,7 +273,7 @@ export default function MaisVistosPage() {
             className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/30" />
         </div>
 
-        {/* Conteúdo */}
+        {/* ConteÃºdo */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 size={32} className="animate-spin text-emerald-400" />

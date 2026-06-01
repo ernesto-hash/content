@@ -1,7 +1,7 @@
-// src/pages/Populares.tsx
-// Condição: views >= 100.000 E likes >= 10.000
-// Realtime: re-fetch automático ao detectar mudanças em videos ou video_likes
-// Sem skeleton cards — só mostra vídeos reais ou estado vazio
+﻿// src/pages/Populares.tsx
+// CondiÃ§Ã£o: views >= 100.000 E likes >= 10.000
+// Realtime: re-fetch automÃ¡tico ao detectar mudanÃ§as em videos ou video_likes
+// Sem skeleton cards â€” sÃ³ mostra vÃ­deos reais ou estado vazio
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -37,7 +37,7 @@ function fmtNum(n: number): string {
   return String(n);
 }
 function fmtDuration(s: number | null): string {
-  if (!s) return "—";
+  if (!s) return "â€”";
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 function fmtDate(iso: string): string {
@@ -161,7 +161,7 @@ function VideoCard({ video, rank }: { video: Video; rank: number }) {
 
 export default function PopularesPage() {
   const { t } = useTranslation();
-  useDocumentTitle({ title: "Vídeos Populares - SuckOrSex" });
+  useDocumentTitle({ title: "VÃ­deos Populares - SuckOrSex" });
 
   const [videos, setVideos]   = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -171,7 +171,7 @@ export default function PopularesPage() {
   const fetchData = useCallback(async () => {
     const { data: vids, error } = await supabase
       .from("videos")
-      .select("id, title, thumbnail_url, video_url, views, duration, category, created_at, status, visibility")
+      .select("id, slug, title, thumbnail_url, video_url, views, duration, category, created_at, status, visibility")
       .eq("status", "published")
       .eq("visibility", "public")
       .gte("views", MIN_VIEWS)
@@ -241,7 +241,7 @@ export default function PopularesPage() {
             </div>
             <div className="flex items-center gap-4">
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
-                <p className="text-2xl font-black text-neon-pink">{loading ? "—" : fmtNum(displayed.length)}</p>
+                <p className="text-2xl font-black text-neon-pink">{loading ? "â€”" : fmtNum(displayed.length)}</p>
                 <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.populares.countUnit")}</p>
               </div>
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
@@ -275,7 +275,7 @@ export default function PopularesPage() {
           </div>
         </div>
 
-        {/* Conteúdo */}
+        {/* ConteÃºdo */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 size={32} className="animate-spin text-neon-pink" />

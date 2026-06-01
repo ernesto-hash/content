@@ -159,7 +159,7 @@ function VideoGridCardAuth({
       onMouseLeave={handleMouseLeave}
     >
       {/* Thumbnail */}
-      <Link to={`/video/${video.id}`}
+      <Link to={`/video/${video.slug || video.id}`}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onClick={handleThumbClick}>
@@ -225,7 +225,7 @@ function VideoGridCardAuth({
         </div>
 
         {/* Título */}
-        <Link to={`/video/${video.id}`}>
+        <Link to={`/video/${video.slug || video.id}`}>
           <h3 className="font-semibold text-sm text-foreground/85 line-clamp-2 hover:text-neon-pink transition-colors leading-snug cursor-pointer">
             {video.title || t("common.noTitle")}
           </h3>
@@ -327,7 +327,7 @@ function VideoListCardAuth({
       onMouseLeave={handleMouseLeave}
     >
       {/* Thumbnail */}
-      <Link to={`/video/${video.id}`} className="relative w-44 aspect-video flex-shrink-0 rounded-lg overflow-hidden bg-black/20"
+      <Link to={`/video/${video.slug || video.id}`} className="relative w-44 aspect-video flex-shrink-0 rounded-lg overflow-hidden bg-black/20"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onClick={handleThumbClick}>
@@ -371,7 +371,7 @@ function VideoListCardAuth({
       {/* Info */}
       <div className="flex-1 min-w-0 py-0.5 flex flex-col justify-between">
         <div className="space-y-1.5">
-          <Link to={`/video/${video.id}`}>
+          <Link to={`/video/${video.slug || video.id}`}>
             <h3 className="font-semibold text-sm text-foreground/85 line-clamp-2 hover:text-neon-pink transition-colors leading-snug">{video.title || t("common.noTitle")}</h3>
           </Link>
           <div className="flex items-center gap-2 text-[11px] text-foreground/38">
@@ -522,7 +522,7 @@ export default function PopularesAuthenticatedPage() {
     const periodStart = getPeriodStart(timePeriod);
 
     let q = supabase.from("videos")
-      .select("id, title, thumbnail_url, video_url, views, duration, created_at, category, user_id", { count: "exact" })
+      .select("id, slug, title, thumbnail_url, video_url, views, duration, created_at, category, user_id", { count: "exact" })
       .eq("status", "published").eq("visibility", "public")
       .range(from, to);
 

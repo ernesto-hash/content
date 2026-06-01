@@ -144,7 +144,7 @@ function VideoGridCard({ video, rank }: { video: Video; rank: number }) {
 
   return (
     <Link
-      to={`/video/${video.id}`}
+      to={`/video/${video.slug || video.id}`}
       className="group relative overflow-hidden rounded-xl bg-white/[0.03] border border-white/8 hover:border-neon-pink/30 hover:shadow-lg hover:shadow-neon-pink/5 transition-all duration-300"
       style={isPreviewing ? { boxShadow: "0 0 0 2px rgba(236,72,153,0.6)" } : undefined}
       onMouseEnter={handleMouseEnter}
@@ -299,7 +299,7 @@ function VideoListCard({ video, rank }: { video: Video; rank: number }) {
 
   return (
     <Link
-      to={`/video/${video.id}`}
+      to={`/video/${video.slug || video.id}`}
       className="group flex gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/8 hover:border-neon-pink/25 hover:bg-white/[0.05] transition-all"
       style={isPreviewing ? { boxShadow: "0 0 0 2px rgba(236,72,153,0.6)" } : undefined}
       onMouseEnter={handleMouseEnter}
@@ -461,7 +461,7 @@ export default function PopularesPage() {
     const periodStart = getPeriodStart(timePeriod);
 
     let q = supabase.from("videos")
-      .select("id, title, thumbnail_url, video_url, views, duration, created_at, category, user_id", { count: "exact" })
+      .select("id, slug, title, thumbnail_url, video_url, views, duration, created_at, category, user_id", { count: "exact" })
       .eq("status", "published").eq("visibility", "public")
       .range(from, to);
 

@@ -1,8 +1,8 @@
-// src/pages/Recomendados.tsx
-// Condição: views >= 1.000 E likes >= 100
-// Score: views×0.5 + likes×0.3 + recência×0.2
-// Realtime: re-fetch automático
-// Sem skeleton cards — só mostra vídeos reais ou estado vazio
+﻿// src/pages/Recomendados.tsx
+// CondiÃ§Ã£o: views >= 1.000 E likes >= 100
+// Score: viewsÃ—0.5 + likesÃ—0.3 + recÃªnciaÃ—0.2
+// Realtime: re-fetch automÃ¡tico
+// Sem skeleton cards â€” sÃ³ mostra vÃ­deos reais ou estado vazio
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -41,7 +41,7 @@ function fmtNum(n: number) {
   return String(n);
 }
 function fmtDuration(s: number | null) {
-  if (!s) return "—";
+  if (!s) return "â€”";
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 function calcScore(views: number, likes: number, createdAt: string, maxViews: number, maxLikes: number): number {
@@ -173,7 +173,7 @@ function VideoCard({ video }: { video: Video }) {
 
 export default function RecomendadosPage() {
   const { t } = useTranslation();
-  useDocumentTitle({ title: "Vídeos Recomendados - SuckOrSex" });
+  useDocumentTitle({ title: "VÃ­deos Recomendados - SuckOrSex" });
   const [videos, setVideos]   = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery]     = useState("");
@@ -181,7 +181,7 @@ export default function RecomendadosPage() {
   const fetchData = useCallback(async () => {
     const { data: vids } = await supabase
       .from("videos")
-      .select("id, title, thumbnail_url, video_url, views, duration, category, created_at")
+      .select("id, slug, title, thumbnail_url, video_url, views, duration, category, created_at")
       .eq("status", "published")
       .eq("visibility", "public")
       .gte("views", MIN_VIEWS)
@@ -258,7 +258,7 @@ export default function RecomendadosPage() {
             </div>
             <div className="flex items-center gap-4">
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
-                <p className="text-2xl font-black text-blue-400">{loading ? "—" : displayed.length}</p>
+                <p className="text-2xl font-black text-blue-400">{loading ? "â€”" : displayed.length}</p>
                 <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.recomendados.selected")}</p>
               </div>
               <div className="hidden sm:block text-xs text-foreground/35 max-w-[120px] leading-relaxed border border-white/8 rounded-xl p-3 bg-white/3">
@@ -276,7 +276,7 @@ export default function RecomendadosPage() {
             className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/30" />
         </div>
 
-        {/* Conteúdo */}
+        {/* ConteÃºdo */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 size={32} className="animate-spin text-blue-400" />

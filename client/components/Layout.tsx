@@ -19,6 +19,7 @@ import AdBanner from "@/components/AdBanner";
 type SuggestionVideo = {
   kind: "video";
   id: string;
+  slug?: string | null;
   title: string;
   thumbnail_url: string | null;
   views: number;
@@ -132,7 +133,7 @@ function SearchBar({ mobile = false }: { mobile?: boolean }) {
     const [videosRes, modelsRes] = await Promise.all([
       supabase
         .from("videos")
-        .select("id, title, thumbnail_url, views")
+        .select("id, slug, title, thumbnail_url, views")
         .eq("status", "published")
         .eq("visibility", "public")
         .ilike("title", `%${term}%`)
@@ -291,7 +292,7 @@ function SearchDropdown({
           {videos.map(v => (
             <button
               key={v.id}
-              onMouseDown={() => onSelect(`/video/${v.id}`)}
+              onMouseDown={() => onSelect(`/video/${v.slug || v.id}`)}
               className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-white/6 transition-colors text-left group"
             >
               <div className="w-14 h-8 rounded-lg overflow-hidden bg-white/5 flex-shrink-0">

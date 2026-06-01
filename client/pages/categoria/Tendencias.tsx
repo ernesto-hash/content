@@ -1,7 +1,7 @@
-// src/pages/Tendencias.tsx
-// Condição: views >= 50.000 nos últimos 30 dias, ordenado por velocidade (views/dia)
-// Realtime: re-fetch automático
-// Sem skeleton cards — só mostra vídeos reais ou estado vazio
+﻿// src/pages/Tendencias.tsx
+// CondiÃ§Ã£o: views >= 50.000 nos Ãºltimos 30 dias, ordenado por velocidade (views/dia)
+// Realtime: re-fetch automÃ¡tico
+// Sem skeleton cards â€” sÃ³ mostra vÃ­deos reais ou estado vazio
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -36,7 +36,7 @@ function fmtNum(n: number) {
   return String(n);
 }
 function fmtDuration(s: number | null) {
-  if (!s) return "—";
+  if (!s) return "â€”";
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 function daysSince(iso: string) {
@@ -162,7 +162,7 @@ function VideoCard({ video, rank, hot }: { video: Video; rank: number; hot?: boo
 
 export default function TendenciasPage() {
   const { t } = useTranslation();
-  useDocumentTitle({ title: "Vídeos em Tendência - SuckOrSex" });
+  useDocumentTitle({ title: "VÃ­deos em TendÃªncia - SuckOrSex" });
   const [videos, setVideos]   = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery]     = useState("");
@@ -171,7 +171,7 @@ export default function TendenciasPage() {
     const since = new Date(Date.now() - DAYS_WINDOW * 86_400_000).toISOString();
     const { data: vids } = await supabase
       .from("videos")
-      .select("id, title, thumbnail_url, video_url, views, duration, category, created_at")
+      .select("id, slug, title, thumbnail_url, video_url, views, duration, category, created_at")
       .eq("status", "published")
       .eq("visibility", "public")
       .gte("views", MIN_VIEWS)
@@ -232,7 +232,7 @@ export default function TendenciasPage() {
                   <TrendingUp size={20} className="text-white" />
                 </div>
                 <h1 className="text-3xl font-black bg-gradient-to-r from-neon-blue to-neon-pink bg-clip-text text-transparent">
-                  Tendências
+                  TendÃªncias
                 </h1>
               </div>
               <p className="text-foreground/60 text-sm max-w-md">
@@ -241,7 +241,7 @@ export default function TendenciasPage() {
             </div>
             <div className="flex items-center gap-4">
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
-                <p className="text-2xl font-black text-neon-blue">{loading ? "—" : displayed.length}</p>
+                <p className="text-2xl font-black text-neon-blue">{loading ? "â€”" : displayed.length}</p>
                 <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.tendencias.inTrend")}</p>
               </div>
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
@@ -260,7 +260,7 @@ export default function TendenciasPage() {
             className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/30" />
         </div>
 
-        {/* Conteúdo */}
+        {/* ConteÃºdo */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 size={32} className="animate-spin text-neon-blue" />

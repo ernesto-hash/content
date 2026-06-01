@@ -104,7 +104,7 @@ function VideoGridCard({ video }: { video: Video }) {
   const { t } = useTranslation();
   const catMeta = getCategoryMeta(video.category);
   return (
-    <Link to={`/video/${video.id}`} className="group block">
+    <Link to={`/video/${video.slug || video.id}`} className="group block">
       {/* Thumbnail */}
       <div className="relative aspect-video rounded-xl overflow-hidden bg-white/5 mb-3">
         {video.thumbnail_url ? (
@@ -173,7 +173,7 @@ function VideoListCard({ video }: { video: Video }) {
   const { t } = useTranslation();
   const catMeta = getCategoryMeta(video.category);
   return (
-    <Link to={`/video/${video.id}`} className="group flex gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/8 hover:bg-white/[0.06] hover:border-white/15 transition-all">
+    <Link to={`/video/${video.slug || video.id}`} className="group flex gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/8 hover:bg-white/[0.06] hover:border-white/15 transition-all">
       {/* Thumbnail */}
       <div className="relative w-44 aspect-video flex-shrink-0 rounded-lg overflow-hidden bg-white/5">
         {video.thumbnail_url ? (
@@ -294,7 +294,7 @@ export default function VideosAuthenticatedPage() {
 
     let q = supabase
       .from("videos")
-      .select("id, title, thumbnail_url, views, duration, created_at, category", { count: "exact" })
+      .select("id, slug, title, thumbnail_url, views, duration, created_at, category", { count: "exact" })
       .eq("status", "published")
       .eq("visibility", "public")
       .range(from, to);

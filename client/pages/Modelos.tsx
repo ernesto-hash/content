@@ -38,6 +38,7 @@ type Creator = {
 
 type VideoItem = {
   id: string;
+  slug?: string | null;
   title: string | null;
   thumbnail_url: string | null;
   views: number;
@@ -541,7 +542,7 @@ export function ModeloCanal() {
     if (!id) return;
     setLoadingVideos(true);
     const { data } = await supabase.from("videos")
-      .select("id, title, thumbnail_url, views, duration, created_at")
+      .select("id, slug, title, thumbnail_url, views, duration, created_at")
       .eq("user_id", id).eq("status", "published").eq("visibility", "public")
       .order("created_at", { ascending: false }).limit(60);
     const vids = (data ?? []) as Omit<VideoItem, "likes_count">[];
@@ -727,7 +728,7 @@ export function ModeloCanal() {
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {videos.map((v) => (
-                <Link key={v.id} to={`/video/${v.id}`} className="group block">
+                <Link key={v.id} to={`/video/${v.slug || v.id}`} className="group block">
                   <div className="relative aspect-video rounded-xl overflow-hidden bg-white/5 mb-2">
                     {v.thumbnail_url
                       ? <img src={v.thumbnail_url} alt={v.title ?? ""} loading="lazy" width={320} height={180} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -756,7 +757,7 @@ export function ModeloCanal() {
           ) : (
             <div className="space-y-2">
               {videos.map((v) => (
-                <Link key={v.id} to={`/video/${v.id}`}
+                <Link key={v.id} to={`/video/${v.slug || v.id}`}
                   className="group flex gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/8 hover:bg-white/[0.05] hover:border-white/14 transition-all">
                   <div className="relative w-36 aspect-video flex-shrink-0 rounded-lg overflow-hidden bg-white/5">
                     {v.thumbnail_url

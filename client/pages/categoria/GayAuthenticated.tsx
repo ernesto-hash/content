@@ -64,7 +64,7 @@ export default function GayAuthenticatedPage() {
 
     const { data: vids, error: fetchError } = await supabase
       .from("videos")
-      .select("id, title, thumbnail_url, video_url, views, duration, created_at, status, visibility, category")
+      .select("id, slug, title, thumbnail_url, video_url, views, duration, created_at, status, visibility, category")
       .ilike("category", "gay")
       .order("created_at", { ascending: false })
       .limit(200);
@@ -107,6 +107,7 @@ export default function GayAuthenticatedPage() {
           .eq("video_id", v.id);
         return {
           id: v.id,
+          slug: v.slug ?? null,
           title: v.title,
           thumbnail_url: v.thumbnail_url,
           video_url: v.video_url ?? null,

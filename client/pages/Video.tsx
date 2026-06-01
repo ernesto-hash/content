@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 
 type VideoData = {
   id: string;
+  slug: string | null;
   title: string;
   description: string | null;
   video_url: string | null;
@@ -48,6 +49,7 @@ type Comment = {
 
 type RecommendedVideo = {
   id: string;
+  slug?: string | null;
   title: string | null;
   thumbnail_url: string | null;
   views: number;
@@ -270,6 +272,7 @@ export default function Video() {
     description: video?.description ?? undefined,
     image: video?.thumbnail_url ?? null,
     type: "video.other",
+    url: video ? `https://suckorsex.com/video/${video.slug ?? video.id}` : undefined,
   });
 
   useEffect(() => {
@@ -420,7 +423,8 @@ export default function Video() {
     if (!videoId || allPlatformVideos.length === 0) return;
     const idx = allPlatformVideos.findIndex((item) => item.id === videoId);
     if (idx === -1) return;
-    navigate(`/video/${allPlatformVideos[idx > 0 ? idx - 1 : allPlatformVideos.length - 1].id}`);
+    const prev = allPlatformVideos[idx > 0 ? idx - 1 : allPlatformVideos.length - 1];
+    navigate(`/video/${prev.slug || prev.id}`);
   }, [allPlatformVideos, videoId, navigate]);
 
   const goToNextVideo = useCallback((e?: React.MouseEvent | React.TouchEvent) => {
@@ -429,7 +433,8 @@ export default function Video() {
     if (!videoId || allPlatformVideos.length === 0) return;
     const idx = allPlatformVideos.findIndex((item) => item.id === videoId);
     if (idx === -1) return;
-    navigate(`/video/${allPlatformVideos[idx < allPlatformVideos.length - 1 ? idx + 1 : 0].id}`);
+    const next = allPlatformVideos[idx < allPlatformVideos.length - 1 ? idx + 1 : 0];
+    navigate(`/video/${next.slug || next.id}`);
   }, [allPlatformVideos, videoId, navigate]);
 
   const handleVideoTouchEnd = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
@@ -492,10 +497,15 @@ export default function Video() {
     if (!slug) return;
     setLoading(true);
     const videoQ = isUUID
-      ? supabase.from("videos").select("id, title, description, video_url, thumbnail_url, views, created_at, category, duration, user_id").eq("id", slug).single()
-      : supabase.from("videos").select("id, title, description, video_url, thumbnail_url, views, created_at, category, duration, user_id").eq("slug", slug).single();
+      ? supabase.from("videos").select("id, slug, title, description, video_url, thumbnail_url, views, created_at, category, duration, user_id").eq("id", slug).single()
+      : supabase.from("videos").select("id, slug, title, description, video_url, thumbnail_url, views, created_at, category, duration, user_id").eq("slug", slug).single();
     const { data: vid } = await videoQ;
     if (!vid) { setLoading(false); return; }
+    // Redirect legacy UUID URLs to canonical slug URL
+    if (isUUID && vid.slug) {
+      navigate(`/video/${vid.slug}`, { replace: true });
+      return;
+    }
     setVideo(vid as VideoData);
     setVideoId(vid.id);
     if (!jaViuNestaSession(vid.id)) {
@@ -506,7 +516,7 @@ export default function Video() {
       supabase.from("subscriptions").select("*", { count: "exact", head: true }).eq("creator_id", vid.user_id),
       supabase.from("interacoes").select("*", { count: "exact", head: true }).eq("video_id", vid.id).eq("tipo", true),
       supabase.from("interacoes").select("*", { count: "exact", head: true }).eq("video_id", vid.id).eq("tipo", false),
-      supabase.from("videos").select("id, title, thumbnail_url, views, duration, created_at")
+      supabase.from("videos").select("id, slug, title, thumbnail_url, views, duration, created_at")
         .eq("status", "published").eq("visibility", "public").order("created_at", { ascending: false }),
     ]);
     setCreator((profRes.data as Profile) ?? null);
@@ -957,7 +967,7 @@ export default function Video() {
               ) : (
                 <div className="space-y-1">
                   {recommended.map((rec) => (
-                    <div key={rec.id} className="group flex gap-2.5 p-2 rounded-xl hover:bg-white/5 transition-all cursor-pointer" onClick={() => navigate(`/video/${rec.id}`)}>
+                    <div key={rec.id} className="group flex gap-2.5 p-2 rounded-xl hover:bg-white/5 transition-all cursor-pointer" onClick={() => navigate(`/video/${rec.slug || rec.id}`)}>
                       <div className="relative w-36 h-[81px] flex-shrink-0 rounded-lg overflow-hidden bg-black/40">
                         {rec.thumbnail_url
                           ? <img src={rec.thumbnail_url} alt={rec.title ?? ""} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />

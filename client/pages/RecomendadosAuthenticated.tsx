@@ -54,7 +54,7 @@ function VideoGridCardAuth({
     <div className="group relative overflow-hidden rounded-xl bg-white/[0.03] border border-white/8 hover:border-neon-pink/30 hover:shadow-lg hover:shadow-neon-pink/5 transition-all duration-300">
 
       {/* Thumbnail */}
-      <Link to={`/video/${video.id}`}>
+      <Link to={`/video/${video.slug || video.id}`}>
         <div className="relative aspect-video overflow-hidden bg-black/20">
           {video.thumbnail_url ? (
             <img src={video.thumbnail_url} alt={video.title ?? ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -98,7 +98,7 @@ function VideoGridCardAuth({
         </div>
 
         {/* Título */}
-        <Link to={`/video/${video.id}`}>
+        <Link to={`/video/${video.slug || video.id}`}>
           <h3 className="font-semibold text-sm text-foreground/85 line-clamp-2 hover:text-neon-pink transition-colors leading-snug cursor-pointer">
             {video.title || t("common.noTitle")}
           </h3>
@@ -164,7 +164,7 @@ function VideoListCardAuth({
   const { t } = useTranslation();
   return (
     <div className="group flex gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/8 hover:border-neon-pink/20 hover:bg-white/[0.05] transition-all">
-      <Link to={`/video/${video.id}`} className="relative w-44 aspect-video flex-shrink-0 rounded-lg overflow-hidden bg-black/20">
+      <Link to={`/video/${video.slug || video.id}`} className="relative w-44 aspect-video flex-shrink-0 rounded-lg overflow-hidden bg-black/20">
         {video.thumbnail_url ? (
           <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
@@ -187,7 +187,7 @@ function VideoListCardAuth({
           <span className="text-[10px] px-2 py-0.5 bg-neon-pink/10 border border-neon-pink/15 text-neon-pink rounded-full inline-flex items-center gap-1">
             <Sparkles size={8} />{video.reason}
           </span>
-          <Link to={`/video/${video.id}`}>
+          <Link to={`/video/${video.slug || video.id}`}>
             <h3 className="font-semibold text-sm text-foreground/85 line-clamp-2 hover:text-neon-pink transition-colors leading-snug">{video.title || t("common.noTitle")}</h3>
           </Link>
           <div className="flex items-center gap-3 text-[11px] text-foreground/35">

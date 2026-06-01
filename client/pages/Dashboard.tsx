@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 
 type Video = {
-  id: string; title: string | null; thumbnail_url: string | null;
+  id: string; slug?: string | null; title: string | null; thumbnail_url: string | null;
   video_url: string | null;
   views: number; duration: number | null; created_at: string;
   category: string | null; likes_count: number;
@@ -144,7 +144,7 @@ const VideoCard = memo(function VideoCard({ video, isLiked, isDisliked, isSaved,
       onTouchEnd={handleTouchEnd}
       style={isPreviewing ? { borderRadius: "0.75rem", boxShadow: "0 0 0 2px rgba(236,72,153,0.6)" } : undefined}
     >
-      <Link to={`/video/${video.id}`} className="block relative aspect-video rounded-xl overflow-hidden bg-black/30 mb-2" onClick={handleLinkClick}>
+      <Link to={`/video/${video.slug || video.id}`} className="block relative aspect-video rounded-xl overflow-hidden bg-black/30 mb-2" onClick={handleLinkClick}>
         {/* Thumbnail */}
         {video.thumbnail_url
           ? <img src={video.thumbnail_url} alt={video.title ?? ""} loading={index < 6 ? "eager" : "lazy"} width={320} height={180}
@@ -203,7 +203,7 @@ const VideoCard = memo(function VideoCard({ video, isLiked, isDisliked, isSaved,
           </div>
           <span className="text-[10px] text-foreground/35 truncate group-hover/creator:text-foreground/65 transition-colors">{video.creator_name ?? t("common.creator")}</span>
         </Link>
-        <Link to={`/video/${video.id}`} onClick={handleLinkClick}>
+        <Link to={`/video/${video.slug || video.id}`} onClick={handleLinkClick}>
           <h3 className="text-sm font-semibold text-foreground/80 line-clamp-2 group-hover:text-neon-pink transition-colors leading-snug">{video.title || t("common.noTitle")}</h3>
         </Link>
         <div className="flex items-center gap-2 text-[10px] text-foreground/32 pt-0.5">
@@ -474,7 +474,7 @@ export default function HomeAuthenticated() {
         setLoading(false); isFetchingRef.current = false; return;
       }
       const { data, count } = await supabase.from("videos")
-        .select("id,title,thumbnail_url,video_url,views,duration,created_at,category,user_id", { count: "exact" })
+        .select("id,slug,title,thumbnail_url,video_url,views,duration,created_at,category,user_id", { count: "exact" })
         .eq("status", "published").eq("visibility", "public")
         .in("user_id", subs).order("created_at", { ascending: false }).range(0, 499);
       const enriched    = await bulkEnrich(data ?? []);
@@ -486,7 +486,7 @@ export default function HomeAuthenticated() {
     }
 
     let q = supabase.from("videos")
-      .select("id,title,thumbnail_url,video_url,views,duration,created_at,category,user_id", { count: "exact" })
+      .select("id,slug,title,thumbnail_url,video_url,views,duration,created_at,category,user_id", { count: "exact" })
       .eq("status", "published").eq("visibility", "public").range(0, 499);
     if (activeFilter === "vistos" || activeFilter === "alta") q = q.order("views",      { ascending: false });
     else                                                        q = q.order("created_at", { ascending: false });

@@ -1,7 +1,7 @@
-// src/pages/MelhoresAvaliados.tsx
-// Condição: likes >= 5.000 E views >= 10.000
-// Realtime: re-fetch automático
-// Sem skeleton cards — só mostra vídeos reais ou estado vazio
+﻿// src/pages/MelhoresAvaliados.tsx
+// CondiÃ§Ã£o: likes >= 5.000 E views >= 10.000
+// Realtime: re-fetch automÃ¡tico
+// Sem skeleton cards â€” sÃ³ mostra vÃ­deos reais ou estado vazio
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -35,7 +35,7 @@ function fmtNum(n: number) {
   return String(n);
 }
 function fmtDuration(s: number | null) {
-  if (!s) return "—";
+  if (!s) return "â€”";
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 function likeRatio(likes: number, views: number) {
@@ -177,7 +177,7 @@ function VideoCard({ video, rank }: { video: Video; rank: number }) {
 
 export default function MelhoresAvaliadosPage() {
   const { t } = useTranslation();
-  useDocumentTitle({ title: "Vídeos Mais Avaliados - SuckOrSex" });
+  useDocumentTitle({ title: "VÃ­deos Mais Avaliados - SuckOrSex" });
   const [videos, setVideos]   = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery]     = useState("");
@@ -186,7 +186,7 @@ export default function MelhoresAvaliadosPage() {
   const fetchData = useCallback(async () => {
     const { data: vids } = await supabase
       .from("videos")
-      .select("id, title, thumbnail_url, video_url, views, duration, category, created_at")
+      .select("id, slug, title, thumbnail_url, video_url, views, duration, category, created_at")
       .eq("status", "published")
       .eq("visibility", "public")
       .gte("views", MIN_TOTAL_VIEWS)
@@ -258,7 +258,7 @@ export default function MelhoresAvaliadosPage() {
             </div>
             <div className="flex items-center gap-4">
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
-                <p className="text-2xl font-black text-yellow-400">{loading ? "—" : displayed.length}</p>
+                <p className="text-2xl font-black text-yellow-400">{loading ? "â€”" : displayed.length}</p>
                 <p className="text-xs text-foreground/45 mt-0.5">{t("pages.category.melhoresavaliados.approved")}</p>
               </div>
               <div className="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
@@ -289,7 +289,7 @@ export default function MelhoresAvaliadosPage() {
           </div>
         </div>
 
-        {/* Conteúdo */}
+        {/* ConteÃºdo */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 size={32} className="animate-spin text-yellow-400" />

@@ -4,6 +4,7 @@ import { Eye, Heart, Film, VolumeX, Play } from "lucide-react";
 
 export type VideoCardData = {
   id: string;
+  slug?: string | null;
   title: string | null;
   thumbnail_url: string | null;
   video_url: string | null;
@@ -90,7 +91,7 @@ export default function VideoCard({ video }: { video: VideoCardData }) {
 
   return (
     <Link
-      to={`/video/${video.id}`}
+      to={`/video/${video.slug || video.id}`}
       className="group bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-white/25 hover:bg-white/8 transition-all duration-300"
       style={isPreviewing ? { boxShadow: "0 0 0 2px rgba(236,72,153,0.6)" } : undefined}
       onMouseEnter={handleMouseEnter}
