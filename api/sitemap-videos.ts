@@ -44,7 +44,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       .eq("status", "published")
       .eq("visibility", "public")
       .order("created_at", { ascending: false })
-      .limit(50000),
+      .limit(10000),
     supabase
       .from("profiles")
       .select("id, slug, updated_at")
