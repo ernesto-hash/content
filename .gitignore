@@ -6,6 +6,10 @@ dist/
 dist-ssr/
 build/
 
+# 🔥 SITEMAPS GERADOS NO BUILD (não commitar)
+public/sitemap-shorts.xml
+public/sitemap-tags.xml
+
 # 🔥 VERCEL
 .vercel/
 

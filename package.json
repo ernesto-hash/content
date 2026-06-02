@@ -12,7 +12,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsx scripts/generate-sitemaps.ts && vite build",
     "build:client": "vite build",
     "build:server": "vite build --config vite.config.server.ts",
     "build:full": "npm run build:client && npm run build:server",
