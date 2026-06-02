@@ -26,6 +26,7 @@ type VideoData = {
   category: string | null;
   duration: number | null;
   user_id: string;
+  tags: string[] | null;
 };
 
 type Profile = {
@@ -471,7 +472,7 @@ export default function VideoAuthenticated() {
     setLoading(true);
     const { data: vid } = await supabase
       .from("videos")
-      .select("id, slug, title, description, video_url, thumbnail_url, views, created_at, category, duration, user_id")
+      .select("id, slug, title, description, video_url, thumbnail_url, views, created_at, category, duration, user_id, tags")
       .eq(isUUID ? "id" : "slug", id).single();
     if (!vid) { setLoading(false); return; }
     setVideo(vid as VideoData);
@@ -850,6 +851,19 @@ export default function VideoAuthenticated() {
                 </div>
                 {video.description && (
                   <p className="text-white/65 text-sm leading-relaxed whitespace-pre-line">{video.description}</p>
+                )}
+                {video.tags && video.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {video.tags.map((t) => (
+                      <a
+                        key={t}
+                        href={`/tag/${encodeURIComponent(t)}`}
+                        className="text-[11px] px-2 py-0.5 rounded-lg bg-white/[0.06] text-white/40 hover:text-neon-pink hover:bg-neon-pink/10 transition-colors border border-white/6"
+                      >
+                        #{t}
+                      </a>
+                    ))}
+                  </div>
                 )}
               </div>
             </div>

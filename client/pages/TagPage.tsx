@@ -1,5 +1,5 @@
 // src/pages/TagPage.tsx
-// Página pública de tag — SEO programático
+// Página pública de tag — SEO programático 100% dinâmico
 // Rota: /tag/:tag
 
 import { useEffect, useMemo, useState } from "react";
@@ -8,7 +8,6 @@ import Layout from "@/components/Layout";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { supabase } from "@/lib/supabaseClient";
 import { Play, Eye, Film, Loader2, Tag, ChevronRight } from "lucide-react";
-import { useTranslation } from "react-i18next";
 
 type TagVideo = {
   id: string;
@@ -18,6 +17,7 @@ type TagVideo = {
   views: number;
   duration: number | null;
   created_at: string;
+  tags: string[] | null;
 };
 
 function fmtDuration(s: number | null) {
@@ -31,74 +31,64 @@ function fmtNum(n: number) {
   return String(n);
 }
 
-const RELATED_TAGS: Record<string, string[]> = {
-  amador:        ["solo", "casal", "pt", "brasil"],
-  profissional:  ["hd", "estudio", "grupo", "pov"],
-  solo:          ["amador", "brinquedos", "mulher"],
-  casal:         ["amador", "pov", "lesbica"],
-  gay:           ["solo", "grupo", "bareback"],
-  lesbica:       ["casal", "solo", "brinquedos"],
-  bdsm:          ["fetiche", "dominacao", "hardcore"],
-  fetiche:       ["bdsm", "pés", "meias"],
-  vintage:       ["retro", "classic", "80s"],
-  animacao:      ["hentai", "cartoon", "anime"],
-  pov:           ["amador", "casal", "solo"],
-  grupo:         ["profissional", "casal", "gangbang"],
-  trans:         ["solo", "casal"],
-  brasil:        ["amador", "pt", "latina"],
-  portugal:      ["amador", "pt", "europa"],
-};
-
-function getRelatedTags(tag: string): string[] {
-  const lower = tag.toLowerCase();
-  return RELATED_TAGS[lower] ?? [];
-}
-
 export default function TagPage() {
-  const { t } = useTranslation();
   const { tag } = useParams<{ tag: string }>();
   const [videos, setVideos] = useState<TagVideo[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const tagDisplay = tag ? decodeURIComponent(tag) : "";
-  const relatedTags = useMemo(() => getRelatedTags(tagDisplay), [tagDisplay]);
+  const decodedTag = tag ? decodeURIComponent(tag) : "";
 
   useDocumentTitle({
-    title: `Vídeos ${tagDisplay} — Grátis no SuckOrSex`,
-    description: `Assiste aos melhores vídeos ${tagDisplay} grátis. Conteúdo actualizado diariamente no SuckOrSex.`,
+    title: `${decodedTag} — Vídeos Grátis | SuckOrSex`,
+    description: `Assiste aos melhores vídeos ${decodedTag} grátis em HD. Conteúdo exclusivo actualizado diariamente no SuckOrSex.`,
+    url: `https://suckorsex.com/tag/${encodeURIComponent(decodedTag)}`,
   });
 
   useEffect(() => {
     if (!tag) return;
     setLoading(true);
-
     const decoded = decodeURIComponent(tag);
     supabase
       .from("videos")
-      .select("id, slug, title, thumbnail_url, views, duration, created_at")
-      .ilike("category", `%${decoded}%`)
+      .select("id, slug, title, thumbnail_url, views, duration, created_at, tags")
+      .contains("tags", [decoded])
       .eq("status", "published")
       .eq("visibility", "public")
       .order("views", { ascending: false })
-      .limit(60)
+      .limit(48)
       .then(({ data }) => {
         setVideos((data ?? []) as TagVideo[]);
         setLoading(false);
       });
   }, [tag]);
 
+  // Tags relacionadas extraídas dinamicamente dos vídeos encontrados
+  const relatedTags = useMemo(() => {
+    const counts = new Map<string, number>();
+    videos.forEach((v) => {
+      (v.tags ?? []).forEach((t) => {
+        if (t.toLowerCase() !== decodedTag.toLowerCase()) {
+          counts.set(t, (counts.get(t) ?? 0) + 1);
+        }
+      });
+    });
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 16)
+      .map(([t]) => t);
+  }, [videos, decodedTag]);
+
   useEffect(() => {
     if (videos.length === 0) return;
-    const tagDisplay = tag ? decodeURIComponent(tag) : "";
     const script = document.createElement("script");
     script.type = "application/ld+json";
     script.id = "tag-itemlist-schema";
     script.text = JSON.stringify({
       "@context": "https://schema.org",
       "@type": "ItemList",
-      "name": `Vídeos ${tagDisplay} — SuckOrSex`,
-      "description": `Os melhores vídeos ${tagDisplay} grátis no SuckOrSex`,
-      "url": `https://suckorsex.com/tag/${tag}`,
+      "name": `Vídeos ${decodedTag} — SuckOrSex`,
+      "description": `Os melhores vídeos ${decodedTag} grátis no SuckOrSex`,
+      "url": `https://suckorsex.com/tag/${encodeURIComponent(decodedTag)}`,
       "numberOfItems": videos.length,
       "itemListElement": videos.slice(0, 20).map((v, i) => ({
         "@type": "ListItem",
@@ -109,7 +99,7 @@ export default function TagPage() {
     });
     document.head.appendChild(script);
     return () => { document.getElementById("tag-itemlist-schema")?.remove(); };
-  }, [videos, tag]);
+  }, [videos, decodedTag]);
 
   return (
     <Layout>
@@ -125,7 +115,7 @@ export default function TagPage() {
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-black text-white capitalize">
-                {tagDisplay}
+                Vídeos {decodedTag}
               </h1>
               <p className="text-foreground/45 text-sm mt-0.5">
                 {loading ? "…" : `${fmtNum(videos.length)} vídeos`} · Actualizado diariamente
@@ -134,10 +124,10 @@ export default function TagPage() {
           </div>
         </div>
 
-        {/* Tags relacionadas */}
+        {/* Tags relacionadas — dinâmicas */}
         {relatedTags.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[11px] text-foreground/35 mr-1">Relacionadas:</span>
+            <span className="text-[11px] text-foreground/35 mr-1">Tags relacionadas:</span>
             {relatedTags.map((rt) => (
               <Link
                 key={rt}
@@ -162,25 +152,16 @@ export default function TagPage() {
             </div>
             <div className="text-center">
               <p className="text-foreground/60 font-semibold">Nenhum vídeo encontrado</p>
-              <p className="text-foreground/30 text-sm mt-1">
-                Sem resultados para "{tagDisplay}"
-              </p>
+              <p className="text-foreground/30 text-sm mt-1">Sem resultados para "{decodedTag}"</p>
             </div>
-            <Link
-              to="/"
-              className="flex items-center gap-1.5 text-sm text-neon-pink hover:text-neon-pink/80 transition-colors"
-            >
+            <Link to="/" className="flex items-center gap-1.5 text-sm text-neon-pink hover:text-neon-pink/80 transition-colors">
               Explorar todos os vídeos <ChevronRight size={14} />
             </Link>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-6">
             {videos.map((v) => (
-              <Link
-                key={v.id}
-                to={`/video/${v.slug || v.id}`}
-                className="group block"
-              >
+              <Link key={v.id} to={`/video/${v.slug || v.id}`} className="group block">
                 <div className="relative aspect-video rounded-xl overflow-hidden bg-black/30 mb-2">
                   {v.thumbnail_url ? (
                     <img
@@ -211,12 +192,25 @@ export default function TagPage() {
                 <div className="flex items-center gap-2 text-[10px] text-foreground/32 pt-0.5">
                   <span className="flex items-center gap-0.5"><Eye size={9} />{fmtNum(v.views)}</span>
                 </div>
+                {v.tags && v.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {v.tags.slice(0, 3).map((t) => (
+                      <a
+                        key={t}
+                        href={`/tag/${encodeURIComponent(t)}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-[9px] px-1.5 py-0.5 rounded bg-white/[0.05] text-foreground/35 hover:text-neon-pink hover:bg-neon-pink/8 transition-colors"
+                      >
+                        #{t}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </Link>
             ))}
           </div>
         )}
 
-        {/* CTA para explorar mais */}
         {!loading && videos.length > 0 && (
           <div className="text-center py-4">
             <Link

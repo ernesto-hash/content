@@ -12,6 +12,7 @@ export type VideoCardData = {
   likes_count: number;
   duration: number | null;
   created_at: string;
+  tags?: string[] | null;
 };
 
 function fmtNum(n: number) {
@@ -161,6 +162,20 @@ export default function VideoCard({ video }: { video: VideoCardData }) {
           <span className="flex items-center gap-1"><Heart size={11} className="text-rose-400" /> {fmtNum(video.likes_count)}</span>
           <span>{fmtDate(video.created_at)}</span>
         </div>
+        {video.tags && video.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 pt-0.5">
+            {video.tags.slice(0, 4).map((t) => (
+              <a
+                key={t}
+                href={`/tag/${encodeURIComponent(t)}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-[9px] px-1.5 py-0.5 rounded bg-white/[0.05] text-foreground/35 hover:text-neon-pink hover:bg-neon-pink/8 transition-colors"
+              >
+                #{t}
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </Link>
   );
