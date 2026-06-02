@@ -139,6 +139,7 @@ const AnunciarPagamento = lazy(() => import("./pages/AnunciarPagamento"));
 const AnunciarSucesso   = lazy(() => import("./pages/AnunciarSucesso"));
 const Shorts                = lazy(() => import("./pages/Shorts"));
 const ShortsAuthenticated   = lazy(() => import("./pages/ShortsAuthenticated"));
+const ShortPage             = lazy(() => import("./pages/ShortPage"));
 const Search                = lazy(() => import("./pages/Search"));
 const SearchAuthenticated   = lazy(() => import("./pages/SearchAuthenticated"));
 const TagPage               = lazy(() => import("./pages/TagPage"));
@@ -207,6 +208,7 @@ const App = () => (
               <Route path="/anunciar/pagamento" element={<AnunciarPagamento />} />
               <Route path="/anunciar/sucesso"   element={<AnunciarSucesso />} />
               <Route path="/shorts" element={<Shorts />} />
+              <Route path="/short/:slug" element={<ShortPage />} />
               <Route path="/search" element={<Search />} />
               <Route path="/tag/:tag" element={<TagPage />} />
               <Route path="/perfil/:username" element={<Canais />} />
