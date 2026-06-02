@@ -61,6 +61,6 @@ ${entries}
 </urlset>`;
 
   res.setHeader("Content-Type", "application/xml; charset=utf-8");
-  res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=3600");
+  res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
   res.status(200).send(xml);
 }
