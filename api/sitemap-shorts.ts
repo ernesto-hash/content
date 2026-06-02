@@ -35,7 +35,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
     .eq("visibility", "public")
     .not("slug", "is", null)
     .order("created_at", { ascending: false })
-    .limit(10000);
+    .limit(5000);
 
   if (error) {
     res.status(500).send(`Supabase query failed: ${error.message}`);
@@ -61,6 +61,6 @@ ${entries}
 </urlset>`;
 
   res.setHeader("Content-Type", "application/xml; charset=utf-8");
-  res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+  res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=3600");
   res.status(200).send(xml);
 }

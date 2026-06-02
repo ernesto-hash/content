@@ -23,18 +23,36 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
     auth: { persistSession: false },
   });
 
-  const { data, error } = await supabase.rpc("get_all_unique_tags");
+  // Query directa — sem RPC que pode não existir ou ser lento
+  const { data, error } = await supabase
+    .from("videos")
+    .select("tags")
+    .eq("status", "published")
+    .eq("visibility", "public")
+    .not("tags", "is", null)
+    .limit(5000);
 
   if (error) {
-    res.status(500).send(`RPC error: ${error.message}`);
+    res.status(500).send(`Supabase query failed: ${error.message}`);
     return;
   }
 
-  const entries = (data ?? [])
-    .map((row: { tag: string }) => {
-      const loc = `https://suckorsex.com/tag/${escapeXml(encodeURIComponent(row.tag))}`;
+  // Deduplica tags no servidor
+  const unique = new Set<string>();
+  for (const row of data ?? []) {
+    for (const tag of (row.tags ?? []) as string[]) {
+      if (tag && tag.trim()) unique.add(tag.trim());
+    }
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const entries = Array.from(unique)
+    .sort()
+    .map((tag) => {
+      const loc = `https://suckorsex.com/tag/${escapeXml(encodeURIComponent(tag))}`;
       return `  <url>
     <loc>${loc}</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>`;
@@ -47,6 +65,6 @@ ${entries}
 </urlset>`;
 
   res.setHeader("Content-Type", "application/xml; charset=utf-8");
-  res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+  res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=3600");
   res.status(200).send(xml);
 }
