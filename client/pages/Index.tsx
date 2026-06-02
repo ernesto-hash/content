@@ -35,6 +35,7 @@ type Video = {
   category: string | null; likes_count: number;
   user_id: string; creator_name: string | null; creator_avatar: string | null;
   creator_slug: string | null;
+  creator_username: string | null;
 };
 type FilterTab    = "todos" | "alta" | "recentes" | "vistos";
 type AgeStep      = "gate" | "blocked";
@@ -388,7 +389,7 @@ const VideoCard = memo(function VideoCard({ video, onLike, onSave, isLiked, isSa
       </Link>
       <div className="space-y-0.5 px-0.5">
         <Link
-          to={`/modelo/${video.creator_slug || video.user_id}`}
+          to={`/modelo/${video.creator_username || video.creator_slug || video.user_id}`}
           className="flex items-center gap-1.5 mb-1 group/creator w-fit max-w-full"
           onClick={e => e.stopPropagation()}
         >
@@ -756,7 +757,8 @@ export default function Index() {
         user_id:        v.user_id,
         creator_name:   p?.full_name ?? p?.username ?? null,
         creator_avatar: p?.avatar_url ?? null,
-        creator_slug:   p?.slug ?? null,
+        creator_slug:     p?.slug ?? null,
+        creator_username: p?.username ?? null,
       };
     });
 

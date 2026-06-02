@@ -55,7 +55,7 @@ const ShortItemAuth = memo(function ShortItemAuth({
   const [saving,    setSaving]    = useState(false);
 
   const videoPath = `/app/video/${short.slug || short.id}`;
-  const modelPath = `/app/modelo/${short.profile?.id || short.user_id}`;
+  const modelPath = `/app/modelo/${short.profile?.username || short.profile?.id || short.user_id}`;
 
   useEffect(() => { setLiked(initialLiked); }, [initialLiked]);
 

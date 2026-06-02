@@ -345,10 +345,17 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
 
     const profileQ = isUUID
       ? supabase.from("profiles_public").select("id, username, full_name, avatar_url, created_at").eq("id", slug).single()
-      : supabase.from("profiles_public").select("id, username, full_name, avatar_url, created_at").eq("slug", slug).single();
+      : supabase.from("profiles_public").select("id, username, full_name, avatar_url, created_at").eq("username", slug).single();
 
     profileQ.then(async (profRes) => {
       if (!profRes.data) { setLoading(false); return; }
+
+      if (isUUID && profRes.data?.username) {
+        const prefix = authenticated ? "/app" : "";
+        navigate(`${prefix}/modelo/${(profRes.data as any).username}`, { replace: true });
+        return;
+      }
+
       const cid = (profRes.data as any).id as string;
       setCreatorId(cid);
 
@@ -438,7 +445,7 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
   };
 
   const handleShare = async () => {
-    const canonicalSlug = creator?.slug || creatorId;
+    const canonicalSlug = creator?.username || creator?.slug || creatorId;
     const url = `${window.location.origin}/modelo/${canonicalSlug}`;
     await navigator.clipboard.writeText(url);
     setLinkCopied(true);
@@ -458,16 +465,17 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
   useDocumentTitle(
     creator
       ? {
-          title: `${creatorNameForSEO} - Vídeos Grátis | SuckOrSex`,
-          description: `Assiste a todos os vídeos de ${creatorNameForSEO} grátis. ${creator.video_count} vídeos publicados no SuckOrSex.`,
+          title: `${creatorNameForSEO} — Vídeos Grátis | SuckOrSex`,
+          description: `Assiste a todos os vídeos exclusivos de ${creatorNameForSEO} grátis em HD. Conteúdo actualizado diariamente no SuckOrSex.`,
           image: creator.avatar_url,
+          url: `https://suckorsex.com/modelo/${creator.username || creator.slug || creator.id}`,
         }
       : { title: "SuckOrSex - Vídeos Porno Grátis & Conteúdo XXX HD" }
   );
 
   useEffect(() => {
     if (!creator) return;
-    const canonicalSlug = creator.slug || creator.id;
+    const canonicalSlug = creator.username || creator.slug || creator.id;
     const name = creator.full_name || creator.username;
     const script = document.createElement("script");
     script.type = "application/ld+json";

@@ -26,7 +26,7 @@ type Video = {
   video_url: string | null;
   views: number; duration: number | null; created_at: string;
   category: string | null; likes_count: number;
-  user_id: string; creator_name: string | null; creator_avatar: string | null;
+  user_id: string; creator_name: string | null; creator_avatar: string | null; creator_username: string | null;
 };
 type FilterTab = "para_mim" | "alta" | "recentes" | "vistos" | "subscricoes";
 const PAGE_SIZE = 24;
@@ -194,7 +194,7 @@ const VideoCard = memo(function VideoCard({ video, isLiked, isDisliked, isSaved,
       </Link>
       <div className="space-y-0.5 px-0.5">
         <Link
-          to={`/app/modelo/${video.user_id}`}
+          to={`/app/modelo/${video.creator_username || video.user_id}`}
           className="flex items-center gap-1.5 mb-1 group/creator w-fit max-w-full"
           onClick={e => e.stopPropagation()}
         >
@@ -455,8 +455,9 @@ export default function HomeAuthenticated() {
       return {
         ...v,
         likes_count:    likesMap.get(v.id) ?? 0,
-        creator_name:   p?.full_name ?? p?.username ?? null,
-        creator_avatar: p?.avatar_url ?? null,
+        creator_name:     p?.full_name ?? p?.username ?? null,
+        creator_avatar:   p?.avatar_url ?? null,
+        creator_username: p?.username ?? null,
       };
     });
   }

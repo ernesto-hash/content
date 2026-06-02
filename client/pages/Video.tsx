@@ -669,7 +669,7 @@ export default function Video() {
   }
 
   const creatorName = creator?.full_name || creator?.username || t("common.creator");
-  const creatorChannelUrl = creator ? `/modelo/${creator.id}` : "#";
+  const creatorChannelUrl = creator ? `/modelo/${creator.username}` : "#";
   const displayTime = fmtDuration(Math.floor(currentTime));
   const displayDuration = fmtDuration(Math.floor(duration));
 

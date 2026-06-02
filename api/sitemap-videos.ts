@@ -47,7 +47,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       .limit(10000),
     supabase
       .from("profiles")
-      .select("id, slug, updated_at")
+      .select("id, slug, username, updated_at")
       .not("username", "is", null)
       .not("full_name", "is", null)
       .limit(1000),
@@ -103,7 +103,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
 
   const profileEntries = (profilesRes.data ?? [])
     .map((p) => {
-      const slugOrId = p.slug || p.id;
+      const slugOrId = p.username || p.slug || p.id;
       const loc = `https://suckorsex.com/modelo/${escapeXml(slugOrId)}`;
       const lastmod = p.updated_at ? toYMD(p.updated_at) : new Date().toISOString().slice(0, 10);
       return `  <url>

@@ -630,7 +630,7 @@ export default function VideoAuthenticated() {
   }
 
   const creatorName = creator?.full_name || creator?.username || t("common.creator");
-  const creatorChannelUrl = creator ? `/app/modelo/${creator.id}` : "#";
+  const creatorChannelUrl = creator ? `/app/modelo/${creator.username}` : "#";
   const displayTime = fmtDuration(Math.floor(currentTime));
   const displayDuration = fmtDuration(Math.floor(duration));
 

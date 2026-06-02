@@ -160,7 +160,7 @@ function SearchDropdown({
           {models.map(m => (
             <button
               key={m.id}
-              onMouseDown={() => onSelect(`/app/modelo/${m.id}`)}
+              onMouseDown={() => onSelect(`/app/modelo/${m.username}`)}
               className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-white/6 transition-colors text-left group"
             >
               <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-neon-pink/30 to-neon-purple/20 flex items-center justify-center flex-shrink-0">

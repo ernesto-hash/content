@@ -45,7 +45,7 @@ function CreatorCard({
       {/* ── Faixa de preview ── */}
       <div
         className="relative h-32 cursor-pointer overflow-hidden"
-        onClick={() => onOpenChannel(creator.id)}
+        onClick={() => onOpenChannel(creator.username)}
       >
         {creator.preview_thumbs.length > 0 ? (
           <div className="flex h-full gap-0.5">
@@ -97,7 +97,7 @@ function CreatorCard({
         <div className="-mt-7 mb-3 flex items-end justify-between">
           <button
             className="w-14 h-14 rounded-2xl border-[3px] border-[#0d0d0d] overflow-hidden flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-neon-pink/40 transition-all"
-            onClick={() => onOpenChannel(creator.id)}
+            onClick={() => onOpenChannel(creator.username)}
           >
             {creator.avatar_url ? (
               <img
@@ -131,7 +131,7 @@ function CreatorCard({
         {/* Nome */}
         <button
           className="text-left w-full mb-3"
-          onClick={() => onOpenChannel(creator.id)}
+          onClick={() => onOpenChannel(creator.username)}
         >
           <h3 className="font-bold text-foreground/90 text-sm group-hover:text-white transition-colors truncate">
             {creator.full_name || creator.username}
@@ -156,7 +156,7 @@ function CreatorCard({
 
         {/* CTA */}
         <button
-          onClick={() => onOpenChannel(creator.id)}
+          onClick={() => onOpenChannel(creator.username)}
           className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 border border-white/8 text-[11px] text-foreground/40 hover:bg-white/10 hover:text-neon-pink hover:border-neon-pink/25 transition-all"
         >
           Ver canal completo <ChevronRight size={11} />

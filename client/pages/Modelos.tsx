@@ -158,7 +158,7 @@ const CreatorCard = memo(function CreatorCard({
   return (
     <div
       className="group relative bg-white/[0.03] border border-white/8 rounded-2xl overflow-hidden hover:border-white/18 hover:bg-white/[0.05] transition-all duration-300 cursor-pointer"
-      onClick={() => navigate(`/modelo/${creator.slug || creator.id}`)}
+      onClick={() => navigate(`/modelo/${creator.username || creator.slug || creator.id}`)}
     >
       {/* Faixa de preview */}
       <div className="relative h-20 sm:h-28 flex gap-0.5 overflow-hidden">
