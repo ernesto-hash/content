@@ -115,7 +115,21 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
     })
     .join("\n");
 
-  const allEntries = [videoEntries, profileEntries].filter(Boolean).join("\n");
+  const today = new Date().toISOString().slice(0, 10);
+  const staticEntries = [
+    { loc: "https://suckorsex.com/",       changefreq: "daily",  priority: "1.0" },
+    { loc: "https://suckorsex.com/videos",  changefreq: "daily",  priority: "0.9" },
+    { loc: "https://suckorsex.com/modelos", changefreq: "weekly", priority: "0.8" },
+    { loc: "https://suckorsex.com/shorts",  changefreq: "daily",  priority: "0.8" },
+    { loc: "https://suckorsex.com/galeria", changefreq: "weekly", priority: "0.7" },
+  ].map(({ loc, changefreq, priority }) => `  <url>
+    <loc>${loc}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+  </url>`).join("\n");
+
+  const allEntries = [staticEntries, videoEntries, profileEntries].filter(Boolean).join("\n");
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"

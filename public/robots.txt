@@ -1,11 +1,18 @@
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /studio
-Disallow: /dashboard
-Disallow: /app/checkout
-Disallow: /profile
-Disallow: /escolher-conta
+Allow: /video/
+Allow: /short/
+Allow: /modelo/
+Allow: /tag/
+Allow: /galeria/
+Allow: /videos
+Allow: /modelos
+Allow: /shorts
+Disallow: /app/
+Disallow: /admin/
+Disallow: /api/
 
-Sitemap: https://suckorsex.com/sitemap.xml
+Sitemap: https://suckorsex.com/sitemap-index.xml
 Sitemap: https://suckorsex.com/sitemap-videos.xml
+Sitemap: https://suckorsex.com/sitemap-tags.xml
+Sitemap: https://suckorsex.com/sitemap-shorts.xml
