@@ -273,6 +273,35 @@ export default function VideoAuthenticated() {
     url: video ? `https://suckorsex.com/video/${video.slug ?? video.id}` : undefined,
   });
 
+  useEffect(() => {
+    if (!video) return;
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.id = "video-schema";
+    script.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      "name": video.title,
+      "description": video.description || video.title,
+      "thumbnailUrl": video.thumbnail_url,
+      "uploadDate": video.created_at,
+      "contentUrl": video.video_url,
+      "embedUrl": `https://suckorsex.com/video/${video.slug || video.id}`,
+      "author": {
+        "@type": "Person",
+        "name": creator?.full_name || creator?.username || "SuckOrSex",
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "SuckOrSex",
+        "url": "https://suckorsex.com",
+      },
+    });
+    document.head.querySelector("#video-schema")?.remove();
+    document.head.appendChild(script);
+    return () => { document.getElementById("video-schema")?.remove(); };
+  }, [video, creator]);
+
   const clearControlsTimer = useCallback(() => {
     if (controlsTimer.current) clearTimeout(controlsTimer.current);
   }, []);

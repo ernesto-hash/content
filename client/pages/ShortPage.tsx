@@ -77,10 +77,15 @@ export default function ShortPage() {
       "@context": "https://schema.org",
       "@type": "VideoObject",
       "name": video.title,
+      "description": video.title,
       "thumbnailUrl": video.thumbnail_url,
       "uploadDate": video.created_at,
       "contentUrl": video.video_url,
       "embedUrl": `https://suckorsex.com/short/${video.slug}`,
+      "author": {
+        "@type": "Person",
+        "name": video.profiles?.full_name || video.profiles?.username || "SuckOrSex",
+      },
       "publisher": {
         "@type": "Organization",
         "name": "SuckOrSex",

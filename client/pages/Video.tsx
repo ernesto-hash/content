@@ -285,11 +285,15 @@ export default function Video() {
       "@context": "https://schema.org",
       "@type": "VideoObject",
       "name": video.title,
-      "description": `${video.title} - Assiste grátis no SuckOrSex`,
+      "description": video.description || video.title,
       "thumbnailUrl": video.thumbnail_url,
       "uploadDate": video.created_at,
       "contentUrl": video.video_url,
-      "embedUrl": window.location.href,
+      "embedUrl": `https://suckorsex.com/video/${video.slug || video.id}`,
+      "author": {
+        "@type": "Person",
+        "name": creator?.full_name || creator?.username || "SuckOrSex",
+      },
       "publisher": {
         "@type": "Organization",
         "name": "SuckOrSex",
@@ -300,7 +304,7 @@ export default function Video() {
     return () => {
       document.getElementById("video-schema")?.remove();
     };
-  }, [video]);
+  }, [video, creator]);
 
   const clearControlsTimer = useCallback(() => {
     if (controlsTimer.current) clearTimeout(controlsTimer.current);

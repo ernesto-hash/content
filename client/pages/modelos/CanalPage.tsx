@@ -483,13 +483,12 @@ export default function CanalPage({ authenticated = false }: { authenticated?: b
     script.text = JSON.stringify({
       "@context": "https://schema.org",
       "@type": "ProfilePage",
-      "name": name,
+      "name": `${name} — SuckOrSex`,
       "url": `https://suckorsex.com/modelo/${canonicalSlug}`,
       "mainEntity": {
         "@type": "Person",
         "name": name,
         "image": creator.avatar_url,
-        "description": `Vídeos de ${name} no SuckOrSex`,
       },
     });
     document.head.appendChild(script);

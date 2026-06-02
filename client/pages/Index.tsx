@@ -572,13 +572,10 @@ export default function Index() {
       "@type": "WebSite",
       "name": "SuckOrSex",
       "url": "https://suckorsex.com",
-      "description": "Vídeos porno grátis em HD, conteúdo amador e XXX",
+      "description": "Plataforma de vídeos adultos grátis em HD",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "https://suckorsex.com/videos?q={search_term_string}",
-        },
+        "target": "https://suckorsex.com/videos?q={search_term_string}",
         "query-input": "required name=search_term_string",
       },
     });
