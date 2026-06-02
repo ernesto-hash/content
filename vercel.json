@@ -1,6 +1,8 @@
 {
   "routes": [
     { "src": "/sitemap-videos.xml", "dest": "/api/sitemap-videos" },
+    { "src": "/video/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})", "dest": "/api/video-redirect?id=$1" },
+    { "src": "/modelo/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})", "dest": "/api/modelo-redirect?id=$1" },
     { "handle": "filesystem" },
     { "src": "/.*", "dest": "/index.html" }
   ],

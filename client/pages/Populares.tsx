@@ -25,6 +25,7 @@ import {
 // ─────────────────────────────────────────────
 type Video = {
   id: string;
+  slug?: string | null;
   title: string | null;
   thumbnail_url: string | null;
   video_url: string | null;

@@ -117,7 +117,7 @@ export default function SearchPage() {
   const [models, setModels] = useState<ModelResult[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useDocumentTitle(query ? `"${query}" — Pesquisa | SuckOrSex` : "Pesquisa | SuckOrSex");
+  useDocumentTitle({ title: query ? `"${query}" — Pesquisa | SuckOrSex` : "Pesquisa | SuckOrSex" });
 
   useEffect(() => {
     if (!query.trim()) return;
