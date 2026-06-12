@@ -22,7 +22,12 @@ export function createServer() {
   const app = express();
 
   // Middleware
-  app.use(cors());
+  app.use(cors({
+    origin: (process.env.ALLOWED_ORIGINS ?? "https://suckorsex.com")
+      .split(",")
+      .map((s) => s.trim()),
+    credentials: true,
+  }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 

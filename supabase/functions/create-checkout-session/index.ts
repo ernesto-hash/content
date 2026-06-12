@@ -59,23 +59,6 @@ function buildCorsHeaders(req: Request): Record<string, string> {
   };
 }
 
-// ── Decode JWT sem verificar assinatura ─────────────────────────────────────
-// Necessário porque o Supabase passou a usar ES256 e nenhuma lib Deno disponível
-// consegue verificar esse algoritmo. Seguro porque todas as operações de BD
-// usam service role key e validam o userId contra os dados reais da tabela.
-function decodeJwtPayload(token: string): Record<string, unknown> | null {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded  = base64 + "=".repeat((4 - base64.length % 4) % 4);
-    const decoded = atob(padded);
-    return JSON.parse(decoded);
-  } catch {
-    return null;
-  }
-}
-
 serve(async (req: Request) => {
   const corsHeaders = buildCorsHeaders(req);
 
@@ -98,7 +81,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    // ── 1. Extrair userId do JWT (decode sem verificar assinatura) ───────
+    // ── 1. Validar JWT via Supabase auth (verifica assinatura ES256) ─────
     const authHeader = req.headers.get("Authorization") ?? "";
     if (!authHeader.startsWith("Bearer ")) {
       return new Response(
@@ -107,31 +90,20 @@ serve(async (req: Request) => {
       );
     }
 
-    const token   = authHeader.slice(7);
-    const payload = decodeJwtPayload(token);
+    const token = authHeader.slice(7);
+    const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_KEY);
 
-    if (!payload || typeof payload.sub !== "string" || !payload.sub) {
-      console.error("[checkout] JWT inválido ou sem campo sub");
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+    if (authError || !user) {
+      console.error("[checkout] Token inválido:", authError?.message);
       return new Response(
         JSON.stringify({ error: "Token inválido. Faz login novamente." }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Verificar expiração
-    if (typeof payload.exp === "number" && payload.exp < Math.floor(Date.now() / 1000)) {
-      return new Response(
-        JSON.stringify({ error: "Sessão expirada. Faz login novamente." }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const userId: string    = payload.sub;
-    const userEmail: string = typeof payload.email === "string" ? payload.email : "";
-
-    console.log(`[checkout] userId extraído do JWT: ${userId}`);
-
-    const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_KEY);
+    const userId    = user.id;
+    const userEmail = user.email ?? "";
 
     // ── 2. Validar priceId ───────────────────────────────────────────────
     const body = await req.json().catch(() => ({}));
