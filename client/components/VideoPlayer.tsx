@@ -9,54 +9,64 @@ export default function VideoPlayer({ videoId, userId }) {
   const [comments, setComments] = useState([])
 
   useEffect(() => {
-    // Buscar dados do vídeo
     const fetchVideoData = async () => {
-      const { data: videoData } = await supabase
-        .from('videos')
-        .select(`
-          *,
-          profiles!inner(username, avatar_url)
-        `)
-        .eq('id', videoId)
-        .single()
-      
-      setVideo(videoData)
+      try {
+        const { data: videoData, error: videoError } = await supabase
+          .from('videos')
+          .select(`
+            *,
+            profiles!inner(username, avatar_url)
+          `)
+          .eq('id', videoId)
+          .single()
 
-      // Contar interações
-      const { count: likesCount } = await supabase
-        .from('interacoes')
-        .select('*', { count: 'exact', head: true })
-        .eq('video_id', videoId)
-        .eq('tipo', true)
-      
-      const { count: dislikesCount } = await supabase
-        .from('interacoes')
-        .select('*', { count: 'exact', head: true })
-        .eq('video_id', videoId)
-        .eq('tipo', false)
-      
-      setLikes(likesCount)
-      setDislikes(dislikesCount)
+        if (videoError) throw videoError
+        if (!videoData) throw new Error('Vídeo não encontrado')
+        setVideo(videoData)
 
-      // Verificar interação do usuário atual
-      if (userId) {
-        const { data: interaction } = await supabase
+        const { count: likesCount, error: likesError } = await supabase
           .from('interacoes')
-          .select('*')
-          .eq('user_id', userId)
+          .select('*', { count: 'exact', head: true })
           .eq('video_id', videoId)
-          .maybeSingle()
-        
-        setUserInteraction(interaction)
-      }
+          .eq('tipo', true)
 
-      // Incrementar visualização
-      await supabase.rpc('increment_video_views', { video_id: videoId })
+        if (likesError) console.error('Erro ao carregar likes:', likesError)
+        else setLikes(likesCount ?? 0)
+
+        const { count: dislikesCount, error: dislikesError } = await supabase
+          .from('interacoes')
+          .select('*', { count: 'exact', head: true })
+          .eq('video_id', videoId)
+          .eq('tipo', false)
+
+        if (dislikesError) console.error('Erro ao carregar dislikes:', dislikesError)
+        else setDislikes(dislikesCount ?? 0)
+
+        if (userId) {
+          const { data: interaction, error: interactionError } = await supabase
+            .from('interacoes')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('video_id', videoId)
+            .maybeSingle()
+
+          if (interactionError) console.error('Erro ao carregar interação:', interactionError)
+          else setUserInteraction(interaction)
+        }
+
+        const { error: viewsError } = await supabase
+          .rpc('increment_video_views', { video_id: videoId })
+
+        if (viewsError) console.error('Erro ao incrementar views:', viewsError)
+
+      } catch (error) {
+        console.error('Erro ao carregar vídeo:', error)
+        setVideo(null)
+      }
     }
 
     fetchVideoData()
 
-    // Inscrever para mudanças em tempo real
     const interacoesSubscription = supabase
       .channel('interacoes_changes')
       .on(
@@ -68,21 +78,21 @@ export default function VideoPlayer({ videoId, userId }) {
           filter: `video_id=eq.${videoId}`
         },
         async () => {
-          // Recarregar contagens quando algo mudar
-          const { count: newLikes } = await supabase
+          const { count: newLikes, error: likesErr } = await supabase
             .from('interacoes')
             .select('*', { count: 'exact', head: true })
             .eq('video_id', videoId)
             .eq('tipo', true)
-          
-          const { count: newDislikes } = await supabase
+
+          if (!likesErr) setLikes(newLikes ?? 0)
+
+          const { count: newDislikes, error: dislikesErr } = await supabase
             .from('interacoes')
             .select('*', { count: 'exact', head: true })
             .eq('video_id', videoId)
             .eq('tipo', false)
-          
-          setLikes(newLikes)
-          setDislikes(newDislikes)
+
+          if (!dislikesErr) setDislikes(newDislikes ?? 0)
         }
       )
       .subscribe()
@@ -101,14 +111,12 @@ export default function VideoPlayer({ videoId, userId }) {
     try {
       if (userInteraction) {
         if (userInteraction.tipo === tipo) {
-          // Remover interação (mesmo tipo)
           await supabase
             .from('interacoes')
             .delete()
             .eq('id', userInteraction.id)
           setUserInteraction(null)
         } else {
-          // Atualizar interação (tipo diferente)
           await supabase
             .from('interacoes')
             .update({ tipo })
@@ -116,7 +124,6 @@ export default function VideoPlayer({ videoId, userId }) {
           setUserInteraction({ ...userInteraction, tipo })
         }
       } else {
-        // Criar nova interação
         const { data } = await supabase
           .from('interacoes')
           .insert({ user_id: userId, video_id: videoId, tipo })
@@ -130,16 +137,18 @@ export default function VideoPlayer({ videoId, userId }) {
   }
 
   const handleShare = async (plataforma) => {
-    // Registrar partilha
-    await supabase
-      .from('partilhas')
-      .insert({
-        user_id: userId || null,
-        video_id: videoId,
-        plataforma
-      })
+    try {
+      await supabase
+        .from('partilhas')
+        .insert({
+          user_id: userId || null,
+          video_id: videoId,
+          plataforma
+        })
+    } catch (error) {
+      console.error('Erro ao registar partilha:', error)
+    }
 
-    // Lógica de compartilhamento específica da plataforma
     const url = window.location.href
     if (plataforma === 'facebook') {
       window.open(`https://facebook.com/sharer/sharer.php?u=${url}`)
@@ -155,29 +164,29 @@ export default function VideoPlayer({ videoId, userId }) {
   return (
     <div className="video-player">
       <video src={video.video_url} controls />
-      
+
       <h2>{video.title}</h2>
-      
+
       <div className="video-meta">
         <span>Visualizações: {video.views}</span>
         <span>Publicado em: {new Date(video.created_at).toLocaleDateString()}</span>
       </div>
 
       <div className="video-actions">
-        <button 
+        <button
           className={userInteraction?.tipo === true ? 'active' : ''}
           onClick={() => handleInteraction(true)}
         >
           👍 Like ({likes})
         </button>
-        
-        <button 
+
+        <button
           className={userInteraction?.tipo === false ? 'active' : ''}
           onClick={() => handleInteraction(false)}
         >
           👎 Dislike ({dislikes})
         </button>
-        
+
         <div className="share-buttons">
           <button onClick={() => handleShare('facebook')}>📘 Facebook</button>
           <button onClick={() => handleShare('twitter')}>🐦 Twitter</button>
