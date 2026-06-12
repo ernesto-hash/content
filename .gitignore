@@ -65,4 +65,5 @@ images/
 # 🔥 SENSITIVE FILES
 databasepassword.txt
 *password*.txt
-*secret*.txt
+*secret*.txttools/fill-descriptions-log.json
+supabase/.temp/
