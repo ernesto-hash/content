@@ -11,6 +11,20 @@ interface MetaOptions {
 const DEFAULT_DESC =
   "Assiste a vídeos porno grátis em HD, conteúdo amador, clipes XXX caseiros e as melhores modelos. Novo conteúdo todos os dias no SuckOrSex.";
 
+const DOMAIN = "https://suckorsex.com";
+
+function buildCanonical(url?: string): string {
+  const raw = url ?? window.location.pathname;
+  let pathname: string;
+  try {
+    pathname = new URL(raw, DOMAIN).pathname;
+  } catch {
+    pathname = raw.startsWith("/") ? raw : "/" + raw;
+  }
+  if (pathname !== "/") pathname = pathname.replace(/\/+$/, "");
+  return DOMAIN + pathname;
+}
+
 function setMeta(attr: string, value: string, content: string) {
   const selector = `meta[${attr}="${value}"]`;
   let el = document.querySelector<HTMLMetaElement>(selector);
@@ -44,7 +58,7 @@ export function useDocumentTitle({
   url,
 }: MetaOptions) {
   useEffect(() => {
-    const pageUrl = url ?? window.location.href;
+    const pageUrl = buildCanonical(url);
     const desc = description ?? DEFAULT_DESC;
 
     document.title = title;
