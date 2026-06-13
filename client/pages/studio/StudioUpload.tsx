@@ -13,7 +13,7 @@ import {
   Camera, Film, Users, User, Gamepad2, Tv, Drama,
   Headphones, Monitor, Maximize2, Radio, Zap, Podcast,
   ChevronDown, ChevronUp, X, Plus, Trash2, Check,
-  PackageOpen, Sparkles,
+  PackageOpen, Sparkles, MapPin,
 } from "lucide-react";
 import StudioLayout from "@/components/studio/StudioLayout";
 import { VideoVisibility } from "@/components/studio/VideoForm";
@@ -47,6 +47,8 @@ type VideoSlot = {
   uploadMsg:               string | null;
   publishedId:             string | null;
   collapsed:               boolean;
+  countryIds:              string[];
+  extraCategoryIds:        string[];
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -81,22 +83,22 @@ const CATEGORY_GROUPS = [
       { id: "podcasts", label: "Podcasts Eróticos", icon: <Podcast   size={13} /> },
     ],
   },
-  {
-    group: "País", accent: "text-yellow-400",
-    items: [
-      { id: "angola",   label: "Angola",         icon: <span className="text-xs">🇦🇴</span> },
-      { id: "brasil",   label: "Brasil",         icon: <span className="text-xs">🇧🇷</span> },
-      { id: "eua",      label: "Estados Unidos", icon: <span className="text-xs">🇺🇸</span> },
-      { id: "japao",    label: "Japão",          icon: <span className="text-xs">🇯🇵</span> },
-      { id: "italia",   label: "Itália",         icon: <span className="text-xs">🇮🇹</span> },
-      { id: "franca",   label: "França",         icon: <span className="text-xs">🇫🇷</span> },
-      { id: "espanha",  label: "Espanha",        icon: <span className="text-xs">🇪🇸</span> },
-      { id: "alemanha", label: "Alemanha",       icon: <span className="text-xs">🇩🇪</span> },
-    ],
-  },
 ];
 
 const ALL_CATS = CATEGORY_GROUPS.flatMap(g => g.items);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tipos para dados carregados da BD
+// ─────────────────────────────────────────────────────────────────────────────
+type Country  = { id: string; slug: string; name: string; flag: string };
+type Category = { id: string; slug: string; name: string; type: string };
+
+// Converte código ISO 3166-1 alpha-2 (ex: "PT") em emoji de bandeira (ex: "🇵🇹")
+function flagEmoji(code: string): string {
+  return [...code.toUpperCase()].map(c =>
+    String.fromCodePoint(c.charCodeAt(0) + 127397)
+  ).join("");
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -130,6 +132,8 @@ function makeSlot(file?: File): VideoSlot {
     uploadMsg:               null,
     publishedId:             null,
     collapsed:               false,
+    countryIds:              [],
+    extraCategoryIds:        [],
   };
 }
 
@@ -306,13 +310,88 @@ function VisibilityPicker({ value, onChange, disabled }: {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// CountryMultiPicker — chips de país carregados da BD
+// ─────────────────────────────────────────────────────────────────────────────
+function CountryMultiPicker({ value, onChange, countries, disabled }: {
+  value: string[];
+  onChange: (ids: string[]) => void;
+  countries: Country[];
+  disabled?: boolean;
+}) {
+  if (!countries.length) return null;
+  const toggle = (id: string) =>
+    onChange(value.includes(id) ? value.filter(x => x !== id) : [...value, id]);
+  return (
+    <div>
+      <label className="text-[11px] font-semibold text-foreground/55 flex items-center gap-1 mb-1.5">
+        <MapPin size={11} /> País <span className="text-foreground/30 font-normal ml-1">(opcional)</span>
+      </label>
+      <div className="flex flex-wrap gap-1.5">
+        {countries.map(c => {
+          const active = value.includes(c.id);
+          return (
+            <button key={c.id} type="button" disabled={disabled} onClick={() => toggle(c.id)}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition-all disabled:opacity-50 ${
+                active
+                  ? "bg-neon-pink/15 border-neon-pink/40 text-neon-pink"
+                  : "bg-white/4 border-white/10 text-foreground/45 hover:border-white/20 hover:text-foreground/70"
+              }`}>
+              <span>{flagEmoji(c.flag)}</span>
+              <span>{c.name}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CategoryMultiPicker — categorias extra carregadas da BD
+// ─────────────────────────────────────────────────────────────────────────────
+function CategoryMultiPicker({ value, onChange, categories, disabled }: {
+  value: string[];
+  onChange: (ids: string[]) => void;
+  categories: Category[];
+  disabled?: boolean;
+}) {
+  if (!categories.length) return null;
+  const toggle = (id: string) =>
+    onChange(value.includes(id) ? value.filter(x => x !== id) : [...value, id]);
+  return (
+    <div>
+      <label className="text-[11px] font-semibold text-foreground/55 flex items-center gap-1 mb-1.5">
+        <Layers size={11} /> Categorias adicionais <span className="text-foreground/30 font-normal ml-1">(opcional)</span>
+      </label>
+      <div className="flex flex-wrap gap-1.5">
+        {categories.map(c => {
+          const active = value.includes(c.id);
+          return (
+            <button key={c.id} type="button" disabled={disabled} onClick={() => toggle(c.id)}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-xs font-medium transition-all disabled:opacity-50 ${
+                active
+                  ? "bg-neon-purple/15 border-neon-purple/40 text-neon-purple"
+                  : "bg-white/4 border-white/10 text-foreground/45 hover:border-white/20 hover:text-foreground/70"
+              }`}>
+              <span>{c.name}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // VideoSlotForm — formulário individual de cada vídeo
 // ─────────────────────────────────────────────────────────────────────────────
-function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
+function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled, countries, contentCategories }: {
   slot: VideoSlot; index: number;
   onUpdate: (id: string, p: Partial<VideoSlot>) => void;
   onRemove: (id: string) => void;
   disabled: boolean;
+  countries: Country[];
+  contentCategories: Category[];
 }) {
   const { t } = useTranslation();
   const inp = "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-neon-pink/40 focus:bg-white/7 transition-all disabled:opacity-50";
@@ -572,6 +651,22 @@ function VideoSlotForm({ slot, index, onUpdate, onRemove, disabled }: {
                   onChange={v => onUpdate(slot.id, { visibility: v })}
                   disabled={isDisabled} />
               </div>
+
+              {/* País (multi-select, BD) */}
+              <CountryMultiPicker
+                value={slot.countryIds}
+                onChange={ids => onUpdate(slot.id, { countryIds: ids })}
+                countries={countries}
+                disabled={isDisabled}
+              />
+
+              {/* Categorias adicionais (multi-select, BD) */}
+              <CategoryMultiPicker
+                value={slot.extraCategoryIds}
+                onChange={ids => onUpdate(slot.id, { extraCategoryIds: ids })}
+                categories={contentCategories}
+                disabled={isDisabled}
+              />
             </div>
           </div>
         </div>
@@ -606,6 +701,21 @@ export default function StudioUpload() {
   const [dragging, setDragging]   = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [globalMsg, setGlobalMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  const [dbCountries,         setDbCountries]         = useState<Country[]>([]);
+  const [dbContentCategories, setDbContentCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    supabase.from("countries")
+      .select("id, slug, name, flag")
+      .order("name")
+      .then(({ data }) => { if (data) setDbCountries(data as Country[]); });
+
+    supabase.from("categories")
+      .select("id, slug, name, type")
+      .order("name")
+      .then(({ data }) => { if (data) setDbContentCategories(data as Category[]); });
+  }, []);
 
   // Contagens
   const total      = slots.length;
@@ -728,7 +838,25 @@ export default function StudioUpload() {
 
           if (dbError) throw new Error(dbError.message ?? "Erro ao guardar vídeo.");
 
-          updateSlot(slot.id, { status: "done", progress: 100, publishedId: videoRecord?.id ?? null, collapsed: true });
+          const videoId = videoRecord.id;
+
+          // Associar países — não-fatal (vídeo já está publicado)
+          if (slot.countryIds.length > 0) {
+            const { error: countriesErr } = await supabase
+              .from("video_countries")
+              .insert(slot.countryIds.map(country_id => ({ video_id: videoId, country_id })));
+            if (countriesErr) console.warn("[StudioUpload] Falha ao associar países:", countriesErr.message);
+          }
+
+          // Associar categorias extra — não-fatal
+          if (slot.extraCategoryIds.length > 0) {
+            const { error: catErr } = await supabase
+              .from("video_categories")
+              .insert(slot.extraCategoryIds.map(category_id => ({ video_id: videoId, category_id })));
+            if (catErr) console.warn("[StudioUpload] Falha ao associar categorias:", catErr.message);
+          }
+
+          updateSlot(slot.id, { status: "done", progress: 100, publishedId: videoId, collapsed: true });
         } catch (err: any) {
           localErrCount++;
           updateSlot(slot.id, { status: "error", progress: 0, errorMsg: err?.message || "Erro desconhecido." });
@@ -859,7 +987,9 @@ export default function StudioUpload() {
             {slots.map((slot, i) => (
               <VideoSlotForm key={slot.id} slot={slot} index={i}
                 onUpdate={updateSlot} onRemove={removeSlot}
-                disabled={publishing} />
+                disabled={publishing}
+                countries={dbCountries}
+                contentCategories={dbContentCategories} />
             ))}
           </div>
         )}
