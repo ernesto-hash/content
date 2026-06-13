@@ -8,12 +8,13 @@ import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "fs";
 import { join } from "path";
 
-const DOMAIN    = "https://suckorsex.com";
-const SITE_NAME = "SuckOrSex";
+const DOMAIN         = "https://suckorsex.com";
+const SITE_NAME      = "SuckOrSex";
 const FALLBACK_THUMB = `${DOMAIN}/favicon.jpg`;
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 type VideoRow = {
+  id:            string;
   title:         string | null;
   description:   string | null;
   thumbnail_url: string | null;
@@ -22,7 +23,7 @@ type VideoRow = {
   created_at:    string;
   views:         number;
   slug:          string | null;
-  profiles:      { full_name: string | null; username: string | null } | null;
+  user_id:       string;
 };
 
 // ─── Utilitários ──────────────────────────────────────────────────────────────
@@ -38,7 +39,7 @@ function isValidThumbnail(url: string | null | undefined): url is string {
   return (
     typeof url === "string" &&
     url.startsWith("https://") &&
-    !url.includes("?token=")   // rejeita signed URLs expiráveis do Supabase Storage
+    !url.includes("?token=")  // rejeita signed URLs expiráveis do Supabase Storage
   );
 }
 
@@ -48,54 +49,67 @@ function isoDuration(seconds: number): string {
   return `PT${m}M${s}S`;
 }
 
-// ─── index.html cacheado por instância Lambda ──────────────────────────────
-let cachedIndex: string | null = null;
+// Cache do index.html lido do filesystem (por instância Lambda)
+let fsIndexCache: string | null = null;
 
-function getIndexHtml(): string {
-  if (cachedIndex) return cachedIndex;
-  // dist/index.html é incluído na Lambda via "includeFiles" em vercel.json
-  cachedIndex = readFileSync(join(process.cwd(), "dist", "index.html"), "utf-8");
-  return cachedIndex;
-}
-
-// ─── Fallback: serve o index.html original sem enriquecimento ─────────────
-function serveFallback(res: VercelResponse): void {
+// ─── [A] Fallback: devolve o index.html REAL do CDN ─────────────────────────
+// Chamado em QUALQUER erro. O utilizador nunca vê uma página sem scripts.
+// 1.º tenta buscar o index.html ao CDN (tem todos os assets)
+// 2.º se o CDN também falhar (site em baixo), redireciona para a raiz
+async function serveFallback(res: VercelResponse): Promise<void> {
   try {
-    const html = getIndexHtml();
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.setHeader("Cache-Control", "no-store");
-    res.status(200).send(html);
+    const cdnRes = await fetch(`${DOMAIN}/index.html`, {
+      signal: AbortSignal.timeout(4000),
+      headers: { "User-Agent": "SuckOrSex-SEO/1.0 (fallback)" },
+    });
+    if (cdnRes.ok) {
+      const html = await cdnRes.text();
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("Cache-Control", "no-store");
+      res.status(200).send(html);
+      return;
+    }
   } catch {
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.status(200).send(
-      '<!doctype html><html lang="pt"><body><div id="root"></div></body></html>'
-    );
+    // CDN também inacessível (site em baixo, DNS, timeout)
   }
+  // Último recurso absoluto: redireciona para a raiz (CDN serve o index.html)
+  res.setHeader("Location", DOMAIN);
+  res.status(302).send("");
 }
 
-// ─── Construção do HTML enriquecido ──────────────────────────────────────────
-function buildEnrichedHtml(video: VideoRow, slug: string): string {
-  const base = getIndexHtml();
+// ─── Constrói o HTML enriquecido (caminho feliz) ──────────────────────────────
+// Lê dist/index.html do filesystem. Se não estiver disponível na Lambda,
+// lança — e o try/catch externo apanha e chama serveFallback.
+function buildEnrichedHtml(
+  video:       VideoRow,
+  slug:        string,
+  creatorName: string | null,
+): string {
+  if (!fsIndexCache) {
+    // includeFiles em vercel.json tenta disponibilizar este ficheiro na Lambda.
+    // Se falhar, esta linha lança ENOENT — apanhado pelo try/catch do handler.
+    fsIndexCache = readFileSync(join(process.cwd(), "dist", "index.html"), "utf-8");
+  }
+  const base = fsIndexCache;
 
   const title       = (video.title ?? "").trim() || "Vídeo";
   const rawDesc     = (video.description ?? "").trim();
-  const description = rawDesc || `Assiste a "${title}" em HD no ${SITE_NAME}. Novo conteúdo adulto todos os dias.`;
+  const description = rawDesc
+    || `Assiste a "${title}" em HD no ${SITE_NAME}. Novo conteúdo adulto todos os dias.`;
   const metaDesc    = description.length > 155 ? description.slice(0, 152) + "..." : description;
   const pageTitle   = `${title} — ${SITE_NAME}`;
   const canonical   = `${DOMAIN}/video/${slug}`;
   const thumbUrl    = isValidThumbnail(video.thumbnail_url) ? video.thumbnail_url : FALLBACK_THUMB;
-  const creator     = video.profiles?.full_name || video.profiles?.username || null;
 
-  // JSON-LD VideoObject — <script type="application/ld+json"> está fora
-  // do âmbito do CSP script-src por spec (não é JavaScript executável)
+  // JSON-LD VideoObject
   const jsonLd: Record<string, unknown> = {
-    "@context":  "https://schema.org",
-    "@type":     "VideoObject",
-    name:         title,
-    description:  description.slice(0, 300),
-    thumbnailUrl: thumbUrl,
-    uploadDate:   video.created_at.slice(0, 10),
-    publisher:    { "@type": "Organization", name: SITE_NAME, url: DOMAIN },
+    "@context":   "https://schema.org",
+    "@type":      "VideoObject",
+    name:          title,
+    description:   description.slice(0, 300),
+    thumbnailUrl:  thumbUrl,
+    uploadDate:    video.created_at.slice(0, 10),
+    publisher:     { "@type": "Organization", name: SITE_NAME, url: DOMAIN },
   };
   if (video.video_url?.startsWith("https://")) jsonLd.contentUrl = video.video_url;
   if (video.duration) jsonLd.duration = isoDuration(video.duration);
@@ -104,9 +118,8 @@ function buildEnrichedHtml(video: VideoRow, slug: string): string {
     interactionType:      { "@type": "WatchAction" },
     userInteractionCount: video.views,
   };
-  if (creator) jsonLd.author = { "@type": "Person", name: creator };
+  if (creatorName) jsonLd.author = { "@type": "Person", name: creatorName };
 
-  // Bloco de tags a injetar antes de </head>
   const headBlock = `
   <!-- video-seo prerender -->
   <link rel="canonical"           href="${esc(canonical)}" />
@@ -122,10 +135,8 @@ function buildEnrichedHtml(video: VideoRow, slug: string): string {
   <meta name="twitter:image"       content="${esc(thumbUrl)}" />
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`;
 
-  // Conteúdo semântico dentro de #root para o crawler.
-  // O React substitui tudo em #root ao montar — utilizadores humanos nunca vêem isto.
-  const creatorLine = creator
-    ? `\n    <p>Por <span itemprop="author">${esc(creator)}</span></p>`
+  const creatorLine = creatorName
+    ? `\n    <p>Por <span itemprop="author">${esc(creatorName)}</span></p>`
     : "";
   const botContent = `<article itemscope itemtype="https://schema.org/VideoObject">
     <h1 itemprop="name">${esc(title)}</h1>
@@ -133,68 +144,74 @@ function buildEnrichedHtml(video: VideoRow, slug: string): string {
   </article>`;
 
   let html = base;
-
-  // 1. Substituir <title>
-  html = html.replace(
-    /<title>[^<]*<\/title>/,
-    `<title>${esc(pageTitle)}</title>`
-  );
-
-  // 2. Substituir meta description (regex tolera variações de espaços)
+  html = html.replace(/<title>[^<]*<\/title>/, `<title>${esc(pageTitle)}</title>`);
   html = html.replace(
     /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/,
-    `<meta name="description" content="${esc(metaDesc)}" />`
+    `<meta name="description" content="${esc(metaDesc)}" />`,
   );
-
-  // 3. Injetar OG + JSON-LD antes de </head>
   html = html.replace("</head>", `${headBlock}\n  </head>`);
-
-  // 4. Enriquecer #root com conteúdo para o crawler
-  html = html.replace(
-    '<div id="root"></div>',
-    `<div id="root">${botContent}</div>`
-  );
+  html = html.replace('<div id="root"></div>', `<div id="root">${botContent}</div>`);
 
   return html;
 }
 
-// ─── Handler principal ────────────────────────────────────────────────────────
+// ─── [B] Handler principal — TODO dentro de um único try/catch ───────────────
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const { slug } = req.query;
-  const slugParam = Array.isArray(slug) ? slug[0] : (slug ?? "");
-
-  const supabaseUrl    = process.env.SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!slugParam || !supabaseUrl || !serviceRoleKey) {
-    return serveFallback(res);
-  }
-
-  const supabase = createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false },
-  });
-
-  const { data: video, error } = await supabase
-    .from("videos")
-    .select(
-      "title, description, thumbnail_url, video_url, duration, created_at, views, slug, profiles!user_id(full_name, username)"
-    )
-    .eq("slug", slugParam)
-    .eq("status", "published")
-    .eq("visibility", "public")
-    .single<VideoRow>();
-
-  if (error || !video) {
-    // Slug desconhecido ou vídeo privado → React trata o 404 no cliente
-    return serveFallback(res);
-  }
-
   try {
-    const enrichedHtml = buildEnrichedHtml(video, slugParam);
+    const { slug } = req.query;
+    const slugParam = Array.isArray(slug) ? slug[0] : (slug ?? "");
+
+    const supabaseUrl    = process.env.SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!slugParam || !supabaseUrl || !serviceRoleKey) {
+      return await serveFallback(res);
+    }
+
+    // createClient está dentro do try/catch — se lançar, vai para serveFallback
+    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false },
+    });
+
+    // [C] Query sem profiles!user_id — apenas colunas escalares
+    const { data: video, error: videoError } = await supabase
+      .from("videos")
+      .select(
+        "id, title, description, thumbnail_url, video_url, duration, created_at, views, slug, user_id",
+      )
+      .eq("slug", slugParam)
+      .eq("status", "published")
+      .eq("visibility", "public")
+      .single();
+
+    if (videoError || !video) {
+      // Slug inválido ou vídeo privado — SPA trata o 404 no cliente
+      return await serveFallback(res);
+    }
+
+    // [C] Query separada ao criador — igual a Video.tsx linha 520
+    // Erro ignorado intencionalmente: autor é campo opcional no JSON-LD
+    let creatorName: string | null = null;
+    if (video.user_id) {
+      const { data: profile } = await supabase
+        .from("profiles_public")
+        .select("full_name, username")
+        .eq("id", video.user_id)
+        .single();
+      creatorName = profile?.full_name || profile?.username || null;
+    }
+
+    const enrichedHtml = buildEnrichedHtml(video as VideoRow, slugParam, creatorName);
+
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Cache-Control", "public, max-age=3600, stale-while-revalidate=86400");
     return res.status(200).send(enrichedHtml);
+
   } catch {
-    return serveFallback(res);
+    // Apanha TUDO o que não foi tratado acima:
+    // createClient, readFileSync (ENOENT), qualquer await que lance,
+    // erros de string replace, etc.
+    // O utilizador recebe SEMPRE a página real do CDN.
+    return await serveFallback(res);
   }
 }
