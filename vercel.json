@@ -1,10 +1,16 @@
 {
+  "functions": {
+    "api/video-seo.ts": {
+      "includeFiles": "dist/index.html"
+    }
+  },
   "routes": [
     { "src": "/sitemap-index.xml", "dest": "/api/sitemap-index" },
     { "src": "/sitemap-videos.xml", "dest": "/api/sitemap-videos" },
     { "src": "/video/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})", "dest": "/api/video-redirect?id=$1" },
     { "src": "/modelo/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})", "dest": "/api/modelo-redirect?id=$1" },
     { "src": "/short/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})", "dest": "/api/short-redirect?id=$1" },
+    { "src": "/video/([^/]+)", "dest": "/api/video-seo?slug=$1" },
     { "handle": "filesystem" },
     { "src": "/.*", "dest": "/index.html" }
   ],
