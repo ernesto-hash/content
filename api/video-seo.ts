@@ -33,7 +33,7 @@ function esc(str: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function isValidThumbnail(url: string | null | undefined): url is string {
+function isPublicUrl(url: string | null | undefined): url is string {
   return (
     typeof url === "string" &&
     url.startsWith("https://") &&
@@ -96,7 +96,7 @@ async function buildEnrichedHtml(
   const metaDesc    = description.length > 155 ? description.slice(0, 152) + "..." : description;
   const pageTitle   = `${title} — ${SITE_NAME}`;
   const canonical   = `${DOMAIN}/video/${slug}`;
-  const thumbUrl    = isValidThumbnail(video.thumbnail_url) ? video.thumbnail_url : FALLBACK_THUMB;
+  const thumbUrl    = isPublicUrl(video.thumbnail_url) ? video.thumbnail_url : FALLBACK_THUMB;
 
   // JSON-LD VideoObject
   const jsonLd: Record<string, unknown> = {
@@ -108,7 +108,7 @@ async function buildEnrichedHtml(
     uploadDate:    video.created_at.slice(0, 10),
     publisher:     { "@type": "Organization", name: SITE_NAME, url: DOMAIN },
   };
-  if (video.video_url?.startsWith("https://")) jsonLd.contentUrl = video.video_url;
+  if (isPublicUrl(video.video_url)) jsonLd.contentUrl = video.video_url;
   if (video.duration) jsonLd.duration = isoDuration(video.duration);
   if (video.views)    jsonLd.interactionStatistic = {
     "@type":              "InteractionCounter",
