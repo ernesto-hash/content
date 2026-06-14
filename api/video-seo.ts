@@ -5,8 +5,6 @@
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
-import { readFileSync } from "fs";
-import { join } from "path";
 
 const DOMAIN         = "https://suckorsex.com";
 const SITE_NAME      = "SuckOrSex";
@@ -49,48 +47,47 @@ function isoDuration(seconds: number): string {
   return `PT${m}M${s}S`;
 }
 
-// Cache do index.html lido do filesystem (por instância Lambda)
-let fsIndexCache: string | null = null;
+// Cache do index.html obtido do CDN (por instância Lambda — invalidado a cada deploy)
+let indexHtmlCache: string | null = null;
 
-// ─── [A] Fallback: devolve o index.html REAL do CDN ─────────────────────────
+// Obtém o index.html do CDN próprio, com cache por instância Lambda.
+// Lança se o CDN não responder — o try/catch do handler apanha e faz 302.
+async function fetchIndexHtml(): Promise<string> {
+  if (indexHtmlCache) return indexHtmlCache;
+  const r = await fetch(`${DOMAIN}/index.html`, {
+    signal: AbortSignal.timeout(4000),
+    headers: { "User-Agent": "SuckOrSex-SEO/1.0" },
+  });
+  if (!r.ok) throw new Error(`CDN index.html devolveu HTTP ${r.status}`);
+  indexHtmlCache = await r.text();
+  return indexHtmlCache;
+}
+
+// ─── [A] Fallback: devolve o index.html do CDN sem enriquecimento ────────────
 // Chamado em QUALQUER erro. O utilizador nunca vê uma página sem scripts.
-// 1.º tenta buscar o index.html ao CDN (tem todos os assets)
-// 2.º se o CDN também falhar (site em baixo), redireciona para a raiz
 async function serveFallback(res: VercelResponse): Promise<void> {
   try {
-    const cdnRes = await fetch(`${DOMAIN}/index.html`, {
-      signal: AbortSignal.timeout(4000),
-      headers: { "User-Agent": "SuckOrSex-SEO/1.0 (fallback)" },
-    });
-    if (cdnRes.ok) {
-      const html = await cdnRes.text();
-      res.setHeader("Content-Type", "text/html; charset=utf-8");
-      res.setHeader("Cache-Control", "no-store");
-      res.status(200).send(html);
-      return;
-    }
+    const html = await fetchIndexHtml();
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "no-store");
+    res.status(200).send(html);
   } catch {
-    // CDN também inacessível (site em baixo, DNS, timeout)
+    // CDN também inacessível (site em baixo, DNS, timeout) — último recurso
+    res.setHeader("Location", DOMAIN);
+    res.status(302).send("");
   }
-  // Último recurso absoluto: redireciona para a raiz (CDN serve o index.html)
-  res.setHeader("Location", DOMAIN);
-  res.status(302).send("");
 }
 
 // ─── Constrói o HTML enriquecido (caminho feliz) ──────────────────────────────
-// Lê dist/index.html do filesystem. Se não estiver disponível na Lambda,
-// lança — e o try/catch externo apanha e chama serveFallback.
-function buildEnrichedHtml(
+// Obtém o index.html do CDN (com cache) e injeta title, meta tags e JSON-LD.
+// Os <script> e <link> do React já estão no HTML do CDN — a injeção apenas
+// acrescenta tags antes de </head> e conteúdo dentro de #root.
+async function buildEnrichedHtml(
   video:       VideoRow,
   slug:        string,
   creatorName: string | null,
-): string {
-  if (!fsIndexCache) {
-    // includeFiles em vercel.json tenta disponibilizar este ficheiro na Lambda.
-    // Se falhar, esta linha lança ENOENT — apanhado pelo try/catch do handler.
-    fsIndexCache = readFileSync(join(process.cwd(), "dist", "index.html"), "utf-8");
-  }
-  const base = fsIndexCache;
+): Promise<string> {
+  const base = await fetchIndexHtml();
 
   const title       = (video.title ?? "").trim() || "Vídeo";
   const rawDesc     = (video.description ?? "").trim();
@@ -201,7 +198,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       creatorName = profile?.full_name || profile?.username || null;
     }
 
-    const enrichedHtml = buildEnrichedHtml(video as VideoRow, slugParam, creatorName);
+    const enrichedHtml = await buildEnrichedHtml(video as VideoRow, slugParam, creatorName);
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Cache-Control", "public, max-age=3600, stale-while-revalidate=86400");

@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "api/video-seo.ts": {
-      "includeFiles": "dist/index.html"
-    }
-  },
   "routes": [
     { "src": "/sitemap-index.xml", "dest": "/api/sitemap-index" },
     { "src": "/sitemap-videos.xml", "dest": "/api/sitemap-videos" },
