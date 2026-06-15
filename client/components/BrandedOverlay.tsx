@@ -1,16 +1,19 @@
 // Overlay de marca para players de vídeo.
-// 1. INTRO: sequência REC → dispositivo → clique → zoom → wordmark, portada
-//    exactamente do intro-referencia.html. Corre uma vez por sessão.
+// 1. INTRO: sequência REC → dispositivo → clique → zoom → wordmark (portada
+//    do intro-referencia.html). Corre no mount e, quando retriggerOnRestart=true,
+//    sempre que o vídeo recomeça do início (páginas individuais, não feeds).
 // 2. MARCA DE ÁGUA: "@username · suckorsex.com" sempre visível, roda entre
 //    4 cantos a cada 4 s (CSS transition, pointer-events: none).
 // Som via Web Audio API — só toca se AudioContext já estiver running
 // (respeito automático à política de autoplay dos browsers).
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 
 interface Props {
   username?: string | null;
   showIntro?: boolean;
+  videoRef?: RefObject<HTMLVideoElement>;
+  retriggerOnRestart?: boolean;
   onDismiss?: () => void;
 }
 
@@ -21,12 +24,11 @@ const WM_SPOTS = [
   { top: "78%", left: "54%" },
 ] as const;
 
-export default function BrandedOverlay({ username, showIntro = true, onDismiss }: Props) {
+export default function BrandedOverlay({ username, showIntro = true, videoRef, retriggerOnRestart = true, onDismiss }: Props) {
   const introRef = useRef<HTMLDivElement>(null);
 
-  const [introGone, setIntroGone] = useState(
-    () => typeof sessionStorage !== "undefined" && !!sessionStorage.getItem("introSeen"),
-  );
+  // false = overlay visível; true = dispensado. Inicia oculto se showIntro===false.
+  const [introGone, setIntroGone] = useState(showIntro === false);
   const [spotIdx, setSpotIdx] = useState(0);
 
   // ── Audio state (all in refs — no re-renders) ─────────────────────────────
@@ -40,6 +42,7 @@ export default function BrandedOverlay({ username, showIntro = true, onDismiss }
   const timersRef  = useRef<ReturnType<typeof setTimeout>[]>([]);
   const tcTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const playingRef = useRef(false);
+  const pendingRunRef = useRef(false);
 
   // ─────────────────────────────────────────────────────────────────────────
   // ensureCtx: cria o AudioContext na primeira interação do utilizador.
@@ -71,14 +74,12 @@ export default function BrandedOverlay({ username, showIntro = true, onDismiss }
     if (!playingRef.current) return;
     playingRef.current = false;
     if (tcTimerRef.current) { clearInterval(tcTimerRef.current); tcTimerRef.current = null; }
-    sessionStorage.setItem("introSeen", "1");
     setIntroGone(true);
     onDismiss?.();
   }, [onDismiss]);
 
   // ─────────────────────────────────────────────────────────────────────────
-  // runIntro: todas as funções de síntese definidas localmente (igual ao
-  // IIFE de referência). Só é chamada uma vez no mount.
+  // runIntro: síntese de áudio e animação (portada do IIFE de referência).
   // ─────────────────────────────────────────────────────────────────────────
   const runIntro = useCallback(() => {
     const intro = introRef.current;
@@ -354,9 +355,43 @@ export default function BrandedOverlay({ username, showIntro = true, onDismiss }
     T(endIntro, 5000);
   }, [ensureCtx, endIntro]);
 
-  // ── Mount: executa intro se não foi vista nesta sessão ────────────────────
+  // ── Mount ─────────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (showIntro && !introGone) runIntro();
+    if (showIntro) runIntro();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Re-trigger: corre runIntro após setIntroGone(false) via triggerIntro ──
+  useEffect(() => {
+    if (!introGone && pendingRunRef.current) {
+      pendingRunRef.current = false;
+      runIntro();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [introGone]);
+
+  const triggerIntro = useCallback(() => {
+    if (playingRef.current) return;
+    pendingRunRef.current = true;
+    setIntroGone(false);
+  }, []);
+
+  // ── Detecção de reinício via timeupdate (só se retriggerOnRestart=true) ───
+  // prevTime > 1.5 s → currentTime < 0.3 s = salto para o início.
+  // Cobre: loop (attr loop não dispara 'play'/'ended'), seek manual, replay.
+  // Não dispara no primeiro play (prevTime começa em 0, nunca > 1.5).
+  useEffect(() => {
+    if (!retriggerOnRestart) return;
+    const video = videoRef?.current;
+    if (!video) return;
+    let prevTime = 0;
+    const onTimeUpdate = () => {
+      const cur = video.currentTime;
+      if (prevTime > 1.5 && cur < 0.3) triggerIntro();
+      prevTime = cur;
+    };
+    video.addEventListener("timeupdate", onTimeUpdate);
+    return () => video.removeEventListener("timeupdate", onTimeUpdate);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

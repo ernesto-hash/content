@@ -160,6 +160,7 @@ export default function ShortPage() {
 
           <BrandedOverlay
             username={video?.profiles?.username}
+            videoRef={videoRef}
             onDismiss={() => { videoRef.current?.play().catch(() => {}); }}
           />
           {video.video_url ? (

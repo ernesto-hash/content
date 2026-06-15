@@ -150,6 +150,7 @@ const ShortItemAuth = memo(function ShortItemAuth({
         <BrandedOverlay
           username={short.profile?.username}
           showIntro={isFirst}
+          retriggerOnRestart={false}
           onDismiss={() => { videoRef.current?.play().catch(() => {}); }}
         />
         {short.video_url ? (

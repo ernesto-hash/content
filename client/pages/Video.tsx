@@ -705,6 +705,7 @@ export default function Video() {
               >
                 <BrandedOverlay
                   username={creator?.username}
+                  videoRef={videoRef}
                   onDismiss={() => { videoRef.current?.play().catch(() => {}); }}
                 />
                 {video.video_url ? (

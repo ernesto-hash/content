@@ -690,6 +690,7 @@ export default function VideoAuthenticated() {
             >
               <BrandedOverlay
                 username={creator?.username}
+                videoRef={videoRef}
                 onDismiss={() => { videoRef.current?.play().catch(() => {}); }}
               />
               {video.video_url ? (

@@ -130,6 +130,7 @@ const ShortItem = memo(function ShortItem({
         <BrandedOverlay
           username={short.profile?.username}
           showIntro={isFirst}
+          retriggerOnRestart={false}
           onDismiss={() => { videoRef.current?.play().catch(() => {}); }}
         />
         {/* Vídeo */}
