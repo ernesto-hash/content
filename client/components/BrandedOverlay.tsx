@@ -10,6 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Props {
   username?: string | null;
+  showIntro?: boolean;
   onDismiss?: () => void;
 }
 
@@ -20,7 +21,7 @@ const WM_SPOTS = [
   { top: "78%", left: "54%" },
 ] as const;
 
-export default function BrandedOverlay({ username, onDismiss }: Props) {
+export default function BrandedOverlay({ username, showIntro = true, onDismiss }: Props) {
   const introRef = useRef<HTMLDivElement>(null);
 
   const [introGone, setIntroGone] = useState(
@@ -355,7 +356,7 @@ export default function BrandedOverlay({ username, onDismiss }: Props) {
 
   // ── Mount: executa intro se não foi vista nesta sessão ────────────────────
   useEffect(() => {
-    if (!introGone) runIntro();
+    if (showIntro && !introGone) runIntro();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

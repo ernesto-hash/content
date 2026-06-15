@@ -6,6 +6,7 @@ import {
   Heart, Share2, Play, VolumeX, Volume2,
   ArrowLeft, Loader2, User, Eye, Zap,
 } from "lucide-react";
+import BrandedOverlay from "@/components/BrandedOverlay";
 
 type ShortVideo = {
   id: string;
@@ -146,6 +147,11 @@ const ShortItemAuth = memo(function ShortItemAuth({
     >
       <div className="relative h-full w-full max-w-[420px] mx-auto overflow-hidden">
 
+        <BrandedOverlay
+          username={short.profile?.username}
+          showIntro={isFirst}
+          onDismiss={() => { videoRef.current?.play().catch(() => {}); }}
+        />
         {short.video_url ? (
           <video
             ref={videoRef}

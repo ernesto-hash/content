@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Play, VolumeX, Volume2, User, Eye, Zap, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import BrandedOverlay from "@/components/BrandedOverlay";
 
 type ShortData = {
   id: string;
@@ -157,6 +158,10 @@ export default function ShortPage() {
             />
           </div>
 
+          <BrandedOverlay
+            username={video?.profiles?.username}
+            onDismiss={() => { videoRef.current?.play().catch(() => {}); }}
+          />
           {video.video_url ? (
             <video
               ref={videoRef}
