@@ -10,6 +10,7 @@ import {
   Users, CheckCircle,
 } from "lucide-react";
 import LayoutVideo from "@/components/LayoutVideo";
+import BrandedOverlay from "@/components/BrandedOverlay";
 import { supabase } from "@/lib/supabaseClient";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { useTranslation } from "react-i18next";
@@ -702,6 +703,10 @@ export default function Video() {
                 onClick={handlePlayerClick}
                 onTouchEnd={handleVideoTouchEnd}
               >
+                <BrandedOverlay
+                  username={creator?.username}
+                  onDismiss={() => { videoRef.current?.play().catch(() => {}); }}
+                />
                 {video.video_url ? (
                   <>
                     <video
