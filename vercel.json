@@ -6,6 +6,8 @@
     { "src": "/modelo/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})", "dest": "/api/modelo-redirect?id=$1" },
     { "src": "/short/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})", "dest": "/api/short-redirect?id=$1" },
     { "src": "/video/([^/]+)", "dest": "/api/video-seo?slug=$1" },
+    { "src": "/short/([^/]+)", "dest": "/api/short-seo?slug=$1" },
+    { "src": "/modelo/([^/]+)", "dest": "/api/modelo-seo?slug=$1" },
     { "handle": "filesystem" },
     { "src": "/.*", "dest": "/index.html" }
   ],
