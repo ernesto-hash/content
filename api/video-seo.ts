@@ -47,6 +47,15 @@ function isoDuration(seconds: number): string {
   return `PT${m}M${s}S`;
 }
 
+// Converte o created_at do Supabase (ex: "2026-05-24 13:14:59.987978+00")
+// para ISO 8601 completo com timezone, exigido pelo Google para uploadDate.
+function toISODate(raw: string): string {
+  let s = raw.replace(" ", "T");
+  s = s.replace(/([+-]\d{2})$/, "$1:00"); // +00 -> +00:00
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? raw.slice(0, 10) : d.toISOString();
+}
+
 // Cache do index.html obtido do CDN (por instância Lambda — invalidado a cada deploy)
 let indexHtmlCache: string | null = null;
 
@@ -105,7 +114,7 @@ async function buildEnrichedHtml(
     name:          title,
     description:   description.slice(0, 300),
     thumbnailUrl:  thumbUrl,
-    uploadDate:    video.created_at.slice(0, 10),
+    uploadDate:    toISODate(video.created_at),
     publisher:     { "@type": "Organization", name: SITE_NAME, url: DOMAIN },
   };
   if (isPublicUrl(video.video_url)) jsonLd.contentUrl = video.video_url;
