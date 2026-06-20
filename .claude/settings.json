@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-PSDrive C | Select-Object Used, Free, @{Name=\"Free_GB\";Expression={[math]::Round\\($_.Free/1GB,2\\)}}, @{Name=\"Used_GB\";Expression={[math]::Round\\($_.Used/1GB,2\\)}})",
+      "PowerShell(Get-PSDrive C | Select-Object @{Name=\"Free_GB\";Expression={[math]::Round\\($_.Free/1GB,2\\)}}, @{Name=\"Used_GB\";Expression={[math]::Round\\($_.Used/1GB,2\\)}})"
+    ]
+  }
+}

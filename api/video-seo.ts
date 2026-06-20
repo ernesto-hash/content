@@ -22,6 +22,7 @@ type VideoRow = {
   views:         number;
   slug:          string | null;
   user_id:       string;
+  tags:          string[] | null;
 };
 
 // ─── Utilitários ──────────────────────────────────────────────────────────────
@@ -144,9 +145,15 @@ async function buildEnrichedHtml(
   const creatorLine = creatorName
     ? `\n    <p>Por <span itemprop="author">${esc(creatorName)}</span></p>`
     : "";
+  const tagLinks = (video.tags ?? [])
+    .map((t) => `<a href="/tag/${encodeURIComponent(t)}">${esc(t)}</a>`)
+    .join(" ");
+  const tagsNav = tagLinks
+    ? `\n  <nav aria-label="tags do vídeo">${tagLinks}</nav>`
+    : "";
   const botContent = `<article itemscope itemtype="https://schema.org/VideoObject">
     <h1 itemprop="name">${esc(title)}</h1>
-    <p itemprop="description">${esc(metaDesc)}</p>${creatorLine}
+    <p itemprop="description">${esc(metaDesc)}</p>${creatorLine}${tagsNav}
   </article>`;
 
   let html = base;
@@ -183,7 +190,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { data: video, error: videoError } = await supabase
       .from("videos")
       .select(
-        "id, title, description, thumbnail_url, video_url, duration, created_at, views, slug, user_id",
+        "id, title, description, thumbnail_url, video_url, duration, created_at, views, slug, user_id, tags",
       )
       .eq("slug", slugParam)
       .eq("status", "published")

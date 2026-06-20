@@ -611,6 +611,8 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
               </h4>
               <ul className="space-y-2 text-foreground/60 text-sm">
                 <li><Link to="/" className="hover:text-neon-pink transition-colors">{t("nav.footer.links.home")}</Link></li>
+                <li><Link to="/videos" className="hover:text-neon-pink transition-colors">{t("nav.footer.links.videos", "Vídeos")}</Link></li>
+                <li><Link to="/shorts" className="hover:text-neon-pink transition-colors">Shorts</Link></li>
                 <li><Link to="/categorias" className="hover:text-neon-pink transition-colors">{t("nav.footer.links.categories")}</Link></li>
                 <li><Link to="/modelos" className="hover:text-neon-pink transition-colors">{t("nav.footer.links.models")}</Link></li>
                 <li><Link to="/galeria" className="hover:text-neon-pink transition-colors">{t("nav.footer.links.gallery")}</Link></li>
@@ -625,6 +627,26 @@ export default function Layout({ children, hideHeader = false }: LayoutProps) {
                 <li><a href="/terms" className="hover:text-neon-purple transition-colors">{t("nav.footer.links.terms")}</a></li>
                 <li><a href="/privacycookies" className="hover:text-neon-purple transition-colors">{t("nav.footer.links.cookies")}</a></li>
               </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                <span className="w-1 h-4 bg-gradient-to-b from-neon-pink to-neon-blue rounded-full" />Tags Populares
+              </h4>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  "brasileira","latina","amateur","homemade","onlyfans",
+                  "casal","solo","lesbica","anal","milf",
+                  "teen","busty","ebony","casting","português","funk",
+                ].map((tag) => (
+                  <a
+                    key={tag}
+                    href={`/tag/${encodeURIComponent(tag)}`}
+                    className="text-[11px] px-2 py-0.5 rounded-lg bg-white/[0.05] text-foreground/45 hover:text-neon-pink hover:bg-neon-pink/10 transition-colors border border-white/6"
+                  >
+                    #{tag}
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
           <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between">
