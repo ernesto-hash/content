@@ -141,14 +141,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       auth: { persistSession: false },
     });
 
-    const { data: videos, error } = await supabase
-      .from("videos")
-      .select("id, slug, title, thumbnail_url, tags")
-      .contains("tags", [decoded])
-      .eq("status", "published")
-      .eq("visibility", "public")
-      .order("views", { ascending: false })
-      .limit(48);
+    // Query Supabase e fetch do index.html em paralelo — poupa 300-800ms por cold start
+    const [queryResult] = await Promise.all([
+      supabase
+        .from("videos")
+        .select("id, slug, title, thumbnail_url, tags")
+        .contains("tags", [decoded])
+        .eq("status", "published")
+        .eq("visibility", "public")
+        .order("views", { ascending: false })
+        .limit(48),
+      fetchIndexHtml(),
+    ]);
+
+    const { data: videos, error } = queryResult;
 
     if (error || !videos || videos.length === 0) {
       return await serveFallback(res);
