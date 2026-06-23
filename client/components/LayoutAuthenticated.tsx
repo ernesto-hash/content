@@ -659,7 +659,7 @@ export default function LayoutAuthenticated({ children, hideHeader = false }: La
         )}
       </header>
 
-      <AdBanner placement="all_pages" />
+      {/* <AdBanner placement="all_pages" /> */}
       <main className="flex-1 w-full">{children}</main>
 
       <footer className="border-t border-white/10 glass mt-20">
