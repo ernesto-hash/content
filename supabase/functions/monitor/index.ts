@@ -23,17 +23,32 @@ async function sendTelegram(message: string) {
 }
 
 async function checkUptime() {
-  const start = Date.now();
-  try {
-    const res = await fetch(SITE_URL, { signal: AbortSignal.timeout(5000) });
-    const ms = Date.now() - start;
-    if (!res.ok) {
-      await sendTelegram(`⛔ SITE COM ERRO\nStatus: ${res.status}\nTempo: ${ms}ms`);
-    } else if (ms > 3000) {
-      await sendTelegram(`⚠️ SITE LENTO\nTempo de resposta: ${ms}ms`);
+  const tempos: number[] = [];
+  let falhou = false;
+
+  for (let i = 0; i < 3; i++) {
+    const start = Date.now();
+    try {
+      const res = await fetch(SITE_URL, { signal: AbortSignal.timeout(5000) });
+      tempos.push(Date.now() - start);
+      if (!res.ok) {
+        await sendTelegram(`⛔ SITE COM ERRO\nStatus: ${res.status}\nTempo: ${tempos[i]}ms`);
+        return;
+      }
+    } catch {
+      falhou = true;
+      break;
     }
-  } catch {
+  }
+
+  if (falhou) {
     await sendTelegram(`🔴 SITE OFFLINE\nhttps://suckorsex.com não responde`);
+    return;
+  }
+
+  const media = Math.round(tempos.reduce((a, b) => a + b, 0) / tempos.length);
+  if (media > 3000) {
+    await sendTelegram(`⚠️ SITE LENTO\nMédia de ${tempos.length} medições: ${media}ms`);
   }
 }
 

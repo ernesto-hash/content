@@ -110,12 +110,6 @@ function fmtRelative(iso: string, t: (key: string, opts?: Record<string, number>
   return fmtDate(iso);
 }
 
-function jaViuNestaSession(videoId: string): boolean {
-  const key = `viewed_${videoId}`;
-  if (sessionStorage.getItem(key)) return true;
-  sessionStorage.setItem(key, "1");
-  return false;
-}
 
 function isIOSDevice() {
   if (typeof window === "undefined") return false;
@@ -514,9 +508,7 @@ export default function Video() {
     }
     setVideo(vid as VideoData);
     setVideoId(vid.id);
-    if (!jaViuNestaSession(vid.id)) {
-      supabase.from("videos").update({ views: (vid.views ?? 0) + 1 }).eq("id", vid.id).then(() => {});
-    }
+    supabase.rpc("increment_video_views", { video_id: vid.id }).then(() => {});
     const [profRes, subCountRes, lCountRes, dCountRes, allVideosRes] = await Promise.all([
       supabase.from("profiles_public").select("id, username, full_name, avatar_url").eq("id", vid.user_id).single(),
       supabase.from("subscriptions").select("*", { count: "exact", head: true }).eq("creator_id", vid.user_id),
