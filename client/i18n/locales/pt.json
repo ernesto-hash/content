@@ -1600,5 +1600,12 @@
     "errorSave": "Erro ao guardar o teu perfil. Tenta novamente.",
     "errorSaveFallback": "Erro ao guardar. Tenta novamente.",
     "footerNote": "Podes alterar o teu tipo de conta mais tarde nas definições."
+  },
+
+  "maintenance": {
+    "title": "Estamos a evoluir 🔥",
+    "subtitle": "A plataforma está em manutenção enquanto preparamos algo muito maior.",
+    "body": "Estamos a melhorar a experiência, a velocidade e a qualidade de tudo o que vais ver a seguir. Volta em breve — vai valer a pena.",
+    "footer": "SuckOrSex • Voltamos já"
   }
 }

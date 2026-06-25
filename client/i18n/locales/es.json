@@ -1598,5 +1598,12 @@
     "errorSave": "Error al guardar tu perfil. Inténtalo de nuevo.",
     "errorSaveFallback": "Error al guardar. Inténtalo de nuevo.",
     "footerNote": "Puedes cambiar tu tipo de cuenta más tarde en los ajustes."
+  },
+
+  "maintenance": {
+    "title": "Estamos evolucionando 🔥",
+    "subtitle": "La plataforma está en mantenimiento mientras preparamos algo mucho más grande.",
+    "body": "Estamos mejorando la experiencia, la velocidad y la calidad de todo lo que estás a punto de ver. Vuelve pronto — va a valer la pena.",
+    "footer": "SuckOrSex • Volvemos enseguida"
   }
 }

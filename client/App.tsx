@@ -1,5 +1,6 @@
 import "./global.css";
 import "./i18n";
+import MaintenanceOverlay from "./components/MaintenanceOverlay";
 
 import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
@@ -150,6 +151,9 @@ const UploadModelVideos     = lazy(() => import("./pages/admin/UploadModelVideos
 // ── Query client ───────────────────────────────────────────────────────────────
 const queryClient = new QueryClient();
 
+// ── Maintenance mode ───────────────────────────────────────────────────────────
+const MAINTENANCE_MODE = true;
+
 /** Rota autenticada — qualquer utilizador com sessão válida */
 function Auth({ children }: { children: React.ReactNode }) {
   return <ProtectedRoute>{children}</ProtectedRoute>;
@@ -173,7 +177,9 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   );
 }
 
-const App = () => (
+const App = () => {
+  if (MAINTENANCE_MODE) return <MaintenanceOverlay />;
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -342,6 +348,7 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 createRoot(document.getElementById("root")!).render(<App />);

@@ -1598,5 +1598,12 @@
     "errorSave": "Error saving your profile. Please try again.",
     "errorSaveFallback": "Error saving. Please try again.",
     "footerNote": "You can change your account type later in settings."
+  },
+
+  "maintenance": {
+    "title": "We're leveling up 🔥",
+    "subtitle": "The platform is under maintenance while we build something much bigger.",
+    "body": "We're improving the experience, the speed, and the quality of everything you're about to see. Come back soon — it'll be worth it.",
+    "footer": "SuckOrSex • Back shortly"
   }
 }
